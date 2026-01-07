@@ -1,0 +1,54 @@
+<div class="websocket-test-container">
+  <div class="websocket-test-header">
+    <h2>WebSocket Test - Mensajes en Tiempo Real</h2>
+    <div class="connection-status">
+      <span class="status-indicator" [ngClass]="getConnectionStateClass()"></span>
+      <span class="status-text">{{ getConnectionStateText() }}</span>
+    </div>
+  </div>
+
+  <div class="websocket-test-actions">
+    <app-button 
+      type="button" 
+      variant="secondary" 
+      size="medium" 
+      (clicked)="clearMessages()"
+      ariaLabel="Limpiar mensajes">
+      Limpiar Mensajes
+    </app-button>
+  </div>
+
+  <div class="messages-container">
+    <div *ngIf="messages.length === 0" class="no-messages">
+      <p>No hay mensajes aún. Usa Postman para enviar mensajes al endpoint de testeo.</p>
+      <p class="endpoint-info">
+        <strong>Endpoint:</strong> POST /api/test/websocket/send-to-user?userEmail=TU_EMAIL
+      </p>
+    </div>
+
+    <div *ngFor="let message of messages; trackBy: trackByMessage" class="message-item">
+      <div class="message-header">
+        <span class="message-type">{{ message.type }}</span>
+        <span class="message-time">{{ formatTimestamp(message.timestamp) }}</span>
+      </div>
+      
+      <div *ngIf="message.title" class="message-title">
+        {{ message.title }}
+      </div>
+      
+      <div *ngIf="message.message" class="message-content">
+        {{ message.message }}
+      </div>
+      
+      <div *ngIf="message.appointmentId" class="message-data">
+        <strong>Appointment ID:</strong> {{ message.appointmentId }}
+      </div>
+      
+      <div *ngIf="message.data" class="message-data">
+        <strong>Datos:</strong>
+        <pre>{{ message.data | json }}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,0 +1,17 @@
+<input
+  [type]="type"
+  [id]="id"
+  [name]="name || ''"
+  [placeholder]="placeholder"
+  [value]="value"
+  [disabled]="disabled"
+  [required]="required"
+  [attr.maxlength]="maxLength"
+  [autocomplete]="autocomplete"
+  [class]="inputClasses"
+  [attr.aria-describedby]="ariaDescribedBy"
+  [attr.aria-invalid]="hasError ? 'true' : ariaInvalid"
+  [attr.aria-required]="required ? 'true' : ariaRequired"
+  (input)="onInput($event)"
+  (blur)="onBlur()">
+

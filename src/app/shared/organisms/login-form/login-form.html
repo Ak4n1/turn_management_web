@@ -1,0 +1,57 @@
+<form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form" novalidate>
+  <h2 class="form-title">Ingresar</h2>
+  <p class="form-subtitle">Ingresa tus credenciales para acceder al sistema</p>
+
+  @if (serverError) {
+    <div class="form-error-banner" role="alert" aria-live="polite">
+      {{ serverError }}
+    </div>
+  }
+
+  <app-input-group
+    label="Email"
+    labelIcon="fa-envelope"
+    type="email"
+    placeholder="ejemplo@correo.com"
+    id="email"
+    name="email"
+    [required]="true"
+    [errorMessage]="getEmailError()"
+    autocomplete="email"
+    formControlName="email">
+  </app-input-group>
+
+  <app-password-input
+    label="Contraseña"
+    labelIcon="fa-lock"
+    placeholder="Ingresa tu contraseña"
+    id="password"
+    name="password"
+    [required]="true"
+    [errorMessage]="getPasswordError()"
+    autocomplete="current-password"
+    formControlName="password">
+  </app-password-input>
+
+  <div class="forgot-password-link">
+    <a routerLink="/forgot-password" class="form-link">¿Olvidaste tu contraseña?</a>
+  </div>
+
+  <app-button
+    type="submit"
+    variant="primary"
+    size="large"
+    [disabled]="!isFormValid()"
+    [loading]="isSubmitting"
+    ariaLabel="Ingresar"
+    [attr.aria-busy]="isSubmitting"
+    class="submit-button">
+    <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+    Ingresar
+  </app-button>
+
+  <p class="form-footer">
+    ¿No tienes cuenta?
+    <a routerLink="/register" class="form-link">Regístrate</a>
+  </p>
+</form>

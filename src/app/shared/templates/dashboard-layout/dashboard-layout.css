@@ -1,0 +1,36 @@
+/* Dashboard Layout Template */
+.dashboard-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background);
+}
+
+.dashboard-layout-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.dashboard-layout-content {
+  flex: 1;
+  padding: var(--spacing-xl);
+  overflow-y: auto;
+  background-color: var(--color-background);
+}
+
+/* Mobile adjustments - Mobile First */
+@media (max-width: 768px) {
+  .dashboard-layout-body {
+    flex-direction: column;
+  }
+
+  .dashboard-layout-content {
+    padding: var(--spacing-lg) var(--spacing-md);
+  }
+
+  /* Ocultar sidebar en mobile */
+  app-sidebar {
+    display: none;
+  }
+}

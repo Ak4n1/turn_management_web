@@ -1,0 +1,9 @@
+/* ============================================
+   GLOBAL STYLES - TurnFlow
+   Importa estilos compartidos del Design System
+   ============================================ */
+
+@import './app/shared/styles/shared.css';
+/* Font Awesome */
+@import '@fortawesome/fontawesome-free/css/all.css';
+

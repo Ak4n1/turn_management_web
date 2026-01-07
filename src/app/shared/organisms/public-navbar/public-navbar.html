@@ -1,0 +1,61 @@
+<nav class="public-navbar" role="navigation" aria-label="Navegación principal">
+  <div class="navbar-container">
+    <div class="navbar-brand">
+      <a routerLink="/home" class="navbar-logo" (click)="closeMenu()">
+        <h1 class="navbar-title">TurnFlow</h1>
+      </a>
+    </div>
+    
+    <!-- Mobile menu button -->
+    <button
+      type="button"
+      class="navbar-toggle"
+      (click)="toggleMenu()"
+      [attr.aria-expanded]="isMenuOpen"
+      aria-label="Toggle navigation menu"
+      aria-controls="navbar-menu">
+      <span class="navbar-toggle-icon" [class.open]="isMenuOpen">
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
+    <!-- Desktop menu -->
+    <div class="navbar-menu" id="navbar-menu" [class.open]="isMenuOpen">
+      <app-nav-link route="/home" label="Inicio" icon="fas fa-home" (clicked)="closeMenu()"></app-nav-link>
+      <app-nav-link route="/services" label="Servicios" icon="fas fa-concierge-bell" (clicked)="closeMenu()"></app-nav-link>
+      <app-nav-link route="/about" label="Sobre Nosotros" icon="fas fa-info-circle" (clicked)="closeMenu()"></app-nav-link>
+    </div>
+    
+    <div class="navbar-actions">
+      @if (isAuthenticated) {
+        <app-button
+          variant="primary"
+          size="medium"
+          (clicked)="goToDashboard()"
+          ariaLabel="Ir al panel">
+          <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+          <span class="navbar-button-text">Ir al Panel</span>
+        </app-button>
+      } @else {
+        <app-button
+          variant="secondary"
+          size="medium"
+          (clicked)="goToLogin()"
+          ariaLabel="Ingresar">
+          <i class="fa-regular fa-user"></i>
+          <span class="navbar-button-text">Ingresar</span>
+        </app-button>
+        <app-button
+          variant="primary"
+          size="medium"
+          (clicked)="goToRegister()"
+          ariaLabel="Registrarse">
+          <i class="fas fa-user-plus" aria-hidden="true"></i>
+          <span class="navbar-button-text">Registrarse</span>
+        </app-button>
+      }
+    </div>
+  </div>
+</nav>

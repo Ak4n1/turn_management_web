@@ -1,0 +1,40 @@
+/* Home Public Page */
+.public-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background);
+}
+
+.public-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-2xl) var(--spacing-lg);
+}
+
+.home-container {
+  max-width: 800px;
+  text-align: center;
+}
+
+.home-container h1 {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.home-subtitle {
+  font-size: var(--font-size-h3);
+  color: var(--color-primary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.home-description {
+  font-size: var(--font-size-body-large);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-relaxed);
+}
+

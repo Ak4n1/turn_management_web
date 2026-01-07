@@ -1,0 +1,14 @@
+<button
+  [type]="type"
+  [class]="buttonClasses"
+  [disabled]="disabled || loading"
+  [attr.aria-label]="ariaLabel"
+  [attr.aria-busy]="loading ? 'true' : ariaBusy"
+  (click)="onClick()">
+  @if (loading) {
+    <app-spinner [size]="size === 'small' ? 'small' : size === 'large' ? 'large' : 'medium'"></app-spinner>
+  } @else {
+    <ng-content></ng-content>
+  }
+</button>
+

@@ -1,0 +1,64 @@
+/* Register Form Component - Organism */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  width: 100%;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.form-title {
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  text-align: center;
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.form-subtitle {
+  font-size: var(--font-size-body-small);
+  color: var(--color-text-secondary);
+  text-align: center;
+  margin: 0 0 var(--spacing-xl) 0;
+}
+
+.form-error-banner {
+  background-color: #FEE2E2;
+  border: 1px solid var(--color-error);
+  color: #991B1B;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  font-size: var(--font-size-body-small);
+  text-align: center;
+}
+
+.submit-button {
+  width: 100%;
+  margin-top: var(--spacing-md);
+  display: flex;
+  justify-content: center;
+}
+
+.submit-button ::ng-deep button {
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.form-footer {
+  text-align: center;
+  font-size: var(--font-size-body-small);
+  color: var(--color-text-secondary);
+  margin: var(--spacing-md) 0 0 0;
+}
+
+.form-link {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-medium);
+  margin-left: 0.25rem;
+}
+
+.form-link:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+

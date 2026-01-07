@@ -1,0 +1,19 @@
+<label
+  [for]="for"
+  class="label"
+  [attr.aria-label]="ariaLabel">
+  @if (icon) {
+    <i [class]="'fas ' + icon" aria-hidden="true"></i>
+  }
+  <ng-content></ng-content>
+  @if (required) {
+    <span 
+      class="label-required" 
+      aria-label="campo obligatorio"
+      title="Obligatorio"
+      role="tooltip">
+      *
+    </span>
+  }
+</label>
+

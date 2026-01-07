@@ -1,0 +1,22 @@
+/* ============================================
+   ANIMATIONS - TurnFlow Design System
+   Animaciones compartidas para toda la aplicación
+   ============================================ */
+
+/* Fade In Up - Animación de entrada para formularios */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Clase utilitaria para aplicar la animación */
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-out;
+}
+

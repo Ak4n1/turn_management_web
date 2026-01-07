@@ -1,0 +1,11 @@
+<a 
+  [routerLink]="route" 
+  routerLinkActive="active"
+  [routerLinkActiveOptions]="{exact: false}"
+  class="nav-link"
+  (click)="onClick()">
+  @if (icon) {
+    <i [class]="icon" aria-hidden="true"></i>
+  }
+  <span>{{ label }}</span>
+</a>

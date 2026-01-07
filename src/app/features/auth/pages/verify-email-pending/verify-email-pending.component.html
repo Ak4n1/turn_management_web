@@ -1,0 +1,88 @@
+<div class="auth-layout">
+  <main class="auth-content">
+    <div class="auth-container">
+      <div class="verification-pending-card">
+        <div class="verification-icon">
+          <i class="fas fa-envelope-circle-check"></i>
+        </div>
+        <h2 class="verification-title">Verifica tu email</h2>
+        
+        @if (showSuccessMessage) {
+          <div class="success-banner" role="alert">
+            <i class="fas fa-check-circle"></i>
+            <strong>¡Cuenta creada exitosamente!</strong>
+          </div>
+        }
+        
+        @if (fromLogin) {
+          <div class="info-banner" role="alert">
+            <i class="fas fa-info-circle"></i>
+            <strong>Tu email no está verificado</strong>
+          </div>
+        }
+        
+        <p class="verification-message">
+          @if (fromLogin) {
+            Para ingresar, primero debes verificar tu email. Hemos enviado un email de verificación a
+          } @else {
+            Hemos enviado un email de verificación a
+          }
+        </p>
+        @if (email) {
+          <p class="verification-email">
+            <strong>{{ email }}</strong>
+          </p>
+        }
+        <p class="verification-instructions">
+          Por favor, revisa tu bandeja de entrada y carpeta de spam. Haz click en el enlace del email para verificar tu cuenta.
+        </p>
+
+        @if (resendSuccess) {
+          <div class="success-message" role="alert">
+            <i class="fas fa-check-circle"></i>
+            <div class="success-message-content">
+              <strong>Se ha enviado un nuevo email de verificación a {{ email }}</strong>
+              <p class="success-instructions">Por favor, revisa tu bandeja de entrada y carpeta de spam.</p>
+            </div>
+          </div>
+        }
+
+        @if (resendError) {
+          <div class="error-message" role="alert">
+            <i class="fas fa-exclamation-circle"></i>
+            {{ resendError }}
+          </div>
+        }
+
+        <div class="verification-actions">
+          @if (email) {
+            <app-button
+              type="button"
+              variant="secondary"
+              size="medium"
+              [disabled]="isResending"
+              [loading]="isResending"
+              (clicked)="resendVerificationEmail()"
+              ariaLabel="Reenviar email de verificación">
+              <i class="fas fa-paper-plane"></i>
+              Reenviar Email
+            </app-button>
+          }
+          <app-button
+            type="button"
+            variant="primary"
+            size="medium"
+            (clicked)="goToLogin()"
+            ariaLabel="Ir a ingresar">
+            <i class="fas fa-sign-in-alt"></i>
+            Ingresar
+          </app-button>
+        </div>
+      </div>
+    </div>
+  </main>
+  <footer class="auth-footer">
+    <p class="footer-text">&copy; 2024 TurnFlow. Todos los derechos reservados.</p>
+  </footer>
+</div>
+

@@ -1,0 +1,35 @@
+/* ============================================
+   BREAKPOINTS - TurnFlow Design System
+   Basado en FRONTEND_USER_STORIES_PART4.md
+   Mobile-First Approach
+   ============================================ */
+
+:root {
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* Media Queries (Mobile-First) */
+@media (min-width: 640px) {
+  /* Small devices (tablets) */
+}
+
+@media (min-width: 768px) {
+  /* Medium devices (tablets landscape) */
+}
+
+@media (min-width: 1024px) {
+  /* Large devices (desktops) */
+}
+
+@media (min-width: 1280px) {
+  /* Extra large devices (large desktops) */
+}
+
+@media (min-width: 1536px) {
+  /* 2X Large devices (extra large desktops) */
+}
+

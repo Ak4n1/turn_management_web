@@ -1,0 +1,31 @@
+<nav class="sidebar" [class.open]="isOpen" role="navigation" aria-label="Menú lateral">
+  <!-- Mobile overlay -->
+  <div class="sidebar-overlay" (click)="closeSidebar()" [class.open]="isOpen"></div>
+  
+  <div class="sidebar-content">
+    <div class="sidebar-header">
+      <h2 class="sidebar-title">Menú</h2>
+      <button
+        type="button"
+        class="sidebar-close"
+        (click)="closeSidebar()"
+        aria-label="Cerrar menú">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </button>
+    </div>
+    <ul class="sidebar-menu">
+      @for (item of menuItems; track item.label) {
+        <li class="sidebar-menu-item">
+          <button 
+            type="button"
+            class="sidebar-button"
+            (click)="onMenuItemClick(item)"
+            [attr.aria-label]="item.label">
+            <i [class]="item.icon" aria-hidden="true"></i>
+            <span>{{ item.label }}</span>
+          </button>
+        </li>
+      }
+    </ul>
+  </div>
+</nav>

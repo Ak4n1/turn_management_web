@@ -1,0 +1,64 @@
+/* Spinner Component - Atom */
+.spinner {
+  display: inline-block;
+  position: relative;
+}
+
+.spinner-circle {
+  display: block;
+  border-style: solid;
+  border-color: currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Sizes */
+.spinner-small {
+  width: 16px;
+  height: 16px;
+}
+
+.spinner-small .spinner-circle {
+  width: 16px;
+  height: 16px;
+  border-width: 2px;
+}
+
+.spinner-medium {
+  width: 24px;
+  height: 24px;
+}
+
+.spinner-medium .spinner-circle {
+  width: 24px;
+  height: 24px;
+  border-width: 3px;
+}
+
+.spinner-large {
+  width: 32px;
+  height: 32px;
+}
+
+.spinner-large .spinner-circle {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+/* Color inheritance - toma el color del contexto */
+.spinner-circle {
+  color: inherit;
+}
+
+/* Animation */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+

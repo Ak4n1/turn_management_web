@@ -1,0 +1,32 @@
+<div class="input-group">
+  @if (label) {
+    <app-label
+      [for]="inputId"
+      [required]="required"
+      [icon]="labelIcon">
+      {{ label }}
+    </app-label>
+  }
+  <app-input
+    [type]="type"
+    [id]="inputId"
+    [name]="name || ''"
+    [placeholder]="placeholder"
+    [required]="required"
+    [hasError]="hasError"
+    [maxLength]="maxLength"
+    [autocomplete]="autocomplete"
+    [disabled]="disabled"
+    [ariaDescribedBy]="errorMessage ? errorId : undefined"
+    [ngModel]="value"
+    (ngModelChange)="onInput($event)"
+    (blur)="onBlur()">
+  </app-input>
+  @if (errorMessage) {
+    <app-error-text
+      [id]="errorId"
+      [message]="errorMessage">
+    </app-error-text>
+  }
+</div>
+

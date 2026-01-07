@@ -1,0 +1,19 @@
+.dashboard-home-container {
+  padding: var(--spacing-xl);
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.dashboard-home-container h1 {
+  font-size: var(--font-size-h1);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.dashboard-home-container p {
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+

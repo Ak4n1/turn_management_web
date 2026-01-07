@@ -1,0 +1,59 @@
+<header class="dashboard-header" role="banner">
+  <div class="dashboard-header-content">
+    <!-- Logo (left) -->
+    <div class="dashboard-header-left">
+      <!-- Sidebar toggle button for mobile -->
+      <button
+        type="button"
+        class="sidebar-toggle-mobile"
+        (click)="toggleSidebar()"
+        aria-label="Toggle sidebar menu">
+        <i class="fas fa-bars" aria-hidden="true"></i>
+      </button>
+      <h1 class="dashboard-title">TurnFlow</h1>
+    </div>
+
+    <!-- Desktop menu (center) -->
+    <div class="dashboard-header-menu" id="dashboard-menu" [class.open]="isMenuOpen">
+      <!-- Public links -->
+      <app-nav-link route="/home" label="Inicio" icon="fas fa-home" (clicked)="closeMenu()"></app-nav-link>
+      <app-nav-link route="/services" label="Servicios" icon="fas fa-concierge-bell" (clicked)="closeMenu()"></app-nav-link>
+      <app-nav-link route="/about" label="Sobre Nosotros" icon="fas fa-info-circle" (clicked)="closeMenu()"></app-nav-link>
+      
+      <!-- Sidebar menu items (only visible in mobile responsive menu) - REPETIDOS -->
+      <app-nav-link route="/dashboard-home" label="Dashboard" icon="fas fa-home" (clicked)="closeMenu()" class="sidebar-menu-item-mobile"></app-nav-link>
+      <app-nav-link route="#" label="Turnos" icon="fas fa-calendar-alt" (clicked)="closeMenu()" class="sidebar-menu-item-mobile"></app-nav-link>
+      <app-nav-link route="#" label="Clientes" icon="fas fa-users" (clicked)="closeMenu()" class="sidebar-menu-item-mobile"></app-nav-link>
+      <app-nav-link route="#" label="Configuración" icon="fas fa-cog" (clicked)="closeMenu()" class="sidebar-menu-item-mobile"></app-nav-link>
+      <app-nav-link route="#" label="Reportes" icon="fas fa-chart-bar" (clicked)="closeMenu()" class="sidebar-menu-item-mobile"></app-nav-link>
+    </div>
+
+    <!-- Right section (mobile menu button + logout) -->
+    <div class="dashboard-header-right">
+      <!-- Mobile menu button for navbar links -->
+      <button
+        type="button"
+        class="dashboard-toggle"
+        (click)="toggleMenu()"
+        [attr.aria-expanded]="isMenuOpen"
+        aria-label="Toggle navigation menu"
+        aria-controls="dashboard-menu">
+        <span class="dashboard-toggle-icon" [class.open]="isMenuOpen">
+          <span></span>
+          <span></span>
+          <span></span>
+        </span>
+      </button>
+      
+      <app-button
+        type="button"
+        variant="primary"
+        size="medium"
+        (clicked)="logout()"
+        ariaLabel="Salir">
+        <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+        <span class="dashboard-button-text">Salir</span>
+      </app-button>
+    </div>
+  </div>
+</header>

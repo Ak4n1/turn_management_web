@@ -1,0 +1,110 @@
+<div class="auth-layout">
+  <main class="auth-content">
+    <div class="auth-container">
+      <div class="verification-card">
+        @if (state === 'verifying') {
+          <div class="verification-loading">
+            <div class="spinner"></div>
+            <h2 class="verification-title">Verificando tu email...</h2>
+            <p class="verification-message">Por favor, espera mientras verificamos tu email.</p>
+          </div>
+        }
+
+        @if (state === 'success') {
+          <div class="verification-success">
+            <div class="verification-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 class="verification-title">¡Email verificado exitosamente!</h2>
+            <p class="verification-message">
+              Tu cuenta está completamente activa. Ya puedes iniciar sesión.
+            </p>
+            @if (!authStateService.isAuthenticated) {
+              <div class="verification-actions">
+                <app-button
+                  type="button"
+                  variant="primary"
+                  size="medium"
+                  (clicked)="goToLogin()"
+                  ariaLabel="Ir a iniciar sesión">
+                  <i class="fas fa-sign-in-alt"></i>
+                  Iniciar Sesión
+                </app-button>
+              </div>
+            } @else {
+              <p class="verification-redirect">Redirigiendo al panel...</p>
+            }
+          </div>
+        }
+
+        @if (state === 'already-verified') {
+          <div class="verification-info">
+            <div class="verification-icon">
+              <i class="fas fa-info-circle"></i>
+            </div>
+            <h2 class="verification-title">Tu email ya está verificado</h2>
+            <p class="verification-message">
+              Tu cuenta ya está completamente activa. Puedes iniciar sesión.
+            </p>
+            <div class="verification-actions">
+              <app-button
+                type="button"
+                variant="primary"
+                size="medium"
+                (clicked)="goToLogin()"
+                ariaLabel="Ir a iniciar sesión">
+                <i class="fas fa-sign-in-alt"></i>
+                Iniciar Sesión
+              </app-button>
+            </div>
+          </div>
+        }
+
+        @if (state === 'error') {
+          <div class="verification-error">
+            <div class="verification-icon">
+              <i class="fas fa-exclamation-circle"></i>
+            </div>
+            <h2 class="verification-title">Error al verificar email</h2>
+            <p class="verification-message">{{ errorMessage }}</p>
+            <div class="verification-actions">
+              <app-button
+                type="button"
+                variant="secondary"
+                size="medium"
+                [disabled]="isRetrying"
+                [loading]="isRetrying"
+                (clicked)="retry()"
+                ariaLabel="Reintentar verificación">
+                <i class="fas fa-redo"></i>
+                Reintentar
+              </app-button>
+              <app-button
+                type="button"
+                variant="secondary"
+                size="medium"
+                (clicked)="goToResendVerification()"
+                ariaLabel="Reenviar email de verificación">
+                <i class="fas fa-paper-plane"></i>
+                Reenviar Email de Verificación
+              </app-button>
+              <app-button
+                type="button"
+                variant="primary"
+                size="medium"
+                (clicked)="goToLogin()"
+                ariaLabel="Volver a iniciar sesión">
+                <i class="fas fa-sign-in-alt"></i>
+                Volver a Iniciar Sesión
+              </app-button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </main>
+  <footer class="auth-footer">
+    <p class="footer-text">&copy; 2024 TurnFlow. Todos los derechos reservados.</p>
+  </footer>
+</div>
+
