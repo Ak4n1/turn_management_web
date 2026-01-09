@@ -10,6 +10,8 @@
   display: flex;
   flex: 1;
   overflow: hidden;
+  position: relative;
+  margin-top: var(--header-height, 64px); /* Espacio para el header fijo */
 }
 
 .dashboard-layout-content {
@@ -17,16 +19,28 @@
   padding: var(--spacing-xl);
   overflow-y: auto;
   background-color: var(--color-background);
+  height: calc(100vh - var(--header-height, 64px)); /* Altura total menos header */
+  margin-left: 0; /* Se ajustará en desktop */
+}
+
+/* Desktop - Sidebar fijo */
+@media (min-width: 769px) {
+  .dashboard-layout-content {
+    margin-left: 250px; /* Ancho del sidebar */
+  }
 }
 
 /* Mobile adjustments - Mobile First */
 @media (max-width: 768px) {
   .dashboard-layout-body {
     flex-direction: column;
+    margin-top: var(--header-height, 56px); /* Espacio para el header fijo en mobile */
   }
 
   .dashboard-layout-content {
     padding: var(--spacing-lg) var(--spacing-md);
+    margin-left: 0;
+    height: calc(100vh - var(--header-height, 56px)); /* Altura total menos header mobile */
   }
 
   /* Ocultar sidebar en mobile */

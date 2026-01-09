@@ -1,0 +1,276 @@
+/* My Appointments Page Component */
+.my-appointments-page {
+  padding: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.page-title {
+  font-size: var(--font-size-h1, 2rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* Filtros */
+.filters-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.filter-chip {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-surface, #F8FAFC);
+  border: 1px solid var(--color-border, #E2E8F0);
+  border-radius: var(--border-radius-md, 8px);
+  color: var(--color-text-secondary, #475569);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px; /* Táctil */
+}
+
+.filter-chip:hover {
+  background-color: var(--color-primary-light, #DBEAFE);
+  border-color: var(--color-primary, #2563EB);
+  color: var(--color-primary);
+}
+
+.filter-chip.active {
+  background-color: var(--color-primary, #2563EB);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.filter-chip:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Lista de turnos */
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+/* Estados */
+.loading-state,
+.error-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.empty-state i {
+  font-size: 3rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-md);
+  opacity: 0.5;
+}
+
+/* Card de turno */
+.appointment-card {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg, 12px);
+  padding: var(--spacing-lg);
+  transition: all 0.2s ease;
+}
+
+.appointment-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-primary-light);
+}
+
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.appointment-date {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+}
+
+.appointment-date i {
+  color: var(--color-primary);
+}
+
+.appointment-time {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  color: var(--color-text-secondary);
+}
+
+.appointment-time i {
+  color: var(--color-text-secondary);
+}
+
+.duration {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  opacity: 0.7;
+}
+
+.appointment-warning {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: #FEF3C7;
+  border: 1px solid var(--color-warning, #F59E0B);
+  border-radius: var(--border-radius-md);
+  color: #92400E;
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.appointment-warning i {
+  color: var(--color-warning);
+}
+
+.appointment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.view-details-link {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-sm) var(--spacing-md);
+  transition: color 0.2s ease;
+}
+
+.view-details-link:hover {
+  color: var(--color-primary-dark);
+  text-decoration: underline;
+}
+
+/* Action buttons */
+.action-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--border-radius-md, 8px);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  min-height: 44px; /* Táctil */
+}
+
+.action-button.primary {
+  background-color: var(--color-primary, #2563EB);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+.action-button.primary:hover {
+  background-color: var(--color-primary-dark, #1E40AF);
+}
+
+.action-button.secondary {
+  background-color: var(--color-surface, #F8FAFC);
+  color: var(--color-text-primary);
+  border-color: var(--color-border, #E2E8F0);
+}
+
+.action-button.secondary:hover {
+  background-color: var(--color-primary-light, #DBEAFE);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.action-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.action-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Badges de estado */
+.state-badge {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm, 4px);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+}
+
+.badge-success {
+  background-color: var(--color-success, #10B981);
+  color: white;
+}
+
+.badge-warning {
+  background-color: var(--color-warning, #F59E0B);
+  color: white;
+}
+
+.badge-info {
+  background-color: var(--color-info, #3B82F6);
+  color: white;
+}
+
+.badge-secondary {
+  background-color: var(--color-secondary, #64748B);
+  color: white;
+}
+
+.badge-error {
+  background-color: var(--color-error, #EF4444);
+  color: white;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .my-appointments-page {
+    padding: var(--spacing-md);
+  }
+
+  .appointment-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-sm);
+  }
+
+  .appointment-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .appointment-actions .action-button {
+    width: 100%;
+  }
+}
+

@@ -18,6 +18,7 @@
   --color-error: #EF4444;
   --color-warning: #F59E0B;
   --color-info: #3B82F6;
+  --color-info-light: #DBEAFE; /* Azul claro para backgrounds de info */
 
   /* Colores Neutros */
   --color-background: #FFFFFF;
@@ -30,5 +31,50 @@
   /* Colores de Accesibilidad */
   --color-focus-ring: rgba(37, 99, 235, 0.2);
   --color-overlay: rgba(0, 0, 0, 0.5);
+  --color-shadow: rgba(0, 0, 0, 0.1); /* Sombra sutil para hover y elevación */
+
+  /* Colores del Calendario - Basados en FRONTEND_USER_STORIES_PART2.md */
+  /* Disponible / OPEN */
+  --calendar-day-available: #D1FAE5; /* Verde claro (corregido de #DBEAFE que era azul) */
+  --calendar-day-available-text: #065F46;
+  --calendar-day-available-border: #10B981;
+
+  /* No laborable / CLOSED */
+  --calendar-day-unavailable: #E2E8F0; /* Gris */
+  --calendar-day-unavailable-text: #64748B;
+  --calendar-day-unavailable-border: #CBD5E1;
+
+  /* Parcial / PARTIAL */
+  --calendar-day-partial: #FEF3C7; /* Amarillo claro */
+  --calendar-day-partial-text: #92400E;
+  --calendar-day-partial-border: #F59E0B;
+
+  /* Bloqueado / BLOCKED */
+  --calendar-day-blocked: #FEE2E2; /* Rojo claro */
+  --calendar-day-blocked-text: #991B1B;
+  --calendar-day-blocked-border: #EF4444;
+
+  /* Excepción abierta */
+  --calendar-day-exception-open: #DBEAFE; /* Azul claro */
+  --calendar-day-exception-open-text: #1E40AF;
+  --calendar-day-exception-open-border: #2563EB;
+
+  /* Excepción cerrada */
+  --calendar-day-exception-closed: #CBD5E1; /* Gris oscuro */
+  --calendar-day-exception-closed-text: #475569;
+  --calendar-day-exception-closed-border: #94A3B8;
+
+  /* Cerrado pero con turnos existentes (reglas antiguas) */
+  --calendar-day-closed-with-appointments: #F3E8FF; /* Púrpura claro */
+  --calendar-day-closed-with-appointments-text: #6B21A8;
+  --calendar-day-closed-with-appointments-border: #9333EA;
+
+  /* Colores para badges y mensajes de éxito */
+  --color-success-light: #D1FAE5; /* Verde claro para backgrounds */
+  --color-success-dark: #065F46; /* Verde oscuro para texto */
+  --color-error-light: #FEE2E2; /* Rojo claro para backgrounds */
+  --color-error-dark: #991B1B; /* Rojo oscuro para texto */
+  --color-warning-light: #FEF3C7; /* Amarillo claro para backgrounds */
+  --color-warning-dark: #92400E; /* Amarillo oscuro para texto */
 }
 

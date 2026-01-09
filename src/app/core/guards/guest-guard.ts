@@ -8,7 +8,7 @@ import { AuthStateService } from '../services/auth-state';
  * Guest Guard
  * 
  * Protege rutas que solo deben ser accesibles para usuarios NO autenticados.
- * Si el usuario está autenticado, redirige a /dashboard-home.
+ * Si el usuario está autenticado, redirige a /dashboard/home.
  */
 export const guestGuard: CanActivateFn = async (route, state) => {
   const authStateService = inject(AuthStateService);
@@ -29,9 +29,9 @@ export const guestGuard: CanActivateFn = async (route, state) => {
     }
   }
 
-  // Si el usuario está autenticado, redirigir a dashboard-home
+  // Si el usuario está autenticado, redirigir a dashboard/home
   if (authStateService.isAuthenticated) {
-    router.navigate(['/dashboard-home']);
+    router.navigate(['/dashboard/home']);
     return false;
   }
 

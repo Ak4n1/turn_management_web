@@ -1,0 +1,16 @@
+<input
+  type="date"
+  [id]="id"
+  [name]="name || ''"
+  [value]="value"
+  [disabled]="disabled"
+  [required]="required"
+  [attr.min]="min"
+  [attr.max]="max"
+  [class]="inputClasses"
+  [attr.aria-describedby]="ariaDescribedBy"
+  [attr.aria-invalid]="hasError ? 'true' : ariaInvalid"
+  [attr.aria-required]="required ? 'true' : ariaRequired"
+  (input)="onInput($event)"
+  (blur)="onBlur()">
+

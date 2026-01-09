@@ -1,0 +1,174 @@
+<div class="audit-page">
+  <div class="page-header">
+    <h1 class="page-title">Auditoría y Registros</h1>
+    <p class="page-subtitle">Consulta el historial de acciones y cambios en el sistema</p>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-section">
+    <h2 class="section-title">Filtros</h2>
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label for="actionType" class="filter-label">Tipo de Acción</label>
+        <select
+          id="actionType"
+          class="filter-input"
+          [(ngModel)]="actionType"
+          [disabled]="isLoading">
+          <option value="">Todos</option>
+          @for (type of actionTypes; track type.value) {
+            <option [value]="type.value">{{ type.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="userId" class="filter-label">ID de Usuario</label>
+        <input
+          type="number"
+          id="userId"
+          class="filter-input"
+          [(ngModel)]="userId"
+          placeholder="Filtrar por usuario..."
+          [disabled]="isLoading">
+      </div>
+
+      <div class="filter-group">
+        <label for="startDate" class="filter-label">Fecha Desde</label>
+        <input
+          type="date"
+          id="startDate"
+          class="filter-input"
+          [(ngModel)]="startDate"
+          [disabled]="isLoading">
+      </div>
+
+      <div class="filter-group">
+        <label for="endDate" class="filter-label">Fecha Hasta</label>
+        <input
+          type="date"
+          id="endDate"
+          class="filter-input"
+          [(ngModel)]="endDate"
+          [disabled]="isLoading">
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <button
+        type="button"
+        class="apply-button"
+        (click)="applyFilters()"
+        [disabled]="isLoading">
+        <i class="fas fa-filter"></i>
+        Aplicar Filtros
+      </button>
+      <button
+        type="button"
+        class="clear-button"
+        (click)="clearFilters()"
+        [disabled]="isLoading">
+        <i class="fas fa-times"></i>
+        Limpiar
+      </button>
+    </div>
+  </div>
+
+  @if (error) {
+    <div class="error-message">
+      <app-error-text [message]="error"></app-error-text>
+    </div>
+  }
+
+  <!-- Lista de Logs -->
+  <div class="logs-section">
+    <div class="logs-header">
+      <h2 class="section-title">Logs de Auditoría</h2>
+      <p class="logs-count">Total: {{ totalElements }} registros</p>
+    </div>
+
+    @if (isLoading && logs.length === 0) {
+      <div class="loading-state">
+        <app-spinner></app-spinner>
+        <p>Cargando logs...</p>
+      </div>
+    } @else if (logs.length === 0) {
+      <div class="empty-state">
+        <i class="fas fa-inbox"></i>
+        <p>No se encontraron logs</p>
+      </div>
+    } @else {
+      <div class="logs-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha/Hora</th>
+              <th>Acción</th>
+              <th>Tipo</th>
+              <th>Usuario</th>
+              <th>Detalles</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (log of logs; track log.id) {
+              <tr>
+                <td>{{ formatDate(log.timestamp) }}</td>
+                <td>
+                  <span class="action-badge" [class]="'badge-' + getActionTypeColor(log.actionType)">
+                    {{ log.action }}
+                  </span>
+                </td>
+                <td>{{ getActionTypeLabel(log.actionType) }}</td>
+                <td>
+                  <div class="user-info">
+                    <span class="user-email">{{ log.userEmail }}</span>
+                    <span class="user-id">ID: {{ log.userId }}</span>
+                  </div>
+                </td>
+                <td>
+                  <div class="log-details">
+                    @if (log.appointmentId) {
+                      <span class="detail-item">Turno #{{ log.appointmentId }}</span>
+                    }
+                    @if (log.previousState && log.newState) {
+                      <span class="detail-item">{{ log.previousState }} → {{ log.newState }}</span>
+                    }
+                    @if (log.reason) {
+                      <span class="detail-item">{{ log.reason }}</span>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Paginación -->
+      @if (totalPages > 1) {
+        <div class="pagination">
+          <button
+            type="button"
+            class="page-button"
+            (click)="goToPage(page - 1)"
+            [disabled]="page === 0 || isLoading">
+            <i class="fas fa-chevron-left"></i>
+            Anterior
+          </button>
+          <span class="page-info">
+            Página {{ page + 1 }} de {{ totalPages }}
+          </span>
+          <button
+            type="button"
+            class="page-button"
+            (click)="goToPage(page + 1)"
+            [disabled]="page >= totalPages - 1 || isLoading">
+            Siguiente
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      }
+    }
+  </div>
+</div>
+

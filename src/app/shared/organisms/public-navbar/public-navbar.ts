@@ -32,7 +32,7 @@ export class PublicNavbarComponent {
 
   goToDashboard(): void {
     this.closeMenu();
-    this.router.navigate(['/dashboard-home']);
+    this.router.navigate(['/dashboard/home']);
   }
 
   goToLogin(): void {

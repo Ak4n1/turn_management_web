@@ -1,0 +1,261 @@
+<div class="admin-appointments-page">
+  <div class="page-header">
+    <h1 class="page-title">Gestión de Turnos</h1>
+    <p class="page-subtitle">Administra todos los turnos del sistema</p>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-section">
+    <div class="filters-row">
+      <!-- Búsqueda -->
+      <div class="filter-group search-group">
+        <app-label for="search">Buscar</app-label>
+        <div class="search-input-wrapper">
+          <app-input
+            type="text"
+            id="search"
+            name="search"
+            placeholder="Email, nombre..."
+            [ngModel]="searchTerm"
+            (ngModelChange)="searchTerm = $event"
+            (keyup.enter)="onSearch()"
+            autocomplete="off">
+          </app-input>
+          <app-button
+            type="button"
+            variant="primary"
+            size="medium"
+            (clicked)="onSearch()"
+            ariaLabel="Buscar">
+            <i class="fas fa-search" aria-hidden="true"></i>
+          </app-button>
+        </div>
+      </div>
+
+      <!-- Fechas -->
+      <div class="filter-group">
+        <app-label for="dateFrom">Desde</app-label>
+        <app-date-input
+          id="dateFrom"
+          name="dateFrom"
+          [ngModel]="dateFrom"
+          (ngModelChange)="dateFrom = $event; onDateFilterChange()">
+        </app-date-input>
+      </div>
+
+      <div class="filter-group">
+        <app-label for="dateTo">Hasta</app-label>
+        <app-date-input
+          id="dateTo"
+          name="dateTo"
+          [ngModel]="dateTo"
+          (ngModelChange)="dateTo = $event; onDateFilterChange()"
+          [min]="dateFrom">
+        </app-date-input>
+      </div>
+
+      <div class="filter-group clear-group">
+        <app-label style="visibility: hidden;">Limpiar</app-label>
+        <app-button
+          type="button"
+          variant="secondary"
+          size="medium"
+          (clicked)="clearFilters()">
+          Limpiar filtros
+        </app-button>
+      </div>
+    </div>
+
+    <!-- Filtros de días de la semana -->
+    <div class="filter-days-section">
+      <div class="filter-days-label">Filtrar por día:</div>
+      <div class="filter-days-buttons">
+        <button 
+          type="button"
+          class="filter-chip"
+          [class.active]="selectedDaysOfWeek.size === 0"
+          (click)="clearDaysOfWeek()">
+          Todos
+        </button>
+        @for (day of [1, 2, 3, 4, 5, 6, 7]; track day) {
+          <button 
+            type="button"
+            class="filter-chip"
+            [class.active]="isDayOfWeekSelected(day)"
+            (click)="toggleDayOfWeek(day)">
+            {{ getDayName(day) }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Filtros de estado -->
+    <div class="filter-state-section">
+      <div class="filter-state-label">Filtrar por estado:</div>
+      <div class="filter-chips">
+        <button 
+          type="button"
+          class="filter-chip"
+          [class.active]="activeFilter === 'ALL'"
+          (click)="setFilter('ALL')">
+          Todos
+        </button>
+      <button 
+        type="button"
+        class="filter-chip"
+        [class.active]="activeFilter === 'CONFIRMED'"
+        (click)="setFilter('CONFIRMED')">
+        Confirmados
+      </button>
+      <button 
+        type="button"
+        class="filter-chip"
+        [class.active]="activeFilter === 'CREATED'"
+        (click)="setFilter('CREATED')">
+        Pendientes
+      </button>
+      <button 
+        type="button"
+        class="filter-chip"
+        [class.active]="activeFilter === 'CANCELLED'"
+        (click)="setFilter('CANCELLED')">
+        Cancelados
+      </button>
+      <button 
+        type="button"
+        class="filter-chip"
+        [class.active]="activeFilter === 'COMPLETED'"
+        (click)="setFilter('COMPLETED')">
+        Completados
+      </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de turnos -->
+  <div class="appointments-section">
+    @if (isLoading) {
+      <div class="loading-state">
+        <app-spinner></app-spinner>
+        <p>Cargando turnos...</p>
+      </div>
+    } @else if (error) {
+      <div class="error-state">
+        <app-error-text [message]="error"></app-error-text>
+      </div>
+    } @else if (appointments.length === 0) {
+      <div class="empty-state">
+        <i class="fas fa-calendar-times"></i>
+        <p>No hay turnos que coincidan con los filtros seleccionados</p>
+      </div>
+    } @else {
+      <div class="appointments-list">
+        @for (appointment of appointments; track appointment.id) {
+          <div class="appointment-card">
+            <div class="appointment-header">
+              <div class="appointment-user">
+                <i class="fas fa-user"></i>
+                <div class="user-info">
+                  <span class="user-name">{{ getUserName(appointment) }}</span>
+                  <span class="user-email">{{ appointment.userEmail }}</span>
+                </div>
+              </div>
+              <span 
+                class="state-badge"
+                [class]="getStateBadgeClass(appointment.state)">
+                {{ getStateLabel(appointment.state) }}
+              </span>
+            </div>
+
+            <div class="appointment-details">
+              <div class="appointment-date">
+                <i class="fas fa-calendar-alt"></i>
+                <span>{{ formatDate(appointment.date) }}</span>
+              </div>
+              <div class="appointment-time">
+                <i class="fas fa-clock"></i>
+                <span>{{ appointment.startTime }} - {{ appointment.endTime }}</span>
+                <span class="duration">({{ appointment.durationMinutes }} min)</span>
+              </div>
+            </div>
+
+            <div class="appointment-actions">
+              <app-button
+                type="button"
+                variant="secondary"
+                size="medium"
+                (clicked)="viewDetails(appointment.id)">
+                Ver detalles
+              </app-button>
+              @if (appointment.state === 'CONFIRMED') {
+                <app-button
+                  type="button"
+                  variant="secondary"
+                  size="medium"
+                  (clicked)="rescheduleAppointment(appointment.id)">
+                  Reprogramar
+                </app-button>
+                <app-button
+                  type="button"
+                  variant="danger"
+                  size="medium"
+                  (clicked)="cancelAppointment(appointment.id)">
+                  Cancelar
+                </app-button>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Paginación -->
+      @if (totalPages > 1) {
+        <div class="pagination">
+          <app-button
+            type="button"
+            variant="secondary"
+            size="medium"
+            [disabled]="currentPage === 0"
+            (clicked)="goToPage(currentPage - 1)">
+            <i class="fas fa-chevron-left" aria-hidden="true"></i>
+            Anterior
+          </app-button>
+          <span class="pagination-info">
+            Página {{ currentPage + 1 }} de {{ totalPages }} ({{ totalElements }} turnos)
+          </span>
+          <app-button
+            type="button"
+            variant="secondary"
+            size="medium"
+            [disabled]="currentPage >= totalPages - 1"
+            (clicked)="goToPage(currentPage + 1)">
+            Siguiente
+            <i class="fas fa-chevron-right" aria-hidden="true"></i>
+          </app-button>
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Modales -->
+  <app-appointment-details-modal
+    [isOpen]="isDetailsModalOpen"
+    [appointment]="selectedAppointment"
+    (close)="onDetailsModalClose()">
+  </app-appointment-details-modal>
+
+  <app-reschedule-modal
+    [isOpen]="isRescheduleModalOpen"
+    [appointment]="selectedAppointment"
+    (close)="onRescheduleModalClose()"
+    (rescheduled)="onRescheduled($event)">
+  </app-reschedule-modal>
+
+  <app-cancel-modal
+    [isOpen]="isCancelModalOpen"
+    [appointment]="selectedAppointment"
+    (close)="onCancelModalClose()"
+    (cancelled)="onCancelled($event)">
+  </app-cancel-modal>
+</div>
+

@@ -8,6 +8,36 @@
     </div>
   }
 
+  <app-form-row>
+    <app-input-group
+      label="Nombre"
+      labelIcon="fa-user"
+      type="text"
+      placeholder="Juan"
+      id="firstName"
+      name="firstName"
+      [required]="true"
+      [errorMessage]="getFirstNameError()"
+      [maxLength]="50"
+      autocomplete="given-name"
+      formControlName="firstName">
+    </app-input-group>
+
+    <app-input-group
+      label="Apellido"
+      labelIcon="fa-user"
+      type="text"
+      placeholder="Pérez"
+      id="lastName"
+      name="lastName"
+      [required]="true"
+      [errorMessage]="getLastNameError()"
+      [maxLength]="50"
+      autocomplete="family-name"
+      formControlName="lastName">
+    </app-input-group>
+  </app-form-row>
+  
   <app-input-group
     label="Email"
     labelIcon="fa-envelope"
@@ -46,35 +76,6 @@
     formControlName="confirmPassword">
   </app-password-input>
 
-  <app-form-row>
-    <app-input-group
-      label="Nombre"
-      labelIcon="fa-user"
-      type="text"
-      placeholder="Juan"
-      id="firstName"
-      name="firstName"
-      [required]="true"
-      [errorMessage]="getFirstNameError()"
-      [maxLength]="50"
-      autocomplete="given-name"
-      formControlName="firstName">
-    </app-input-group>
-
-    <app-input-group
-      label="Apellido"
-      labelIcon="fa-user"
-      type="text"
-      placeholder="Pérez"
-      id="lastName"
-      name="lastName"
-      [required]="true"
-      [errorMessage]="getLastNameError()"
-      [maxLength]="50"
-      autocomplete="family-name"
-      formControlName="lastName">
-    </app-input-group>
-  </app-form-row>
 
   <app-button
     type="submit"

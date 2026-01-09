@@ -1,0 +1,217 @@
+<div class="affected-appointments-page">
+  <div class="page-header">
+    <div class="header-content">
+      <div>
+        <h1 class="page-title">Turnos Futuros Afectados</h1>
+        <p class="page-subtitle">Revisa y gestiona los turnos que se verán afectados por este cambio de configuración</p>
+      </div>
+      <div class="header-actions">
+        <app-button
+          type="button"
+          variant="secondary"
+          size="medium"
+          (clicked)="onCancel()">
+          <i class="fas fa-times" aria-hidden="true"></i>
+          Cancelar
+        </app-button>
+      </div>
+    </div>
+  </div>
+
+  @if (impact) {
+    <div class="affected-appointments-content">
+      <!-- Advertencia -->
+      <div class="warning-section">
+        <div class="warning-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="warning-text">
+          Se detectaron <strong>{{ impact.existingAppointmentsAffected }}</strong> turno(s) futuro(s) que se verían afectados por este cambio.
+        </div>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="stats-section">
+        <div class="stat-item">
+          <span class="stat-label">Días afectados:</span>
+          <span class="stat-value">{{ impact.affectedDays }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Slots que desaparecerían:</span>
+          <span class="stat-value">{{ impact.slotsLost }}</span>
+        </div>
+      </div>
+
+      <!-- Título de sección -->
+      <h3 class="section-title">Turnos Afectados</h3>
+
+      <!-- Lista de turnos con paginación -->
+      <div class="appointments-list">
+        @if (paginatedAppointments.length > 0) {
+          @for (appointment of paginatedAppointments; track appointment.id || appointment.date + appointment.time) {
+            <div class="appointment-item">
+              <i class="fas fa-calendar-check appointment-icon"></i>
+              <div class="appointment-content">
+                <div class="appointment-main">
+                  <span class="appointment-date">{{ formatAppointmentDate(appointment) }}</span>
+                  <span class="appointment-time">a las {{ formatAppointmentTime(appointment) }}</span>
+                </div>
+                <div class="appointment-user">
+                  <i class="fas fa-user"></i>
+                  <span>{{ getUserFullName(appointment) }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        } @else {
+          <div class="empty-message">
+            No hay turnos para mostrar en esta página.
+          </div>
+        }
+      </div>
+
+      <!-- Paginación -->
+      @if (totalPages > 1) {
+        <div class="pagination">
+          <app-button
+            type="button"
+            variant="secondary"
+            size="small"
+            [disabled]="currentPage === 0"
+            (clicked)="previousPage()">
+            <i class="fas fa-chevron-left"></i> Anterior
+          </app-button>
+
+          <div class="page-numbers">
+            @for (page of getPageNumbers(); track page) {
+              <button
+                type="button"
+                class="page-button"
+                [class.active]="page === currentPage"
+                (click)="goToPage(page)">
+                {{ page + 1 }}
+              </button>
+            }
+          </div>
+
+          <app-button
+            type="button"
+            variant="secondary"
+            size="small"
+            [disabled]="currentPage === totalPages - 1"
+            (clicked)="nextPage()">
+            Siguiente <i class="fas fa-chevron-right"></i>
+          </app-button>
+        </div>
+
+        <div class="pagination-info">
+          Página {{ currentPage + 1 }} de {{ totalPages }} ({{ impact.appointments.length }} turno(s) en total)
+        </div>
+      } @else if (impact.appointments && impact.appointments.length > 0) {
+        <div class="pagination-info">
+          Mostrando {{ impact.appointments.length }} turno(s)
+        </div>
+      }
+
+      <!-- Switch para cancelación automática -->
+      <div class="auto-cancel-section">
+        <label class="switch-label">
+          <input 
+            type="checkbox" 
+            [(ngModel)]="autoCancelAffectedAppointments"
+            class="switch-input">
+          <span class="switch-text">
+            <strong>Cancelar automáticamente los turnos afectados</strong>
+          </span>
+        </label>
+        <p class="switch-description">
+          Si está activado, todos los turnos afectados serán cancelados automáticamente y se enviará un email a los usuarios informándoles que deben volver a solicitar turnos en días hábiles.
+        </p>
+      </div>
+
+      <!-- Input de razón de cancelación (solo visible si switch está activado) -->
+      @if (autoCancelAffectedAppointments) {
+        <div class="cancellation-reason-section">
+          <label for="cancellation-reason" class="reason-label">
+            Razón de la cancelación (personalizable):
+          </label>
+          <app-textarea
+            id="cancellation-reason"
+            name="cancellation-reason"
+            [(ngModel)]="cancellationReason"
+            [rows]="3"
+            placeholder="Ej: Día cerrado según nueva configuración. Por favor, vuelva a solicitar un turno en un día hábil.">
+          </app-textarea>
+          <p class="reason-hint">
+            Esta razón será incluida en el email que se enviará a los usuarios afectados.
+          </p>
+        </div>
+      }
+
+      <!-- Nota (cambia según el estado del switch) -->
+      <div class="note-section">
+        <i class="fas fa-info-circle note-icon"></i>
+        <div class="note-content">
+          @if (autoCancelAffectedAppointments) {
+            <strong>Nota:</strong> Los turnos afectados serán cancelados automáticamente. Los usuarios recibirán un email con la lista de turnos cancelados y la razón especificada, solicitándoles que vuelvan a solicitar turnos en días hábiles.
+          } @else {
+            <strong>Nota:</strong> Los turnos existentes mantendrán su versión original de configuración, pero los nuevos turnos usarán la nueva configuración. Los usuarios serán notificados de que sus turnos siguen siendo válidos.
+          }
+        </div>
+      </div>
+
+      <!-- Mensaje de error si hay -->
+      @if (saveError) {
+        <div class="error-message" style="background-color: #fee; color: #c33; padding: 1rem; border-radius: 4px; margin: 1rem 0;">
+          <i class="fas fa-exclamation-circle"></i>
+          {{ saveError }}
+        </div>
+      }
+
+      <!-- Pregunta -->
+      <div class="question-section">
+        ¿Deseas continuar con el guardado?
+      </div>
+
+      <!-- Acciones -->
+      <div class="page-actions">
+        <app-button
+          type="button"
+          variant="secondary"
+          size="medium"
+          [disabled]="isSaving"
+          (clicked)="onCancel()">
+          <i class="fas fa-times" aria-hidden="true"></i>
+          Cancelar
+        </app-button>
+        <app-button
+          type="button"
+          variant="primary"
+          size="medium"
+          [disabled]="isSaving"
+          (clicked)="onConfirm()">
+          @if (isSaving) {
+            <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+            Guardando...
+          } @else {
+            <i class="fas fa-check" aria-hidden="true"></i>
+            Continuar con el Guardado
+          }
+        </app-button>
+      </div>
+    </div>
+  } @else {
+    <div class="error-state">
+      <i class="fas fa-exclamation-circle"></i>
+      <p>No se encontraron datos de turnos afectados. Por favor, vuelve a reglas de atención.</p>
+      <app-button
+        type="button"
+        variant="primary"
+        size="medium"
+        (clicked)="onCancel()">
+        Volver a Reglas de Atención
+      </app-button>
+    </div>
+  }
+</div>
+

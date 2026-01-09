@@ -1,0 +1,110 @@
+<app-modal
+  [isOpen]="isOpen"
+  [title]="getFormattedDate()"
+  (close)="onClose()">
+  
+  @if (dayData) {
+    <div class="day-detail-content">
+      <!-- Información del día -->
+      <div class="day-info-section">
+        <div class="day-info-header">
+          <span class="state-badge" [class]="getStateBadgeClass()">
+            {{ getStateLabel() }}
+          </span>
+          <span class="rule-type">{{ dayData.ruleType }}</span>
+        </div>
+        <p class="rule-description">{{ dayData.ruleDescription }}</p>
+        
+        <!-- Advertencia si el día está cerrado pero tiene turnos existentes -->
+        @if (dayData.state === 'CLOSED' && dayData.hasExistingAppointments && (dayData.appointmentsCount || 0) > 0) {
+          <div class="warning-appointments">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div class="warning-content">
+              <strong>Turnos existentes de configuración anterior</strong>
+              <p>
+                Este día está cerrado según la configuración actual, pero tiene {{ dayData.appointmentsCount }} 
+                {{ dayData.appointmentsCount === 1 ? 'turno existente' : 'turnos existentes' }} 
+                creado{{ dayData.appointmentsCount === 1 ? '' : 's' }} con una versión anterior de las reglas del calendario.
+              </p>
+              <p>
+                Estos turnos mantendrán su versión original y seguirán vigentes. Solo los nuevos turnos usarán la configuración actual (día cerrado).
+              </p>
+            </div>
+          </div>
+        }
+        
+        @if (dayData.timeRanges.length > 0) {
+          <div class="time-ranges">
+            <h3 class="section-title">Rangos Horarios</h3>
+            <ul class="time-ranges-list">
+              @for (range of dayData.timeRanges; track range.start) {
+                <li class="time-range-item">
+                  <i class="fas fa-clock"></i>
+                  <span>{{ range.start }} - {{ range.end }}</span>
+                </li>
+              }
+            </ul>
+          </div>
+        } @else {
+          <p class="no-time-ranges">No hay rangos horarios definidos para este día</p>
+        }
+      </div>
+
+      <!-- Lista de turnos -->
+      <div class="appointments-section">
+        <h3 class="section-title">
+          Turnos del día
+          @if (appointments.length > 0) {
+            <span class="appointments-count">({{ appointments.length }})</span>
+          }
+        </h3>
+
+        @if (isLoading) {
+          <div class="loading-state">
+            <app-spinner></app-spinner>
+            <p>Cargando turnos...</p>
+          </div>
+        } @else if (error) {
+          <div class="error-state">
+            <app-error-text [message]="error"></app-error-text>
+          </div>
+        } @else if (appointments.length === 0) {
+          <div class="empty-state">
+            <i class="fas fa-calendar-times"></i>
+            <p>No hay turnos agendados para este día</p>
+          </div>
+        } @else {
+          <div class="appointments-list">
+            @for (appointment of appointments; track appointment.id) {
+              <div class="appointment-card">
+                <div class="appointment-header">
+                  <div class="appointment-time">
+                    <i class="fas fa-clock"></i>
+                    <span>{{ appointment.startTime }} - {{ appointment.endTime }}</span>
+                  </div>
+                  <span class="appointment-state-badge" [class]="getAppointmentStateBadgeClass(appointment.state)">
+                    {{ getAppointmentStateLabel(appointment.state) }}
+                  </span>
+                </div>
+                <div class="appointment-user">
+                  <i class="fas fa-user"></i>
+                  <div class="user-info">
+                    <span class="user-name">{{ getUserFullName(appointment) }}</span>
+                    <span class="user-email">{{ appointment.userEmail }}</span>
+                  </div>
+                </div>
+                @if (appointment.cancellationReason) {
+                  <div class="cancellation-reason">
+                    <i class="fas fa-info-circle"></i>
+                    <span>{{ appointment.cancellationReason }}</span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</app-modal>
+

@@ -29,6 +29,9 @@ export class InputComponent implements ControlValueAccessor {
   @Input() ariaRequired?: string;
   @Input() maxLength?: number;
   @Input() autocomplete?: string;
+  @Input() min?: number | string;
+  @Input() max?: number | string;
+  @Input() step?: number | string;
 
   value: string = '';
   private onChange = (value: string) => {};

@@ -23,9 +23,11 @@
 }
 
 .btn-medium {
-  padding: var(--spacing-sm) calc(var(--spacing-sm) + 0.125rem); /* 8px 8.5px */
-  font-size: var(--font-size-body-small);
+  padding: var(--spacing-sm) var(--spacing-md); /* 8px 16px */
+  font-size: var(--font-size-body);
   min-height: 44px;
+  height: 44px; /* Altura fija para alineación perfecta con inputs */
+  box-sizing: border-box;
 }
 
 .btn-large {
@@ -39,8 +41,12 @@
   background-color: var(--color-primary);
   color: #FFFFFF;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  min-height: 33px;
+}
 
+/* Cuando es medium, asegurar altura consistente */
+.btn-medium.btn-primary {
+  min-height: 44px;
+  height: 44px;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -60,8 +66,12 @@
   background-color: transparent;
   color: var(--color-primary);
   border: 1px solid var(--color-primary);
-  min-height: 33px;
+}
 
+/* Cuando es medium, asegurar altura consistente */
+.btn-medium.btn-secondary {
+  min-height: 44px;
+  height: 44px;
 }
 
 .btn-secondary:hover:not(:disabled) {
@@ -78,6 +88,12 @@
   background-color: var(--color-error);
   color: #FFFFFF;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Cuando es medium, asegurar altura consistente */
+.btn-medium.btn-danger {
+  min-height: 44px;
+  height: 44px;
 }
 
 .btn-danger:hover:not(:disabled) {

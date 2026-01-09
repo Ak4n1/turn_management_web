@@ -1,0 +1,104 @@
+<app-modal
+  [isOpen]="isOpen"
+  title="Reprogramar Turno"
+  (close)="onClose()">
+  
+  @if (appointment) {
+    <div class="reschedule-form">
+      <!-- Información del turno actual -->
+      <div class="current-appointment-info">
+        <h3 class="info-title">Turno Actual</h3>
+        <div class="info-item">
+          <i class="fas fa-calendar-alt"></i>
+          <span>{{ formatDate(appointment.date) }}</span>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-clock"></i>
+          <span>{{ appointment.startTime }} - {{ appointment.endTime }}</span>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-user"></i>
+          <span>
+            @if (appointment.userFirstName && appointment.userLastName) {
+              {{ appointment.userFirstName }} {{ appointment.userLastName }}
+            } @else {
+              {{ appointment.userEmail }}
+            }
+          </span>
+        </div>
+      </div>
+
+      <!-- Formulario de reprogramación -->
+      <form (ngSubmit)="onSubmit()" class="reschedule-form-fields">
+        <div class="form-group">
+          <app-label for="newDate" [required]="true">
+            Nueva Fecha
+          </app-label>
+          <app-date-input
+            id="newDate"
+            name="newDate"
+            [required]="true"
+            [ngModel]="newDate"
+            (ngModelChange)="newDate = $event"
+            [min]="getTodayDate()">
+          </app-date-input>
+        </div>
+
+        <div class="form-group">
+          <app-label for="newStartTime" [required]="true">
+            Nueva Hora de Inicio
+          </app-label>
+          <app-input
+            type="time"
+            id="newStartTime"
+            name="newStartTime"
+            [required]="true"
+            [ngModel]="newStartTime"
+            (ngModelChange)="newStartTime = $event">
+          </app-input>
+        </div>
+
+        <div class="form-group">
+          <app-label for="reason" [required]="true">
+            Motivo
+            <span class="form-hint">(mínimo 10 caracteres)</span>
+          </app-label>
+          <app-textarea
+            id="reason"
+            name="reason"
+            [rows]="4"
+            placeholder="Describe el motivo de la reprogramación..."
+            [required]="true"
+            [maxLength]="500"
+            [ngModel]="reason"
+            (ngModelChange)="reason = $event">
+          </app-textarea>
+          <div class="form-char-count">
+            {{ reason.length }} / 500 caracteres
+          </div>
+        </div>
+
+        @if (error) {
+          <app-error-text [message]="error"></app-error-text>
+        }
+
+        <div class="form-actions">
+          <app-button
+            type="button"
+            variant="secondary"
+            (clicked)="onClose()"
+            [disabled]="isRescheduling">
+            Cancelar
+          </app-button>
+          <app-button
+            type="submit"
+            variant="primary"
+            [disabled]="isRescheduling || !isFormValid()"
+            [loading]="isRescheduling">
+            Reprogramar Turno
+          </app-button>
+        </div>
+      </form>
+    </div>
+  }
+</app-modal>

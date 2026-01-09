@@ -1,0 +1,129 @@
+<div class="consolidated-calendar-page">
+  <div class="page-header">
+    <h1 class="page-title">Calendario Consolidado</h1>
+    <p class="page-subtitle">Vista completa del calendario con todas las reglas aplicadas</p>
+  </div>
+
+  <div class="calendar-header">
+    <div class="calendar-navigation">
+      <button 
+        type="button" 
+        class="nav-button"
+        (click)="navigateMonth('prev')"
+        aria-label="Mes anterior">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <span class="month-year">{{ getMonthYear() }}</span>
+      <button 
+        type="button" 
+        class="nav-button"
+        (click)="navigateMonth('next')"
+        aria-label="Mes siguiente">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <div class="loading-state">
+      <app-spinner></app-spinner>
+      <p>Cargando calendario...</p>
+    </div>
+  } @else if (error) {
+    <div class="error-state">
+      <app-error-text [message]="error"></app-error-text>
+    </div>
+  } @else {
+    <div class="calendar-grid">
+      <!-- Días de la semana -->
+      <div class="calendar-weekdays">
+        <div class="weekday">L</div>
+        <div class="weekday">M</div>
+        <div class="weekday">M</div>
+        <div class="weekday">J</div>
+        <div class="weekday">V</div>
+        <div class="weekday">S</div>
+        <div class="weekday">D</div>
+      </div>
+
+      <!-- Días del mes -->
+      <div class="calendar-days">
+        @for (day of days; track day.isEmpty ? day.date : day.date || day.day) {
+          <div 
+            class="calendar-day"
+            [class]="getStateClass(day.state, day.hasAppointments)"
+            [class.rule-base]="day.ruleType === 'BASE'"
+            [class.rule-exception]="day.ruleType === 'EXCEPTION'"
+            [class.rule-block]="day.ruleType === 'BLOCK'"
+            [class.has-appointments]="day.hasAppointments && day.state !== 'CLOSED'"
+            [class.closed-with-appointments]="day.state === 'CLOSED' && day.hasAppointments"
+            [class.is-today]="isToday(day)"
+            [class.empty-day]="day.isEmpty"
+            [class.pointer-none]="day.isEmpty"
+            (click)="!day.isEmpty && onDayClick(day)">
+            @if (!day.isEmpty) {
+              @if (isToday(day)) {
+                <span class="today-badge">Hoy</span>
+              }
+              <span class="day-number">{{ day.day }}</span>
+              <div class="day-rule">
+                <i [class]="getRuleTypeIcon(day.ruleType)"></i>
+                <span class="rule-type">{{ day.ruleType }}</span>
+              </div>
+              @if ((day.state === 'OPEN' || day.state === 'PARTIAL') && day.timeRanges.length > 0) {
+                <span class="day-ranges" [title]="formatTimeRanges(day.timeRanges)">
+                  {{ day.timeRanges.length }} {{ day.timeRanges.length === 1 ? 'rango' : 'rangos' }}
+                </span>
+              }
+              @if (day.appointmentsCount > 0) {
+                <span class="day-appointments">
+                  <i class="fas fa-calendar-check"></i>
+                  {{ day.appointmentsCount }} {{ day.appointmentsCount === 1 ? 'turno' : 'turnos' }}
+                </span>
+              }
+            }
+          </div>
+        }
+      </div>
+    </div>
+
+    <div class="calendar-legend">
+      <div class="legend-item">
+        <span class="legend-color state-open"></span>
+        <span>Abierto</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color state-partial"></span>
+        <span>Parcial</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color state-closed"></span>
+        <span>Cerrado</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-color state-closed-with-appointments"></span>
+        <span>Cerrado con turnos existentes</span>
+      </div>
+      <div class="legend-item">
+        <i class="fas fa-calendar"></i>
+        <span>BASE</span>
+      </div>
+      <div class="legend-item">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>EXCEPTION</span>
+      </div>
+      <div class="legend-item">
+        <i class="fas fa-lock"></i>
+        <span>BLOCK</span>
+      </div>
+    </div>
+  }
+
+  <!-- Modal de detalle del día -->
+  <app-day-detail-modal
+    [isOpen]="isModalOpen"
+    [dayData]="selectedDayData"
+    (close)="onModalClose()">
+  </app-day-detail-modal>
+</div>
+

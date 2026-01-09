@@ -39,7 +39,7 @@ export class RootRedirectComponent implements OnInit {
     if (this.authStateService.isAuthenticated) {
       if (this.authStateService.isEmailVerified) {
         // Usuario autenticado y email verificado, ir a dashboard
-        this.router.navigate(['/dashboard-home']);
+        this.router.navigate(['/dashboard/home']);
       } else {
         // Usuario autenticado pero email no verificado, ir a verificación
         const email = this.authStateService.user?.email || '';

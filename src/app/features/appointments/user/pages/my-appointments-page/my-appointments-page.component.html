@@ -1,0 +1,118 @@
+<div class="my-appointments-page">
+  <div class="page-header">
+    <h1 class="page-title">Mis Turnos</h1>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-section">
+    <div class="filter-chips">
+      <button 
+        type="button"
+        class="filter-chip"
+        [class.active]="activeFilter === 'ALL'"
+        (click)="setFilter('ALL')">
+        Todos
+      </button>
+      <button 
+        type="button"
+        class="filter-chip"
+        [class.active]="activeFilter === 'CONFIRMED'"
+        (click)="setFilter('CONFIRMED')">
+        Confirmados
+      </button>
+      <button 
+        type="button"
+        class="filter-chip"
+        [class.active]="activeFilter === 'PENDING'"
+        (click)="setFilter('PENDING')">
+        Pendientes
+      </button>
+      <button 
+        type="button"
+        class="filter-chip"
+        [class.active]="activeFilter === 'CANCELLED'"
+        (click)="setFilter('CANCELLED')">
+        Cancelados
+      </button>
+    </div>
+  </div>
+
+  <!-- Lista de turnos -->
+  <div class="appointments-list">
+    @if (isLoading) {
+      <div class="loading-state">
+        <app-spinner></app-spinner>
+        <p>Cargando turnos...</p>
+      </div>
+    } @else if (error) {
+      <div class="error-state">
+        <app-error-text [message]="error"></app-error-text>
+      </div>
+    } @else if (filteredAppointments.length === 0) {
+      <div class="empty-state">
+        <i class="fas fa-calendar-times"></i>
+        <p>No hay turnos que coincidan con los filtros seleccionados</p>
+      </div>
+    } @else {
+      @for (appointment of filteredAppointments; track appointment.id) {
+        <div class="appointment-card">
+          <div class="appointment-header">
+            <div class="appointment-date">
+              <i class="fas fa-calendar-alt"></i>
+              <span>{{ formatDate(appointment.date) }}</span>
+            </div>
+            <span 
+              class="state-badge"
+              [class]="getStateBadgeClass(appointment.state)">
+              {{ getStateLabel(appointment.state) }}
+            </span>
+          </div>
+
+          <div class="appointment-time">
+            <i class="fas fa-clock"></i>
+            <span>{{ appointment.startTime }} - {{ appointment.endTime }}</span>
+            <span class="duration">({{ appointment.durationMinutes }} min)</span>
+          </div>
+
+          @if (appointment.state === 'CREATED' && appointment.expiresAt) {
+            <div class="appointment-warning">
+              <i class="fas fa-exclamation-triangle"></i>
+              <span>Debes confirmar antes de {{ formatExpiresAt(appointment.expiresAt) }}</span>
+            </div>
+          }
+
+          <div class="appointment-actions">
+            @if (appointment.state === 'CREATED') {
+              <button 
+                type="button"
+                class="action-button primary"
+                (click)="confirmAppointment(appointment.id)">
+                Confirmar turno
+              </button>
+            }
+            @if (appointment.state === 'CONFIRMED') {
+              <button 
+                type="button"
+                class="action-button secondary"
+                (click)="cancelAppointment(appointment.id)">
+                Cancelar
+              </button>
+              <button 
+                type="button"
+                class="action-button secondary"
+                (click)="requestReschedule(appointment.id)">
+                Reprogramar
+              </button>
+            }
+            <a 
+              [routerLink]="['/appointments', appointment.id]"
+              class="view-details-link">
+              Ver detalles
+            </a>
+          </div>
+        </div>
+      }
+    }
+  </div>
+</div>
+

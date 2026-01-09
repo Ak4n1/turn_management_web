@@ -1,0 +1,208 @@
+/* Blocks Page Component - Reutiliza estilos de exceptions-page */
+@import '../exceptions-page/exceptions-page.component.css';
+
+/* Blocks page debe tener los mismos estilos de contenedor que exceptions-page */
+.blocks-page {
+  padding: var(--spacing-lg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Header con botón de info */
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+}
+
+.help-button-container {
+  flex-shrink: 0;
+}
+
+/* Info Alert */
+.info-alert {
+  background-color: var(--color-primary-light);
+  border: 1px solid var(--color-primary);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--border-radius-md, 8px);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.info-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.info-header i.fa-info-circle {
+  color: var(--color-primary);
+  font-size: var(--font-size-lg, 1.125rem);
+  flex-shrink: 0;
+}
+
+.info-header h3 {
+  font-size: var(--font-size-h4, 1.125rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+  margin: 0;
+  flex: 1;
+}
+
+.info-header app-button {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.info-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-lg);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.info-section {
+  background-color: var(--color-background);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md, 8px);
+  border: 1px solid var(--color-border);
+  text-align: center;
+}
+
+.info-section ul {
+  text-align: left;
+  display: inline-block;
+}
+
+.info-section h4 {
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-sm) 0;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.info-section h4 i {
+  color: var(--color-primary);
+}
+
+.info-section ul {
+  margin: 0;
+  padding-left: var(--spacing-lg);
+  list-style-type: disc;
+}
+
+.info-section li {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xs);
+  line-height: 1.6;
+}
+
+.info-section li strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+.info-example {
+  grid-column: 1 / -1;
+  background-color: var(--color-background);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md, 8px);
+  border-left: 3px solid var(--color-warning);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+  margin-top: var(--spacing-sm);
+  text-align: left;
+  width: 100%;
+}
+
+.info-example strong {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold, 600);
+}
+
+/* Blocks específicos - Override del borde de exception-card según tipo */
+.exception-card.block-card.full-day {
+  border: 1px solid var(--color-error);
+  border-left: 4px solid var(--color-error);
+  border-radius: var(--border-radius-lg, 12px);
+}
+
+.exception-card.block-card.partial {
+  border: 1px solid var(--color-warning);
+  border-left: 4px solid var(--color-warning);
+  border-radius: var(--border-radius-lg, 12px);
+}
+
+.card-badge.full-day {
+  background-color: var(--color-error-light);
+  color: var(--color-error-dark);
+}
+
+.card-badge.partial {
+  background-color: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.card-warning {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-warning);
+  margin: var(--spacing-xs) 0;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-warning-light);
+  border-radius: var(--border-radius-sm, 4px);
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  cursor: pointer;
+  padding: var(--spacing-sm);
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .info-content {
+    grid-template-columns: 1fr;
+  }
+
+  .info-example {
+    grid-column: 1;
+  }
+}
+

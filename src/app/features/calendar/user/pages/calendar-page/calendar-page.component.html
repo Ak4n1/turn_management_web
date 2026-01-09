@@ -1,0 +1,74 @@
+<div class="calendar-page">
+  <div class="calendar-header">
+    <h1 class="calendar-title">Calendario</h1>
+    <div class="calendar-navigation">
+      <button 
+        type="button" 
+        class="nav-button"
+        (click)="navigateMonth('prev')"
+        aria-label="Mes anterior">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <span class="month-year">{{ getMonthYear() }}</span>
+      <button 
+        type="button" 
+        class="nav-button"
+        (click)="navigateMonth('next')"
+        aria-label="Mes siguiente">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="calendar-grid">
+    <!-- Días de la semana -->
+    <div class="calendar-weekdays">
+      <div class="weekday">L</div>
+      <div class="weekday">M</div>
+      <div class="weekday">X</div>
+      <div class="weekday">J</div>
+      <div class="weekday">V</div>
+      <div class="weekday">S</div>
+      <div class="weekday">D</div>
+    </div>
+
+    <!-- Días del mes -->
+    <div class="calendar-days">
+      @for (day of days; track day.date) {
+        <div 
+          class="calendar-day"
+          [class.available]="day.status === 'AVAILABLE'"
+          [class.unavailable]="day.status === 'UNAVAILABLE'"
+          [class.partial]="day.status === 'PARTIAL'"
+          [class.blocked]="day.status === 'BLOCKED'"
+          [class.clickable]="day.status === 'AVAILABLE' || day.status === 'PARTIAL'"
+          (click)="onDayClick(day)">
+          <span class="day-number">{{ day.day }}</span>
+          @if (day.status === 'AVAILABLE' || day.status === 'PARTIAL') {
+            <span class="day-slots">{{ day.availableSlots }} slots</span>
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="calendar-legend">
+    <div class="legend-item">
+      <span class="legend-color available"></span>
+      <span>Disponible</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color partial"></span>
+      <span>Parcial</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color unavailable"></span>
+      <span>No disponible</span>
+    </div>
+    <div class="legend-item">
+      <span class="legend-color blocked"></span>
+      <span>Bloqueado</span>
+    </div>
+  </div>
+</div>
+

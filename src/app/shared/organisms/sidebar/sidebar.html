@@ -14,16 +14,18 @@
       </button>
     </div>
     <ul class="sidebar-menu">
-      @for (item of menuItems; track item.label) {
+      @for (item of menuItems; track item.route) {
         <li class="sidebar-menu-item">
-          <button 
-            type="button"
+          <a 
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact: false}"
             class="sidebar-button"
-            (click)="onMenuItemClick(item)"
+            (click)="closeSidebar()"
             [attr.aria-label]="item.label">
             <i [class]="item.icon" aria-hidden="true"></i>
             <span>{{ item.label }}</span>
-          </button>
+          </a>
         </li>
       }
     </ul>

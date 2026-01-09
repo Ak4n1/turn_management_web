@@ -1,0 +1,36 @@
+<app-modal
+  [isOpen]="isOpen"
+  [title]="title"
+  (close)="onClose()">
+  <div class="alert-content" [class]="getTypeClass()">
+    <div class="alert-header">
+      <div class="alert-icon">
+        <i [class]="getIconClass()"></i>
+      </div>
+      <div class="alert-message">
+        <div [innerHTML]="getFormattedMessage()"></div>
+      </div>
+    </div>
+    <div class="alert-actions">
+      @if (showCancelButton) {
+        <app-button
+          type="button"
+          variant="secondary"
+          size="medium"
+          (clicked)="onCancel()">
+          {{ cancelButtonText }}
+        </app-button>
+      }
+      @if (showConfirmButton) {
+        <app-button
+          type="button"
+          [variant]="type === 'error' ? 'danger' : 'primary'"
+          size="medium"
+          (clicked)="onConfirm()">
+          {{ confirmButtonText }}
+        </app-button>
+      }
+    </div>
+  </div>
+</app-modal>
+

@@ -55,7 +55,7 @@ export class VerifyEmailComponent implements OnInit {
           this.authStateService.refreshUserState().then(() => {
             // Redirigir al dashboard después de un breve delay
             setTimeout(() => {
-              this.router.navigate(['/dashboard-home']);
+              this.router.navigate(['/dashboard/home']);
             }, 2000);
           });
         }

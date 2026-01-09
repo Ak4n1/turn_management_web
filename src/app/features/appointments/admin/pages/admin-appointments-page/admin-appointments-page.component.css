@@ -1,0 +1,376 @@
+/* Admin Appointments Page Component */
+.admin-appointments-page {
+  padding: var(--spacing-lg);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: var(--spacing-xl);
+}
+
+.page-title {
+  font-size: var(--font-size-h1, 2rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+.page-subtitle {
+  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+/* Filtros */
+.filters-section {
+  background-color: var(--color-surface, #F8FAFC);
+  border: 1px solid var(--color-border, #E2E8F0);
+  border-radius: var(--border-radius-lg, 12px);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 0 1 auto;
+  min-width: 150px;
+}
+
+.filter-group.search-group {
+  flex: 1 1 300px;
+  min-width: 250px;
+}
+
+.filter-group.clear-group {
+  flex: 0 0 auto;
+  min-width: auto;
+}
+
+.search-input-wrapper {
+  display: flex;
+  gap: var(--spacing-xs);
+  align-items: stretch;
+}
+
+.search-input-wrapper app-input {
+  flex: 1;
+}
+
+/* Asegurar que el botón de búsqueda tenga la misma altura que el input */
+.search-input-wrapper app-button {
+  flex: 0 0 auto;
+  min-width: 44px;
+  align-self: stretch;
+}
+
+.search-input-wrapper app-button ::ng-deep .btn {
+  height: 100%;
+  min-height: 44px;
+}
+
+/* Asegurar que el botón de limpiar tenga la misma altura que los inputs */
+.filter-group.clear-group app-button {
+  width: 100%;
+}
+
+.filter-group.clear-group app-button ::ng-deep .btn {
+  width: 100%;
+  min-height: 44px;
+  height: 44px;
+}
+
+/* Estilos de label, input y button ahora están en los átomos */
+/* Solo mantenemos estilos de layout específicos */
+
+.filter-days-section {
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border, #E2E8F0);
+}
+
+.filter-days-label {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #475569);
+  margin-bottom: var(--spacing-sm);
+}
+
+.filter-days-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.filter-state-section {
+  margin-top: var(--spacing-md);
+}
+
+.filter-state-label {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #475569);
+  margin-bottom: var(--spacing-sm);
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.filter-chip {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border, #E2E8F0);
+  border-radius: var(--border-radius-md, 8px);
+  color: var(--color-text-secondary, #475569);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.filter-chip:hover {
+  background-color: var(--color-primary-light, #DBEAFE);
+  border-color: var(--color-primary, #2563EB);
+  color: var(--color-primary);
+}
+
+.filter-chip.active {
+  background-color: var(--color-primary, #2563EB);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+/* Lista de turnos */
+.appointments-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.appointment-card {
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg, 12px);
+  padding: var(--spacing-lg);
+  transition: all 0.2s ease;
+}
+
+.appointment-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-color: var(--color-primary-light);
+}
+
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-md);
+}
+
+.appointment-user {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex: 1;
+}
+
+.appointment-user i {
+  color: var(--color-primary);
+  font-size: var(--font-size-lg);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.user-name {
+  font-size: var(--font-size-lg, 1.125rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+}
+
+.user-email {
+  font-size: var(--font-size-sm, 0.875rem);
+  color: var(--color-text-secondary);
+}
+
+.appointment-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.appointment-date,
+.appointment-time {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--color-text-secondary);
+}
+
+.appointment-date i,
+.appointment-time i {
+  color: var(--color-text-secondary);
+}
+
+.duration {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  opacity: 0.7;
+}
+
+.appointment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+/* Asegurar que los botones de acción tengan altura consistente */
+.appointment-actions app-button ::ng-deep .btn {
+  min-height: 44px;
+  height: 44px;
+}
+
+/* Estilos de action-button ahora están en el átomo app-button */
+
+/* Badges de estado */
+.state-badge {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm, 4px);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: var(--font-weight-semibold, 600);
+  text-transform: uppercase;
+}
+
+.badge-success {
+  background-color: var(--color-success, #10B981);
+  color: white;
+}
+
+.badge-warning {
+  background-color: var(--color-warning, #F59E0B);
+  color: white;
+}
+
+.badge-info {
+  background-color: var(--color-info, #3B82F6);
+  color: white;
+}
+
+.badge-secondary {
+  background-color: var(--color-secondary, #64748B);
+  color: white;
+}
+
+.badge-error {
+  background-color: var(--color-error, #EF4444);
+  color: white;
+}
+
+/* Paginación */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-md);
+}
+
+/* Estilos de pagination-button ahora están en el átomo app-button */
+
+.pagination-info {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Estados */
+.loading-state,
+.error-state,
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xl);
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.empty-state i {
+  font-size: 3rem;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-md);
+  opacity: 0.5;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .admin-appointments-page {
+    padding: var(--spacing-md);
+  }
+
+  .filters-row {
+    flex-direction: column;
+  }
+
+  .filter-group {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .filter-group.search-group {
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  .search-input-wrapper {
+    width: 100%;
+  }
+
+  .clear-group {
+    width: 100%;
+  }
+
+  .appointment-header {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+
+  .appointment-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .appointment-actions app-button {
+    width: 100%;
+  }
+
+  .pagination {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
+}
+

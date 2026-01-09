@@ -1,0 +1,84 @@
+<app-modal
+  [isOpen]="isOpen"
+  title="Cancelar Turno"
+  (close)="onClose()">
+  
+  @if (appointment) {
+    <div class="cancel-form">
+      <!-- Advertencia -->
+      <div class="warning-banner">
+        <i class="fas fa-exclamation-triangle"></i>
+        <div class="warning-content">
+          <strong>Advertencia:</strong> Esta acción cancelará el turno y el usuario será notificado.
+        </div>
+      </div>
+
+      <!-- Información del turno -->
+      <div class="appointment-info">
+        <h3 class="info-title">Turno a Cancelar</h3>
+        <div class="info-item">
+          <i class="fas fa-calendar-alt"></i>
+          <span>{{ formatDate(appointment.date) }}</span>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-clock"></i>
+          <span>{{ appointment.startTime }} - {{ appointment.endTime }}</span>
+        </div>
+        <div class="info-item">
+          <i class="fas fa-user"></i>
+          <span>
+            @if (appointment.userFirstName && appointment.userLastName) {
+              {{ appointment.userFirstName }} {{ appointment.userLastName }}
+            } @else {
+              {{ appointment.userEmail }}
+            }
+          </span>
+        </div>
+      </div>
+
+      <!-- Formulario de cancelación -->
+      <form (ngSubmit)="onSubmit()" class="cancel-form-fields">
+        <div class="form-group">
+          <app-label for="reason" [required]="true">
+            Motivo de Cancelación
+            <span class="form-hint">(mínimo 10 caracteres)</span>
+          </app-label>
+          <app-textarea
+            id="reason"
+            name="reason"
+            [rows]="4"
+            placeholder="Describe el motivo de la cancelación..."
+            [required]="true"
+            [maxLength]="500"
+            [ngModel]="reason"
+            (ngModelChange)="reason = $event">
+          </app-textarea>
+          <div class="form-char-count">
+            {{ reason.length }} / 500 caracteres
+          </div>
+        </div>
+
+        @if (error) {
+          <app-error-text [message]="error"></app-error-text>
+        }
+
+        <div class="form-actions">
+          <app-button
+            type="button"
+            variant="secondary"
+            (clicked)="onClose()"
+            [disabled]="isCancelling">
+            Cancelar
+          </app-button>
+          <app-button
+            type="submit"
+            variant="danger"
+            [disabled]="isCancelling || !isFormValid()"
+            [loading]="isCancelling">
+            Confirmar Cancelación
+          </app-button>
+        </div>
+      </form>
+    </div>
+  }
+</app-modal>

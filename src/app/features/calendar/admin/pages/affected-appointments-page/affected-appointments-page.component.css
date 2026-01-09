@@ -1,0 +1,105 @@
+/* Affected Appointments Page Component - Reutiliza estilos del modal */
+@import '../../components/affected-appointments-modal/affected-appointments-modal.component.css';
+
+.affected-appointments-page {
+  padding: var(--spacing-lg, 24px);
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: var(--spacing-xl, 32px);
+  padding-bottom: var(--spacing-lg, 24px);
+  border-bottom: 2px solid var(--color-border, #E2E8F0);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md, 16px);
+  flex-wrap: wrap;
+}
+
+.page-title {
+  font-size: var(--font-size-h1, 2rem);
+  font-weight: var(--font-weight-bold, 700);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-xs, 8px) 0;
+}
+
+.page-subtitle {
+  font-size: var(--font-size-body, 1rem);
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--spacing-sm, 8px);
+}
+
+.affected-appointments-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg, 24px);
+}
+
+/* Ajustes para página (sin modal) */
+.appointments-list {
+  max-height: 500px; /* Más alto que en modal */
+}
+
+.page-actions {
+  display: flex;
+  gap: var(--spacing-md, 16px);
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: var(--spacing-xl, 32px) 0;
+  border-top: 2px solid var(--color-border, #E2E8F0);
+  margin-top: var(--spacing-lg, 24px);
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-md, 16px);
+  padding: var(--spacing-xl, 32px);
+  text-align: center;
+  background-color: var(--color-warning-light, #FEF3C7);
+  border-radius: var(--border-radius-lg, 12px);
+  border: 1px solid var(--color-warning, #F59E0B);
+}
+
+.error-state i {
+  font-size: var(--font-size-2xl, 2rem);
+  color: var(--color-warning, #F59E0B);
+}
+
+.error-state p {
+  font-size: var(--font-size-body, 1rem);
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .affected-appointments-page {
+    padding: var(--spacing-md, 16px);
+  }
+
+  .header-content {
+    flex-direction: column;
+  }
+
+  .page-actions {
+    flex-direction: column-reverse;
+  }
+
+  .page-actions app-button {
+    width: 100%;
+  }
+}
+
