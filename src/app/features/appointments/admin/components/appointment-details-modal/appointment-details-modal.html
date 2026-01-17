@@ -1,6 +1,8 @@
 <app-modal
   [isOpen]="isOpen"
   title="Detalles del Turno"
+  [headerClass]="'modal-header-info'"
+  [noBorder]="true"
   (close)="onClose()">
   
   @if (appointment) {

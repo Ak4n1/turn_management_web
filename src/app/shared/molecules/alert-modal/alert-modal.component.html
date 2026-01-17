@@ -1,6 +1,8 @@
 <app-modal
   [isOpen]="isOpen"
   [title]="title"
+  [headerClass]="type === 'success' ? 'modal-header-success' : type === 'error' ? 'modal-header-error' : ''"
+  [noBorder]="type === 'success' || type === 'error'"
   (close)="onClose()">
   <div class="alert-content" [class]="getTypeClass()">
     <div class="alert-header">
@@ -8,7 +10,7 @@
         <i [class]="getIconClass()"></i>
       </div>
       <div class="alert-message">
-        <div [innerHTML]="getFormattedMessage()"></div>
+        <div  [innerHTML]="getFormattedMessage()"></div>
       </div>
     </div>
     <div class="alert-actions">

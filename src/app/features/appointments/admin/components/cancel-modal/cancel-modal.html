@@ -1,6 +1,8 @@
 <app-modal
   [isOpen]="isOpen"
   title="Cancelar Turno"
+  [headerClass]="'modal-header-error'"
+  [noBorder]="true"
   (close)="onClose()">
   
   @if (appointment) {
@@ -65,7 +67,7 @@
         <div class="form-actions">
           <app-button
             type="button"
-            variant="secondary"
+            variant="danger"
             (clicked)="onClose()"
             [disabled]="isCancelling">
             Cancelar

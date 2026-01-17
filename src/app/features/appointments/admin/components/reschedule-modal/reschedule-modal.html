@@ -1,6 +1,8 @@
 <app-modal
   [isOpen]="isOpen"
   title="Reprogramar Turno"
+  [headerClass]="'modal-header-info'"
+  [noBorder]="true"
   (close)="onClose()">
   
   @if (appointment) {
@@ -85,7 +87,7 @@
         <div class="form-actions">
           <app-button
             type="button"
-            variant="secondary"
+            variant="danger"
             (clicked)="onClose()"
             [disabled]="isRescheduling">
             Cancelar

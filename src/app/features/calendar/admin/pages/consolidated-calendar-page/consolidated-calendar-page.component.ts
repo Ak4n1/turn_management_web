@@ -222,12 +222,8 @@ export class ConsolidatedCalendarPageComponent implements OnInit {
   isToday(day: CalendarDay): boolean {
     if (day.isEmpty) return false;
     
-    const today = new Date();
-    const dayDate = new Date(day.date);
-    
-    return today.getFullYear() === dayDate.getFullYear() &&
-           today.getMonth() === dayDate.getMonth() &&
-           today.getDate() === dayDate.getDate();
+    const todayStr = this.formatDate(new Date());
+    return todayStr === day.date;
   }
 }
 

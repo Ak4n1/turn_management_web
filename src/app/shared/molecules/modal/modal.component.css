@@ -28,12 +28,78 @@
   border: 1px solid var(--color-border, #E2E8F0);
 }
 
+.modal-no-border {
+  border: none;
+}
+
+/* Quitar borde cuando el header es success */
+.modal-container .modal-header-success ~ .modal-body {
+  border-top: none;
+}
+
 .modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: var(--spacing-md) var(--spacing-lg);
   border-bottom: 1px solid var(--color-border, #E2E8F0);
+}
+
+/* Quitar borde inferior cuando es success */
+.modal-header-success {
+  border-bottom: none;
+  background-color: var(--color-primary, #2563EB);
+}
+
+.modal-header-success .modal-title {
+  color: white;
+}
+
+.modal-header-success .modal-close {
+  color: white;
+}
+
+.modal-header-success .modal-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Header rojo para modales de error */
+.modal-header-error {
+  border-bottom: none;
+  background-color: var(--color-error, #EF4444);
+}
+
+.modal-header-error .modal-title {
+  color: white;
+}
+
+.modal-header-error .modal-close {
+  color: white;
+}
+
+.modal-header-error .modal-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* Header azul para modales de información (detalles, reprogramar, etc.) */
+.modal-header-info {
+  border-bottom: none;
+  background-color: var(--color-primary, #2563EB);
+}
+
+.modal-header-info .modal-title {
+  color: white;
+}
+
+.modal-header-info .modal-close {
+  color: white;
+}
+
+.modal-header-info .modal-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
 }
 
 .modal-title {

@@ -1,7 +1,7 @@
 @if (isOpen) {
   <div class="modal-backdrop" (click)="onBackdropClick($event)">
-    <div class="modal-container" (click)="$event.stopPropagation()">
-      <div class="modal-header">
+    <div class="modal-container" [class.modal-no-border]="noBorder" (click)="$event.stopPropagation()">
+      <div class="modal-header" [ngClass]="headerClass">
         <h2 class="modal-title">{{ title }}</h2>
         <button
           type="button"

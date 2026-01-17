@@ -80,7 +80,7 @@ export class AlertModalComponent {
       // Línea vacía
       if (!line) {
         if (inList) {
-          formattedHtml += '</ul>';
+          formattedHtml += '</div>';
           inList = false;
         }
         formattedHtml += '<br>';
@@ -90,7 +90,7 @@ export class AlertModalComponent {
       // Advertencia especial (línea con ADVERTENCIA al inicio)
       if (line.toUpperCase().startsWith('ADVERTENCIA')) {
         if (inList) {
-          formattedHtml += '</ul>';
+          formattedHtml += '</div>';
           inList = false;
         }
         formattedHtml += `<div class="alert-warning-text">${this.escapeHtml(line)}</div>`;
@@ -100,28 +100,28 @@ export class AlertModalComponent {
       // Título de sección (líneas que terminan con : y no son listas)
       if (line.endsWith(':') && !line.match(/^[•\-\*]/) && !line.match(/^\d+\./)) {
         if (inList) {
-          formattedHtml += '</ul>';
+          formattedHtml += '</div>';
           inList = false;
         }
         formattedHtml += `<div class="alert-section-title">${this.escapeHtml(line)}</div>`;
         continue;
       }
 
-      // Lista (líneas que empiezan con •)
+      // Lista (líneas que empiezan con •) - Usar divs en lugar de ul/li para evitar bullets
       if (line.match(/^[•\-\*]\s/)) {
         if (!inList) {
-          formattedHtml += '<ul class="alert-list">';
+          formattedHtml += '<div class="alert-list">';
           inList = true;
         }
         const listItem = line.replace(/^[•\-\*]\s/, '').trim();
-        formattedHtml += `<li>${this.escapeHtml(listItem)}</li>`;
+        formattedHtml += `<div class="alert-list-item">${this.escapeHtml(listItem)}</div>`;
         continue;
       }
 
       // Estadísticas (líneas con formato "Label: número")
       if (line.match(/^[^:]+:\s*\d+$/)) {
         if (inList) {
-          formattedHtml += '</ul>';
+          formattedHtml += '</div>';
           inList = false;
         }
         const [label, value] = line.split(':').map(s => s.trim());
@@ -132,7 +132,7 @@ export class AlertModalComponent {
       // Nota especial
       if (line.match(/^Nota:/i)) {
         if (inList) {
-          formattedHtml += '</ul>';
+          formattedHtml += '</div>';
           inList = false;
         }
         const noteContent = line.replace(/^Nota:\s*/i, '').trim();
@@ -143,7 +143,7 @@ export class AlertModalComponent {
       // Pregunta (líneas que terminan con ?)
       if (line.endsWith('?') && line.length > 10) {
         if (inList) {
-          formattedHtml += '</ul>';
+          formattedHtml += '</div>';
           inList = false;
         }
         formattedHtml += `<div class="alert-question">${this.escapeHtml(line)}</div>`;
@@ -152,7 +152,7 @@ export class AlertModalComponent {
 
       // Texto normal (párrafo)
       if (inList) {
-        formattedHtml += '</ul>';
+        formattedHtml += '</div>';
         inList = false;
       }
       formattedHtml += `<p class="alert-paragraph">${this.escapeHtml(line)}</p>`;
@@ -160,7 +160,7 @@ export class AlertModalComponent {
 
     // Cerrar lista si está abierta
     if (inList) {
-      formattedHtml += '</ul>';
+      formattedHtml += '</div>';
     }
 
     return this.sanitizer.sanitize(1, formattedHtml) as SafeHtml;
