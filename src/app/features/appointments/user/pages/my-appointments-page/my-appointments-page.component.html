@@ -5,35 +5,97 @@
 
   <!-- Filtros -->
   <div class="filters-section">
-    <div class="filter-chips">
-      <button 
-        type="button"
-        class="filter-chip"
-        [class.active]="activeFilter === 'ALL'"
-        (click)="setFilter('ALL')">
-        Todos
-      </button>
-      <button 
-        type="button"
-        class="filter-chip"
-        [class.active]="activeFilter === 'CONFIRMED'"
-        (click)="setFilter('CONFIRMED')">
-        Confirmados
-      </button>
-      <button 
-        type="button"
-        class="filter-chip"
-        [class.active]="activeFilter === 'PENDING'"
-        (click)="setFilter('PENDING')">
-        Pendientes
-      </button>
-      <button 
-        type="button"
-        class="filter-chip"
-        [class.active]="activeFilter === 'CANCELLED'"
-        (click)="setFilter('CANCELLED')">
-        Cancelados
-      </button>
+    <div class="filters-row">
+      <!-- Fechas -->
+      <div class="filter-group">
+        <app-label for="dateFrom">Desde</app-label>
+        <app-date-input
+          id="dateFrom"
+          name="dateFrom"
+          [ngModel]="dateFrom"
+          (ngModelChange)="dateFrom = $event; onDateFilterChange()">
+        </app-date-input>
+      </div>
+
+      <div class="filter-group">
+        <app-label for="dateTo">Hasta</app-label>
+        <app-date-input
+          id="dateTo"
+          name="dateTo"
+          [ngModel]="dateTo"
+          (ngModelChange)="dateTo = $event; onDateFilterChange()"
+          [min]="dateFrom">
+        </app-date-input>
+      </div>
+
+      <div class="filter-group clear-group">
+        <app-label style="visibility: hidden;">Limpiar</app-label>
+        <app-button
+          type="button"
+          variant="secondary"
+          size="medium"
+          (clicked)="clearFilters()">
+          Limpiar filtros
+        </app-button>
+      </div>
+    </div>
+
+    <!-- Filtros de días de la semana -->
+    <div class="filter-days-section">
+      <div class="filter-days-label">Filtrar por día:</div>
+      <div class="filter-days-buttons">
+        <button 
+          type="button"
+          class="filter-chip"
+          [class.active]="selectedDaysOfWeek.size === 0"
+          (click)="clearDaysOfWeek()">
+          Todos
+        </button>
+        @for (day of [1, 2, 3, 4, 5, 6, 7]; track day) {
+          <button 
+            type="button"
+            class="filter-chip"
+            [class.active]="isDayOfWeekSelected(day)"
+            (click)="toggleDayOfWeek(day)">
+            {{ getDayName(day) }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <!-- Filtros de estado -->
+    <div class="filter-state-section">
+      <div class="filter-state-label">Filtrar por estado:</div>
+      <div class="filter-chips">
+        <button 
+          type="button"
+          class="filter-chip"
+          [class.active]="activeFilter === 'ALL'"
+          (click)="setFilter('ALL')">
+          Todos
+        </button>
+        <button 
+          type="button"
+          class="filter-chip"
+          [class.active]="activeFilter === 'CONFIRMED'"
+          (click)="setFilter('CONFIRMED')">
+          Confirmados
+        </button>
+        <button 
+          type="button"
+          class="filter-chip"
+          [class.active]="activeFilter === 'PENDING'"
+          (click)="setFilter('PENDING')">
+          Pendientes
+        </button>
+        <button 
+          type="button"
+          class="filter-chip"
+          [class.active]="activeFilter === 'CANCELLED'"
+          (click)="setFilter('CANCELLED')">
+          Cancelados
+        </button>
+      </div>
     </div>
   </div>
 
@@ -82,37 +144,67 @@
           }
 
           <div class="appointment-actions">
+            <app-button
+              type="button"
+              variant="secondary"
+              size="medium"
+              (clicked)="viewDetails(appointment.id)">
+              Ver detalles
+            </app-button>
             @if (appointment.state === 'CREATED') {
-              <button 
+              <app-button
                 type="button"
-                class="action-button primary"
-                (click)="confirmAppointment(appointment.id)">
+                variant="primary"
+                size="medium"
+                (clicked)="confirmAppointment(appointment.id)">
                 Confirmar turno
-              </button>
+              </app-button>
             }
             @if (appointment.state === 'CONFIRMED') {
-              <button 
+              <app-button
                 type="button"
-                class="action-button secondary"
-                (click)="cancelAppointment(appointment.id)">
-                Cancelar
-              </button>
-              <button 
-                type="button"
-                class="action-button secondary"
-                (click)="requestReschedule(appointment.id)">
+                variant="secondary"
+                size="medium"
+                (clicked)="requestReschedule(appointment.id)">
                 Reprogramar
-              </button>
+              </app-button>
+              <app-button
+                type="button"
+                variant="danger"
+                size="medium"
+                (clicked)="cancelAppointment(appointment.id)">
+                Cancelar
+              </app-button>
             }
-            <a 
-              [routerLink]="['/appointments', appointment.id]"
-              class="view-details-link">
-              Ver detalles
-            </a>
           </div>
         </div>
       }
     }
   </div>
+
+  <!-- Modal de cancelación -->
+  <app-cancel-appointment-modal
+    [isOpen]="isCancelModalOpen"
+    [appointment]="appointmentToCancel"
+    [isLoading]="isCancelling"
+    (close)="onCancelModalClose()"
+    (confirm)="onCancelModalConfirm($event)">
+  </app-cancel-appointment-modal>
+
+  <!-- Modal de reprogramación -->
+  <app-reschedule-appointment-modal
+    [isOpen]="isRescheduleModalOpen"
+    [appointment]="appointmentToReschedule"
+    [isLoading]="isRequestingReschedule"
+    (close)="onRescheduleModalClose()"
+    (rescheduleRequested)="onRescheduleRequested()">
+  </app-reschedule-appointment-modal>
+
+  <!-- Modal de detalles -->
+  <app-appointment-details-modal
+    [isOpen]="isDetailsModalOpen"
+    [appointment]="selectedAppointment"
+    (close)="onDetailsModalClose()">
+  </app-appointment-details-modal>
 </div>
 

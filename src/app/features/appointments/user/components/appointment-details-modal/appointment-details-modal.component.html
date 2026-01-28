@@ -1,0 +1,151 @@
+<app-modal
+  [isOpen]="isOpen"
+  title="Detalles del Turno"
+  [headerClass]="'modal-header-info'"
+  [noBorder]="true"
+  (close)="onClose()">
+  
+  @if (appointment) {
+    <div class="appointment-details">
+      <!-- Información básica del turno -->
+      <div class="detail-section">
+        <h3 class="section-title">Información del Turno</h3>
+        <div class="detail-item">
+          <i class="fas fa-calendar-alt"></i>
+          <div class="detail-content">
+            <span class="detail-label">Fecha:</span>
+            <span class="detail-value">{{ formatDate(appointment.date) }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-clock"></i>
+          <div class="detail-content">
+            <span class="detail-label">Horario:</span>
+            <span class="detail-value">{{ appointment.startTime }} - {{ appointment.endTime }}</span>
+            <span class="detail-meta">({{ appointment.durationMinutes }} minutos)</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <i class="fas fa-info-circle"></i>
+          <div class="detail-content">
+            <div class="detail-label-row">
+              <span class="detail-label">Estado:</span>
+              <span 
+                class="state-badge"
+                [class]="getStateBadgeClass(appointment.state)">
+                {{ getStateLabel(appointment.state) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Información adicional (solo si aplica) -->
+      @if (appointment.confirmedAt || appointment.cancelledAt || appointment.previousAppointmentId) {
+        <div class="detail-section">
+          <h3 class="section-title">Información Adicional</h3>
+          @if (appointment.confirmedAt) {
+            <div class="detail-item">
+              <i class="fas fa-check-circle"></i>
+              <div class="detail-content">
+                <span class="detail-label">Confirmado:</span>
+                <span class="detail-value">{{ formatDateTime(appointment.confirmedAt) }}</span>
+              </div>
+            </div>
+          }
+          @if (appointment.cancelledAt) {
+            <div class="detail-item">
+              <i class="fas fa-times-circle"></i>
+              <div class="detail-content">
+                <span class="detail-label">Cancelado:</span>
+                <span class="detail-value">{{ formatDateTime(appointment.cancelledAt) }}</span>
+              </div>
+            </div>
+            @if (appointment.cancellationReason) {
+              <div class="detail-item">
+                <i class="fas fa-comment"></i>
+                <div class="detail-content">
+                  <span class="detail-label">Motivo de cancelación:</span>
+                  <span class="detail-value">{{ appointment.cancellationReason }}</span>
+                </div>
+              </div>
+            }
+          }
+          @if (appointment.previousAppointmentId) {
+            <div class="detail-item">
+              <i class="fas fa-exchange-alt"></i>
+              <div class="detail-content">
+                <span class="detail-label">Turno anterior:</span>
+                <span class="detail-value">ID #{{ appointment.previousAppointmentId }}</span>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Historial -->
+      <div class="detail-section">
+        <h3 class="section-title">Historial</h3>
+        @if (isLoadingHistory) {
+          <div class="loading-state">
+            <app-spinner></app-spinner>
+            <p>Cargando historial...</p>
+          </div>
+        } @else if (historyError) {
+          <div class="error-state">
+            <app-error-text [message]="historyError"></app-error-text>
+          </div>
+        } @else if (history.length === 0) {
+          <div class="empty-history">
+            No hay historial disponible para este turno.
+          </div>
+        } @else {
+          <div class="history-list">
+            @for (entry of history; track entry.id) {
+              <div class="history-entry" [class]="getHistoryEntryClass(entry)">
+                <i class="fas history-icon" [class]="getActionIcon(entry.action)"></i>
+                <div class="history-content">
+                  <div class="history-action">
+                    <span class="history-action-name">{{ getActionLabel(entry.action) }}</span>
+                    @if (entry.previousState && entry.previousState !== entry.newState) {
+                      <span 
+                        class="history-state-change"
+                        [class]="getStateBadgeClass(entry.previousState)">
+                        {{ getStateLabel(entry.previousState) }}
+                      </span>
+                      <i class="fas fa-arrow-right" style="font-size: 0.75rem; color: var(--color-text-secondary);"></i>
+                      <span 
+                        class="history-state-change"
+                        [class]="getStateBadgeClass(entry.newState)">
+                        {{ getStateLabel(entry.newState) }}
+                      </span>
+                    }
+                  </div>
+                  <div class="history-meta">
+                    <span class="history-time">{{ formatDateTime(entry.timestamp) }}</span>
+                    @if (entry.performedByEmail) {
+                      <span class="history-user">por {{ entry.performedByEmail }}</span>
+                    }
+                  </div>
+                  @if (entry.reason) {
+                    <div class="history-reason">
+                      <i class="fas fa-comment"></i>
+                      <span>{{ entry.reason }}</span>
+                    </div>
+                  }
+                  @if (entry.relatedAppointmentId) {
+                    <div class="history-related">
+                      <i class="fas fa-link"></i>
+                      <span>Relacionado con turno ID #{{ entry.relatedAppointmentId }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  }
+</app-modal>
+

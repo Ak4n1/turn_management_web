@@ -1,0 +1,66 @@
+<app-modal 
+  [isOpen]="isOpen"
+  [title]="'Cancelar Turno'"
+  headerClass="modal-header-error"
+  [noBorder]="true"
+  (close)="onClose()">
+  <div class="cancel-modal-content">
+        <div class="warning-message">
+          <p>¿Estás seguro de que deseas cancelar este turno?</p>
+        </div>
+
+        @if (appointment) {
+          <div class="appointment-info">
+            <div class="info-row">
+              <i class="fas fa-calendar-alt"></i>
+              <span><strong>Fecha:</strong> {{ getFormattedDate() }}</span>
+            </div>
+            <div class="info-row">
+              <i class="fas fa-clock"></i>
+              <span><strong>Hora:</strong> {{ appointment.startTime }} - {{ appointment.endTime }}</span>
+            </div>
+            @if (appointment.durationMinutes) {
+              <div class="info-row">
+                <i class="fas fa-hourglass-half"></i>
+                <span><strong>Duración:</strong> {{ appointment.durationMinutes }} minutos</span>
+              </div>
+            }
+          </div>
+        }
+
+        <div class="reason-section">
+          <label for="cancellation-reason" class="reason-label">
+            Motivo de cancelación (opcional):
+          </label>
+          <app-textarea
+            id="cancellation-reason"
+            [(ngModel)]="cancellationReason"
+            placeholder="Ej: Cambio de planes, inconveniente personal, etc."
+            [rows]="3"
+            [disabled]="isLoading"
+            [maxLength]="500"
+            resize="vertical">
+          </app-textarea>
+          <div class="char-count">{{ cancellationReason.length }}/500</div>
+        </div>
+
+        <div class="modal-actions">
+          <app-button
+            type="button"
+            variant="secondary"
+            (click)="onClose()"
+            [disabled]="isLoading">
+            No, mantener
+          </app-button>
+          <app-button
+            type="button"
+            variant="danger"
+            (click)="onConfirm()"
+            [disabled]="isLoading"
+            [loading]="isLoading">
+            Sí, cancelar
+          </app-button>
+        </div>
+      </div>
+    </app-modal>
+

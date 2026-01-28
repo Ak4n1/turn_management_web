@@ -269,6 +269,59 @@ export class WeeklyConfigPageComponent implements OnInit {
     if (this.dailyHours[day]) {
       this.dailyHours[day].splice(index, 1);
     }
+    // Limpiar error si estaba relacionado con este rango
+    if (this.error && this.error.includes(`${this.getDayName(day)}`)) {
+      this.error = null;
+    }
+  }
+
+  /**
+   * Valida un rango horario y retorna mensaje de error si es inválido
+   */
+  private validateTimeRange(start: string, end: string): string | null {
+    if (!start || !end) {
+      return null; // Validación básica, no validar si está vacío
+    }
+    
+    const [startHours, startMinutes] = start.split(':').map(Number);
+    const [endHours, endMinutes] = end.split(':').map(Number);
+    
+    // Validar que sean números válidos
+    if (isNaN(startHours) || isNaN(startMinutes) || isNaN(endHours) || isNaN(endMinutes)) {
+      return null; // Dejar que el backend valide el formato
+    }
+    
+    const startTime = startHours * 60 + startMinutes;
+    const endTime = endHours * 60 + endMinutes;
+    
+    if (startTime >= endTime) {
+      return `El horario de inicio (${start}) debe ser anterior al horario de fin (${end}).`;
+    }
+    
+    return null;
+  }
+
+  /**
+   * Valida todos los rangos horarios y muestra error si hay alguno inválido
+   */
+  validateAllTimeRanges(): boolean {
+    const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
+    
+    for (const day of dayNames) {
+      const hours = this.dailyHours[day];
+      if (hours && hours.length > 0) {
+        for (let i = 0; i < hours.length; i++) {
+          const range = hours[i];
+          const error = this.validateTimeRange(range.start, range.end);
+          if (error) {
+            this.error = `${this.getDayName(day)} - Rango ${i + 1}: ${error}`;
+            return false;
+          }
+        }
+      }
+    }
+    
+    return true;
   }
 
   getDayName(day: string): string {
@@ -367,6 +420,11 @@ export class WeeklyConfigPageComponent implements OnInit {
     if (!validation.isValid) {
       this.showAlertModal('error', 'Error de Validación', validation.errorMessage, false);
       return;
+    }
+
+    // Validar rangos horarios
+    if (!this.validateAllTimeRanges()) {
+      return; // El error ya se estableció en validateAllTimeRanges
     }
 
     // Previsualizar impacto antes de guardar

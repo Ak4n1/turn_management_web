@@ -229,7 +229,25 @@ export class AdminAppointmentsPageComponent implements OnInit {
   }
 
   formatDate(date: string): string {
+    // Parsear fecha manualmente para evitar problemas de zona horaria
+    // Formato esperado: YYYY-MM-DD
+    const parts = date.split('-');
+    if (parts.length !== 3) {
+      // Fallback si el formato no es el esperado
     const d = new Date(date);
+      return d.toLocaleDateString('es-AR', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    }
+    
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // Los meses en JS son 0-indexed
+    const day = parseInt(parts[2], 10);
+    
+    const d = new Date(year, month, day);
     return d.toLocaleDateString('es-AR', { 
       weekday: 'long', 
       year: 'numeric', 

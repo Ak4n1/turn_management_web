@@ -20,37 +20,69 @@
     </div>
   </div>
 
-  <div class="calendar-grid">
-    <!-- Días de la semana -->
-    <div class="calendar-weekdays">
-      <div class="weekday">L</div>
-      <div class="weekday">M</div>
-      <div class="weekday">X</div>
-      <div class="weekday">J</div>
-      <div class="weekday">V</div>
-      <div class="weekday">S</div>
-      <div class="weekday">D</div>
+  @if (isLoading) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Cargando calendario...</p>
     </div>
+  } @else if (error) {
+    <div class="error-container">
+      <div class="error-icon">
+        <i class="fas fa-exclamation-circle"></i>
+      </div>
+      <p class="error-message">{{ error }}</p>
+      <button 
+        type="button" 
+        class="retry-button"
+        (click)="retry()">
+        <i class="fas fa-redo"></i>
+        Reintentar
+      </button>
+    </div>
+  } @else {
+    <div class="calendar-grid">
+      <!-- Días de la semana -->
+      <div class="calendar-weekdays">
+        <div class="weekday">L</div>
+        <div class="weekday">M</div>
+        <div class="weekday">Mi</div>
+        <div class="weekday">J</div>
+        <div class="weekday">V</div>
+        <div class="weekday">S</div>
+        <div class="weekday">D</div>
+      </div>
 
-    <!-- Días del mes -->
-    <div class="calendar-days">
-      @for (day of days; track day.date) {
-        <div 
-          class="calendar-day"
-          [class.available]="day.status === 'AVAILABLE'"
-          [class.unavailable]="day.status === 'UNAVAILABLE'"
-          [class.partial]="day.status === 'PARTIAL'"
-          [class.blocked]="day.status === 'BLOCKED'"
-          [class.clickable]="day.status === 'AVAILABLE' || day.status === 'PARTIAL'"
-          (click)="onDayClick(day)">
-          <span class="day-number">{{ day.day }}</span>
-          @if (day.status === 'AVAILABLE' || day.status === 'PARTIAL') {
-            <span class="day-slots">{{ day.availableSlots }} slots</span>
-          }
-        </div>
-      }
+      <!-- Días del mes -->
+      <div class="calendar-days">
+        @for (day of days; track day.isEmpty ? day.date : day.date || day.day) {
+          <div 
+            class="calendar-day"
+            [class]="getStateClass(day.status)"
+            [class.is-today]="isToday(day)"
+            [class.empty-day]="day.isEmpty"
+            [class.pointer-none]="day.isEmpty"
+            [class.has-appointments]="!day.isEmpty && day.appointments && day.appointments.length > 0"
+            [class.clickable]="!day.isEmpty && ((day.status === 'AVAILABLE' || day.status === 'PARTIAL') || (day.appointments && day.appointments.length > 0))"
+            (click)="!day.isEmpty && onDayClick(day)">
+            @if (!day.isEmpty) {
+              @if (isToday(day)) {
+                <span class="today-badge">Hoy</span>
+              }
+              <span class="day-number">{{ day.day }}</span>
+              @if (day.appointments && day.appointments.length > 0) {
+                <div class="day-appointments">
+                  <i class="fas fa-calendar-check"></i>
+                  <span class="appointments-count">{{ day.appointments.length }} {{ day.appointments.length === 1 ? 'turno' : 'turnos' }}</span>
+                </div>
+              } @else if (day.status === 'AVAILABLE' || day.status === 'PARTIAL') {
+                <span class="day-slots">{{ day.availableSlots }} {{ day.availableSlots === 1 ? 'slot' : 'slots' }}</span>
+              }
+            }
+          </div>
+        }
+      </div>
     </div>
-  </div>
+  }
 
   <div class="calendar-legend">
     <div class="legend-item">
@@ -69,6 +101,18 @@
       <span class="legend-color blocked"></span>
       <span>Bloqueado</span>
     </div>
+    <div class="legend-item">
+      <span class="legend-color has-appointments"></span>
+      <span>Mis turnos</span>
+    </div>
   </div>
+
+  <!-- Modal de slots -->
+  <app-slots-modal
+    [isOpen]="isSlotsModalOpen"
+    [selectedDate]="selectedDateForModal"
+    (close)="onSlotsModalClose()"
+    (appointmentCreated)="onAppointmentCreated()">
+  </app-slots-modal>
 </div>
 

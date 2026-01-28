@@ -37,6 +37,18 @@ export class ExceptionService {
   }
 
   /**
+   * GET /api/admin/calendar/exceptions
+   * Obtiene todas las excepciones activas del calendario
+   */
+  getAllActiveExceptions(): Observable<CalendarExceptionResponse[]> {
+    return this.http.get<CalendarExceptionResponse[]>(
+      `${this.apiUrl}/exceptions`
+    ).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  /**
    * Manejo centralizado de errores HTTP
    */
   private handleError(error: HttpErrorResponse): Observable<never> {

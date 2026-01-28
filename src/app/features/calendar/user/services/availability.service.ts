@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AvailabilityResponse, SlotsResponse } from '../models/availability-range-response.model';
+import { AvailabilityResponse, SlotsResponse, AvailabilityRangeResponse } from '../models/availability-range-response.model';
 
 /**
  * Availability Service
@@ -12,6 +12,7 @@ import { AvailabilityResponse, SlotsResponse } from '../models/availability-rang
  * Endpoints:
  * - GET /api/availability
  * - GET /api/availability/slots
+ * - GET /api/availability/range
  */
 @Injectable({
   providedIn: 'root'
@@ -41,6 +42,24 @@ export class AvailabilityService {
       .set('date', date.toISOString().split('T')[0]);
     
     return this.http.get<SlotsResponse>(`${this.apiUrl}/slots`, { params });
+  }
+
+  /**
+   * GET /api/availability/range?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD
+   * Obtiene disponibilidad por rango de fechas (para calendario mensual)
+   */
+  getAvailabilityRange(startDate?: string, endDate?: string): Observable<AvailabilityRangeResponse> {
+    let params = new HttpParams();
+    
+    if (startDate) {
+      params = params.set('startDate', startDate);
+    }
+    
+    if (endDate) {
+      params = params.set('endDate', endDate);
+    }
+    
+    return this.http.get<AvailabilityRangeResponse>(`${this.apiUrl}/range`, { params });
   }
 
   /**

@@ -34,8 +34,8 @@ export class DashboardHeaderComponent {
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
     if (this.isMenuOpen) {
-      // Calcular la altura del header y posicionar el menú
-      setTimeout(() => {
+      // Usar requestAnimationFrame para cálculos del DOM más eficientes
+      requestAnimationFrame(() => {
         const header = document.querySelector('.dashboard-header');
         const menu = document.getElementById('dashboard-menu');
         if (header && menu) {
@@ -43,7 +43,7 @@ export class DashboardHeaderComponent {
           const headerHeight = headerRect.height + headerRect.top;
           (menu as HTMLElement).style.top = `${headerHeight}px`;
         }
-      }, 0);
+      });
     } else {
       // Limpiar el estilo cuando se cierra
       const menu = document.getElementById('dashboard-menu');

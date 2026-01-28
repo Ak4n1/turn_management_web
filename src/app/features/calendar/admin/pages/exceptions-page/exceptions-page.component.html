@@ -18,7 +18,6 @@
       </div>
     </div>
   </div>
-
   <!-- Info Alert -->
   @if (showInfo) {
     <div class="info-alert">
@@ -86,8 +85,164 @@
     </div>
   }
 
-  <!-- Formulario -->
-  @if (showForm) {
+  <!-- Step: Turnos Afectados -->
+  @if (currentStep === 'affected-appointments' && affectedImpact) {
+    <div class="affected-appointments-step">
+      <div class="step-header">
+        <h2 class="step-title">Turnos Futuros Afectados</h2>
+        <p class="step-subtitle">Revisa y gestiona los turnos que se verán afectados por esta excepción</p>
+      </div>
+
+      <!-- Advertencia -->
+      <div class="warning-section">
+        <div class="warning-icon">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="warning-text">
+          Se detectaron <strong>{{ affectedImpact.existingAppointmentsAffected }}</strong> turno(s) futuro(s) que serán cancelados automáticamente por esta excepción.
+        </div>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="stats-section">
+        <div class="stat-item">
+          <span class="stat-label">Días afectados:</span>
+          <span class="stat-value">{{ affectedImpact.affectedDays }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Slots que desaparecerían:</span>
+          <span class="stat-value">{{ affectedImpact.slotsLost }}</span>
+        </div>
+      </div>
+
+      <!-- Título de sección -->
+      <h3 class="section-title">Turnos Afectados</h3>
+
+      <!-- Lista de turnos con paginación -->
+      <div class="appointments-list">
+        @if (affectedAppointmentsPaginated.length > 0) {
+          @for (appointment of affectedAppointmentsPaginated; track appointment.id || appointment.date + appointment.time) {
+            <div class="appointment-item">
+              <i class="fas fa-calendar-check appointment-icon"></i>
+              <div class="appointment-content">
+                <div class="appointment-main">
+                  <span class="appointment-date">{{ formatAffectedAppointmentDate(appointment) }}</span>
+                  <span class="appointment-time">a las {{ formatAffectedAppointmentTime(appointment) }}</span>
+                </div>
+                <div class="appointment-user">
+                  <i class="fas fa-user"></i>
+                  <span>{{ getAffectedAppointmentUserFullName(appointment) }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        } @else {
+          <div class="empty-message">
+            No hay turnos para mostrar en esta página.
+          </div>
+        }
+      </div>
+
+      <!-- Paginación -->
+      @if (affectedAppointmentsTotalPages > 1) {
+        <div class="pagination">
+          <app-button
+            type="button"
+            variant="secondary"
+            size="small"
+            [disabled]="affectedAppointmentsCurrentPage === 0"
+            (clicked)="affectedAppointmentsPreviousPage()">
+            <i class="fas fa-chevron-left"></i> Anterior
+          </app-button>
+
+          <div class="page-numbers">
+            @for (page of getAffectedAppointmentsPageNumbers(); track page) {
+              <button
+                type="button"
+                class="page-button"
+                [class.active]="page === affectedAppointmentsCurrentPage"
+                (click)="affectedAppointmentsGoToPage(page)">
+                {{ page + 1 }}
+              </button>
+            }
+          </div>
+
+          <app-button
+            type="button"
+            variant="secondary"
+            size="small"
+            [disabled]="affectedAppointmentsCurrentPage === affectedAppointmentsTotalPages - 1"
+            (clicked)="affectedAppointmentsNextPage()">
+            Siguiente <i class="fas fa-chevron-right"></i>
+          </app-button>
+        </div>
+
+        <div class="pagination-info">
+          Página {{ affectedAppointmentsCurrentPage + 1 }} de {{ affectedAppointmentsTotalPages }} ({{ affectedImpact.appointments.length }} turno(s) en total)
+        </div>
+      } @else if (affectedImpact.appointments && affectedImpact.appointments.length > 0) {
+        <div class="pagination-info">
+          Mostrando {{ affectedImpact.appointments.length }} turno(s)
+        </div>
+      }
+
+      <!-- Input de razón de cancelación -->
+      <div class="cancellation-reason-section">
+        <label for="cancellation-reason" class="reason-label">
+          Razón de la cancelación (personalizable):
+        </label>
+        <app-textarea
+          id="cancellation-reason"
+          name="cancellation-reason"
+          [(ngModel)]="cancellationReason"
+          [rows]="3"
+          placeholder="Ej: Día cerrado según excepción de calendario. Por favor, vuelva a solicitar un turno en un día hábil.">
+        </app-textarea>
+        <p class="reason-hint">
+          Esta razón será incluida en el email que se enviará a los usuarios afectados.
+        </p>
+      </div>
+
+      <!-- Nota -->
+      <div class="note-section">
+        <i class="fas fa-info-circle note-icon"></i>
+        <div class="note-content">
+          <strong>Nota:</strong> Los turnos afectados serán cancelados automáticamente. Los usuarios recibirán un email con la lista de turnos cancelados y la razón especificada, solicitándoles que vuelvan a solicitar turnos en días hábiles.
+        </div>
+      </div>
+
+      <!-- Pregunta -->
+      <div class="question-section">
+        ¿Deseas continuar con la creación de la excepción?
+      </div>
+
+      <!-- Acciones -->
+      <div class="page-actions">
+        <app-button
+          type="button"
+          variant="secondary"
+          size="medium"
+          [disabled]="isLoading"
+          (clicked)="cancelAffectedAppointmentsStep()">
+          <i class="fas fa-times" aria-hidden="true"></i>
+          Cancelar
+        </app-button>
+        <app-button
+          type="button"
+          variant="primary"
+          size="medium"
+          [disabled]="isLoading"
+          [loading]="isLoading"
+          (clicked)="confirmAffectedAppointmentsStep()">
+          <i class="fas fa-check" aria-hidden="true"></i>
+          Continuar con la Creación
+        </app-button>
+      </div>
+    </div>
+  }
+
+  <!-- Step: Formulario -->
+  @if (currentStep === 'form' && showForm) {
     <div class="form-section">
       <h2 class="form-title">Crear Nueva Excepción</h2>
       
@@ -137,12 +292,14 @@
                 type="time"
                 class="time-input"
                 [(ngModel)]="range.start"
+                (ngModelChange)="validateAllTimeRanges()"
                 [disabled]="isLoading">
               <span class="time-separator">-</span>
               <input
                 type="time"
                 class="time-input"
                 [(ngModel)]="range.end"
+                (ngModelChange)="validateAllTimeRanges()"
                 [disabled]="isLoading">
               <app-button
                 type="button"

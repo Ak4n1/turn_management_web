@@ -298,7 +298,7 @@
                       id="start-{{day}}-{{$index}}"
                       name="start-{{day}}-{{$index}}"
                       [ngModel]="range.start"
-                      (ngModelChange)="range.start = $event"
+                      (ngModelChange)="range.start = $event; validateAllTimeRanges()"
                       [disabled]="isLoading">
                     </app-input>
                     <span class="time-separator">-</span>
@@ -307,7 +307,7 @@
                       id="end-{{day}}-{{$index}}"
                       name="end-{{day}}-{{$index}}"
                       [ngModel]="range.end"
-                      (ngModelChange)="range.end = $event"
+                      (ngModelChange)="range.end = $event; validateAllTimeRanges()"
                       [disabled]="isLoading">
                     </app-input>
                     <app-button

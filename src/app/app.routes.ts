@@ -76,16 +76,6 @@ export const routes: Routes = [
         path: 'appointments/my-appointments',
         component: MyAppointmentsPageComponent
       },
-      {
-        path: 'appointments/upcoming',
-        component: MyAppointmentsPageComponent,
-        data: { filter: 'upcoming' }
-      },
-      {
-        path: 'appointments/history',
-        component: MyAppointmentsPageComponent,
-        data: { filter: 'past' }
-      },
       // Admin routes
       {
         path: 'admin/calendar/consolidated',

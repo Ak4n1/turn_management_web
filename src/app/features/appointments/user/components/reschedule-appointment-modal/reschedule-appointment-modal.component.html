@@ -1,0 +1,130 @@
+<app-modal 
+  [isOpen]="isOpen"
+  [title]="'Solicitar Reprogramación'"
+  headerClass="modal-header-info"
+  [noBorder]="true"
+  (close)="onClose()">
+  <div class="reschedule-modal-content">
+    @if (appointment) {
+      <!-- Turno actual -->
+      <div class="current-appointment-section">
+        <h3 class="section-title">Turno actual</h3>
+        <div class="appointment-info">
+          <div class="info-row">
+            <i class="fas fa-calendar-alt"></i>
+            <span><strong>Fecha:</strong> {{ getFormattedCurrentDate() }}</span>
+          </div>
+          <div class="info-row">
+            <i class="fas fa-clock"></i>
+            <span><strong>Hora:</strong> {{ appointment.startTime }} - {{ appointment.endTime }}</span>
+          </div>
+          @if (appointment.durationMinutes) {
+            <div class="info-row">
+              <i class="fas fa-hourglass-half"></i>
+              <span><strong>Duración:</strong> {{ appointment.durationMinutes }} minutos</span>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Nueva fecha y hora -->
+      <div class="new-appointment-section">
+        <h3 class="section-title">Nueva fecha y hora</h3>
+        
+        <!-- Selector de fecha -->
+        <div class="date-selector">
+          <label for="new-date" class="field-label">
+            Selecciona una nueva fecha:
+          </label>
+          <app-date-input
+            id="new-date"
+            [(ngModel)]="selectedDate"
+            (ngModelChange)="onDateChange()"
+            [required]="true"
+            [min]="getMinDate()"
+            [disabled]="isSubmitting">
+          </app-date-input>
+        </div>
+
+        <!-- Slots disponibles -->
+        @if (validationError) {
+          <div class="error-message">
+            <app-error-text [message]="validationError"></app-error-text>
+          </div>
+        } @else if (isLoadingSlots) {
+          <div class="loading-slots">
+            <app-spinner></app-spinner>
+            <p>Cargando horarios disponibles...</p>
+          </div>
+        } @else if (error && !availability?.isAvailable) {
+          <div class="error-message">
+            <app-error-text [message]="error"></app-error-text>
+          </div>
+        } @else if (selectedDate && slots.length > 0) {
+          <div class="slots-section">
+            <label class="field-label">Selecciona un horario:</label>
+            <div class="slots-grid">
+              @for (slot of slots; track slot.start + slot.end) {
+                <button
+                  type="button"
+                  class="slot-button"
+                  [class.selected]="isSlotSelected(slot)"
+                  [disabled]="!slot.available || isSubmitting"
+                  (click)="selectSlot(slot)">
+                  {{ formatTime(slot.start) }} - {{ formatTime(slot.end) }}
+                </button>
+              }
+            </div>
+          </div>
+        } @else if (selectedDate && slots.length === 0 && !isLoadingSlots) {
+          <div class="error-message">
+            <app-error-text [message]="error || 'No hay slots disponibles para esta fecha'"></app-error-text>
+          </div>
+        }
+
+        @if (error && selectedSlot) {
+          <div class="error-message">
+            <app-error-text [message]="error"></app-error-text>
+          </div>
+        }
+
+        <!-- Motivo opcional -->
+        <div class="reason-section">
+          <label for="reschedule-reason" class="field-label">
+            Motivo de reprogramación (opcional):
+          </label>
+          <app-textarea
+            id="reschedule-reason"
+            [(ngModel)]="reason"
+            placeholder="Ej: Cambio de disponibilidad personal, imprevisto, etc."
+            [rows]="3"
+            [disabled]="isSubmitting"
+            [maxLength]="500"
+            resize="vertical">
+          </app-textarea>
+          <div class="char-count">{{ reason.length }}/500</div>
+        </div>
+      </div>
+
+      <!-- Acciones -->
+      <div class="modal-actions">
+        <app-button
+          type="button"
+          variant="secondary"
+          (click)="onClose()"
+          [disabled]="isSubmitting">
+          Cancelar
+        </app-button>
+        <app-button
+          type="button"
+          variant="primary"
+          (click)="onSubmit()"
+          [disabled]="!canSubmit()"
+          [loading]="isSubmitting">
+          Solicitar reprogramación
+        </app-button>
+      </div>
+    }
+  </div>
+</app-modal>
+

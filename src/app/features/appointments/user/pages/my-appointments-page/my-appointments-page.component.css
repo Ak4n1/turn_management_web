@@ -1,7 +1,7 @@
 /* My Appointments Page Component */
 .my-appointments-page {
   padding: var(--spacing-lg);
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
@@ -18,7 +18,72 @@
 
 /* Filtros */
 .filters-section {
-  margin-bottom: var(--spacing-lg);
+  background-color: var(--color-surface, #F8FAFC);
+  border: 1px solid var(--color-border, #E2E8F0);
+  border-radius: var(--border-radius-lg, 12px);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 0 1 auto;
+  min-width: 150px;
+}
+
+.filter-group.clear-group {
+  flex: 0 0 auto;
+  min-width: auto;
+}
+
+.filter-group.clear-group app-button {
+  width: 100%;
+}
+
+.filter-group.clear-group app-button ::ng-deep .btn {
+  width: 100%;
+  min-height: 44px;
+  height: 44px;
+}
+
+.filter-days-section {
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border, #E2E8F0);
+}
+
+.filter-days-label {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #475569);
+  margin-bottom: var(--spacing-sm);
+}
+
+.filter-days-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.filter-state-section {
+  margin-top: var(--spacing-md);
+}
+
+.filter-state-label {
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-secondary, #475569);
+  margin-bottom: var(--spacing-sm);
 }
 
 .filter-chips {
@@ -29,7 +94,7 @@
 
 .filter-chip {
   padding: var(--spacing-sm) var(--spacing-md);
-  background-color: var(--color-surface, #F8FAFC);
+  background-color: var(--color-background);
   border: 1px solid var(--color-border, #E2E8F0);
   border-radius: var(--border-radius-md, 8px);
   color: var(--color-text-secondary, #475569);
@@ -37,7 +102,7 @@
   font-weight: var(--font-weight-medium, 500);
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 44px; /* Táctil */
+  min-height: 44px;
 }
 
 .filter-chip:hover {
@@ -160,62 +225,10 @@
   align-items: center;
 }
 
-.view-details-link {
-  color: var(--color-primary);
-  text-decoration: none;
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  padding: var(--spacing-sm) var(--spacing-md);
-  transition: color 0.2s ease;
-}
-
-.view-details-link:hover {
-  color: var(--color-primary-dark);
-  text-decoration: underline;
-}
-
-/* Action buttons */
-.action-button {
-  padding: var(--spacing-sm) var(--spacing-md);
-  border-radius: var(--border-radius-md, 8px);
-  font-size: var(--font-size-sm, 0.875rem);
-  font-weight: var(--font-weight-medium, 500);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-  min-height: 44px; /* Táctil */
-}
-
-.action-button.primary {
-  background-color: var(--color-primary, #2563EB);
-  color: white;
-  border-color: var(--color-primary);
-}
-
-.action-button.primary:hover {
-  background-color: var(--color-primary-dark, #1E40AF);
-}
-
-.action-button.secondary {
-  background-color: var(--color-surface, #F8FAFC);
-  color: var(--color-text-primary);
-  border-color: var(--color-border, #E2E8F0);
-}
-
-.action-button.secondary:hover {
-  background-color: var(--color-primary-light, #DBEAFE);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.action-button:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
-
-.action-button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+/* Asegurar que los botones de acción tengan altura consistente */
+.appointment-actions app-button ::ng-deep .btn {
+  min-height: 44px;
+  height: 44px;
 }
 
 /* Badges de estado */

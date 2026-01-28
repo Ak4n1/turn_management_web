@@ -21,6 +21,10 @@ export interface CalendarExceptionRequest {
   isOpen: boolean;
   timeRanges: TimeRangeResponse[];
   reason: string;
+  // Campos opcionales para cancelación automática
+  autoCancelAffectedAppointments?: boolean;
+  cancellationReason?: string;
+  appointmentIdsToCancel?: number[];
 }
 
 export interface TimeRangeResponse {

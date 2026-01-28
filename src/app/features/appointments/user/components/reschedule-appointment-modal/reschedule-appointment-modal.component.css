@@ -1,0 +1,167 @@
+.reschedule-modal-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  width: 100%;
+  text-align: center;
+}
+
+.section-title {
+  font-size: var(--font-size-h3, 1.25rem);
+  font-weight: var(--font-weight-semibold, 600);
+  color: var(--color-text-primary);
+  margin: 0 0 var(--spacing-md) 0;
+  text-align: center;
+}
+
+.current-appointment-section,
+.new-appointment-section {
+  width: 100%;
+  text-align: left;
+}
+
+.appointment-info {
+  background-color: var(--color-surface, #F8FAFC);
+  border: 1px solid var(--color-border, #E2E8F0);
+  border-radius: var(--border-radius-md, 8px);
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  color: var(--color-text-secondary);
+}
+
+.info-row i {
+  color: var(--color-primary);
+  width: 20px;
+  text-align: center;
+}
+
+.date-selector {
+  margin-bottom: var(--spacing-md);
+}
+
+.field-label {
+  display: block;
+  font-weight: var(--font-weight-medium, 500);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm, 0.875rem);
+  margin-bottom: var(--spacing-xs);
+}
+
+.date-selector app-date-input {
+  width: 100%;
+}
+
+.loading-slots {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg);
+  gap: var(--spacing-md);
+  text-align: center;
+}
+
+.loading-slots p {
+  color: var(--color-text-secondary);
+  margin: 0;
+}
+
+.error-message {
+  margin: var(--spacing-md) 0;
+}
+
+.slots-section {
+  margin: var(--spacing-md) 0;
+}
+
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.slot-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--color-background);
+  border: 2px solid var(--color-border, #E2E8F0);
+  border-radius: var(--border-radius-md, 8px);
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm, 0.875rem);
+  font-weight: var(--font-weight-medium, 500);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  text-align: center;
+}
+
+.slot-button:hover:not(:disabled) {
+  background-color: var(--color-primary-light, #DBEAFE);
+  border-color: var(--color-primary, #2563EB);
+  color: var(--color-primary);
+}
+
+.slot-button.selected {
+  background-color: var(--color-primary, #2563EB);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.slot-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.slot-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.reason-section {
+  margin-top: var(--spacing-md);
+  width: 100%;
+}
+
+.reason-section app-textarea {
+  width: 100%;
+}
+
+.char-count {
+  font-size: var(--font-size-xs, 0.75rem);
+  color: var(--color-text-secondary);
+  text-align: right;
+  margin-top: var(--spacing-xs);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+  margin-top: var(--spacing-sm);
+  width: 100%;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .slots-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-actions app-button {
+    width: 100%;
+  }
+}
+

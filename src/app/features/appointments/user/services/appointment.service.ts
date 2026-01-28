@@ -1,8 +1,16 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { AppointmentResponse } from '../models/appointment-response.model';
+import { AppointmentResponse, AppointmentHistoryResponse } from '../models/appointment-response.model';
+
+export interface MyAppointmentsResponse {
+  appointments: AppointmentResponse[];
+  total: number;
+  page: number;
+  size: number;
+  totalPages: number;
+}
 
 /**
  * Appointment Service
@@ -12,6 +20,10 @@ import { AppointmentResponse } from '../models/appointment-response.model';
  * 
  * Endpoints:
  * - POST /api/appointments
+ * - POST /api/appointments/{id}/confirm
+ * - POST /api/appointments/{id}/cancel
+ * - GET /api/appointments/my-appointments
+ * - GET /api/appointments/{id}/history
  */
 @Injectable({
   providedIn: 'root'
@@ -55,6 +67,146 @@ export class AppointmentService {
         return throwError(() => ({
           ...error,
           userMessage: 'Error inesperado al crear el turno. Por favor, intenta nuevamente.'
+        }));
+      })
+    );
+  }
+
+  /**
+   * POST /api/appointments/{id}/confirm
+   * Confirma un turno (pasa de CREATED a CONFIRMED)
+   */
+  confirmAppointment(appointmentId: number): Observable<AppointmentResponse> {
+    return this.http.post<AppointmentResponse>(`${this.apiUrl}/${appointmentId}/confirm`, {}).pipe(
+      catchError((error) => {
+        if (error.error?.message) {
+          return throwError(() => ({
+            ...error,
+            userMessage: error.error.message
+          }));
+        }
+        return throwError(() => ({
+          ...error,
+          userMessage: 'Error al confirmar el turno. Por favor, intenta nuevamente.'
+        }));
+      })
+    );
+  }
+
+  /**
+   * POST /api/appointments/{id}/cancel
+   * Cancela un turno
+   */
+  cancelAppointment(appointmentId: number, reason?: string): Observable<AppointmentResponse> {
+    const body = reason ? { reason } : {};
+    return this.http.post<AppointmentResponse>(`${this.apiUrl}/${appointmentId}/cancel`, body).pipe(
+      catchError((error) => {
+        if (error.error?.message) {
+          return throwError(() => ({
+            ...error,
+            userMessage: error.error.message
+          }));
+        }
+        return throwError(() => ({
+          ...error,
+          userMessage: 'Error al cancelar el turno. Por favor, intenta nuevamente.'
+        }));
+      })
+    );
+  }
+
+  /**
+   * POST /api/appointments/{id}/request-reschedule
+   * Solicita reprogramar un turno
+   */
+  requestReschedule(appointmentId: number, request: {
+    newDate: string; // YYYY-MM-DD
+    newStartTime: string; // HH:mm
+    reason?: string;
+  }): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/${appointmentId}/request-reschedule`, request).pipe(
+      catchError((error) => {
+        if (error.error?.message) {
+          return throwError(() => ({
+            ...error,
+            userMessage: error.error.message
+          }));
+        }
+        return throwError(() => ({
+          ...error,
+          userMessage: 'Error al solicitar reprogramación. Por favor, intenta nuevamente.'
+        }));
+      })
+    );
+  }
+
+  /**
+   * GET /api/appointments/my-appointments
+   * Obtiene los turnos del usuario actual con filtros y paginación
+   */
+  getMyAppointments(params?: {
+    status?: string;
+    page?: number;
+    size?: number;
+    fromDate?: string;
+    toDate?: string;
+    daysOfWeek?: string;
+  }): Observable<MyAppointmentsResponse> {
+    let httpParams = new HttpParams();
+    
+    if (params) {
+      if (params.status) {
+        httpParams = httpParams.set('status', params.status);
+      }
+      if (params.page !== undefined) {
+        httpParams = httpParams.set('page', params.page.toString());
+      }
+      if (params.size !== undefined) {
+        httpParams = httpParams.set('size', params.size.toString());
+      }
+      if (params.fromDate) {
+        httpParams = httpParams.set('fromDate', params.fromDate);
+      }
+      if (params.toDate) {
+        httpParams = httpParams.set('toDate', params.toDate);
+      }
+      if (params.daysOfWeek) {
+        httpParams = httpParams.set('daysOfWeek', params.daysOfWeek);
+      }
+    }
+
+    return this.http.get<MyAppointmentsResponse>(`${this.apiUrl}/my-appointments`, { params: httpParams }).pipe(
+      catchError((error) => {
+        if (error.error?.message) {
+          return throwError(() => ({
+            ...error,
+            userMessage: error.error.message
+          }));
+        }
+        return throwError(() => ({
+          ...error,
+          userMessage: 'Error al cargar tus turnos. Por favor, intenta nuevamente.'
+        }));
+      })
+    );
+  }
+
+  /**
+   * GET /api/appointments/{id}/history
+   * Obtiene el historial completo de un turno
+   */
+  getAppointmentHistory(appointmentId: number): Observable<AppointmentHistoryResponse> {
+    return this.http.get<AppointmentHistoryResponse>(`${this.apiUrl}/${appointmentId}/history`).pipe(
+      catchError((error) => {
+        if (error.error?.message) {
+          return throwError(() => ({
+            ...error,
+            userMessage: error.error.message
+          }));
+        }
+        return throwError(() => ({
+          ...error,
+          userMessage: 'Error al cargar el historial del turno. Por favor, intenta nuevamente.'
         }));
       })
     );

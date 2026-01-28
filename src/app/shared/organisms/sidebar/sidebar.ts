@@ -38,18 +38,6 @@ export class SidebarComponent implements OnInit {
       icon: 'fas fa-calendar-check', 
       route: '/dashboard/appointments/my-appointments',
       roles: ['ROLE_USER']
-    },
-    { 
-      label: 'Próximos Turnos', 
-      icon: 'fas fa-clock', 
-      route: '/dashboard/appointments/upcoming',
-      roles: ['ROLE_USER']
-    },
-    { 
-      label: 'Historial', 
-      icon: 'fas fa-history', 
-      route: '/dashboard/appointments/history',
-      roles: ['ROLE_USER']
     }
   ];
 
