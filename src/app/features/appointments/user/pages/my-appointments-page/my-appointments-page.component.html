@@ -1,185 +1,171 @@
-<div class="my-appointments-page">
-  <div class="page-header">
-    <h1 class="page-title">Mis Turnos</h1>
-  </div>
-
-  <!-- Filtros -->
-  <div class="filters-section">
-    <div class="filters-row">
-      <!-- Fechas -->
-      <div class="filter-group">
-        <app-label for="dateFrom">Desde</app-label>
-        <app-date-input
-          id="dateFrom"
-          name="dateFrom"
-          [ngModel]="dateFrom"
-          (ngModelChange)="dateFrom = $event; onDateFilterChange()">
-        </app-date-input>
+<div class="my-appointments-container">
+  <div class="management-main">
+    <!-- Sidebar -->
+    <aside class="management-sidebar">
+      <div class="sidebar-header">
+        <h1 class="management-title">Mis Turnos</h1>
+        <p class="management-subtitle">Gestiona tus turnos y citas</p>
       </div>
 
-      <div class="filter-group">
-        <app-label for="dateTo">Hasta</app-label>
-        <app-date-input
-          id="dateTo"
-          name="dateTo"
-          [ngModel]="dateTo"
-          (ngModelChange)="dateTo = $event; onDateFilterChange()"
-          [min]="dateFrom">
-        </app-date-input>
+      <!-- Filtro de Fecha -->
+      <div class="filter-card">
+        <app-label>RANGO DE FECHA</app-label>
+        <div class="date-inputs">
+          <div class="date-group">
+            <span class="date-label">Desde</span>
+            <input type="date" class="styled-date-input" [ngModel]="dateFrom"
+              (ngModelChange)="dateFrom = $event; onDateFilterChange()" />
+          </div>
+          <div class="date-group">
+            <span class="date-label">Hasta</span>
+            <input type="date" class="styled-date-input" [ngModel]="dateTo"
+              (ngModelChange)="dateTo = $event; onDateFilterChange()" [min]="dateFrom" />
+          </div>
+        </div>
       </div>
 
-      <div class="filter-group clear-group">
-        <app-label style="visibility: hidden;">Limpiar</app-label>
-        <app-button
-          type="button"
-          variant="secondary"
-          size="medium"
-          (clicked)="clearFilters()">
-          Limpiar filtros
-        </app-button>
-      </div>
-    </div>
-
-    <!-- Filtros de días de la semana -->
-    <div class="filter-days-section">
-      <div class="filter-days-label">Filtrar por día:</div>
-      <div class="filter-days-buttons">
-        <button 
-          type="button"
-          class="filter-chip"
-          [class.active]="selectedDaysOfWeek.size === 0"
-          (click)="clearDaysOfWeek()">
-          Todos
-        </button>
-        @for (day of [1, 2, 3, 4, 5, 6, 7]; track day) {
-          <button 
-            type="button"
-            class="filter-chip"
-            [class.active]="isDayOfWeekSelected(day)"
+      <!-- Filtro Días de la Semana -->
+      <div class="filter-card">
+        <app-label>DÍAS DE LA SEMANA</app-label>
+        <div class="day-chips">
+          <button type="button" class="day-chip" [class.active]="selectedDaysOfWeek.size === 0"
+            (click)="clearDaysOfWeek()">
+            Todos
+          </button>
+          @for (day of [1, 2, 3, 4, 5, 6, 7]; track day) {
+          <button type="button" class="day-chip" [class.active]="isDayOfWeekSelected(day)"
             (click)="toggleDayOfWeek(day)">
             {{ getDayName(day) }}
           </button>
-        }
+          }
+        </div>
       </div>
-    </div>
 
-    <!-- Filtros de estado -->
-    <div class="filter-state-section">
-      <div class="filter-state-label">Filtrar por estado:</div>
-      <div class="filter-chips">
-        <button 
-          type="button"
-          class="filter-chip"
-          [class.active]="activeFilter === 'ALL'"
-          (click)="setFilter('ALL')">
-          Todos
-        </button>
-        <button 
-          type="button"
-          class="filter-chip"
-          [class.active]="activeFilter === 'CONFIRMED'"
-          (click)="setFilter('CONFIRMED')">
-          Confirmados
-        </button>
-        <button 
-          type="button"
-          class="filter-chip"
-          [class.active]="activeFilter === 'PENDING'"
-          (click)="setFilter('PENDING')">
-          Pendientes
-        </button>
-        <button 
-          type="button"
-          class="filter-chip"
-          [class.active]="activeFilter === 'CANCELLED'"
-          (click)="setFilter('CANCELLED')">
-          Cancelados
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Lista de turnos -->
-  <div class="appointments-list">
-    @if (isLoading) {
-      <div class="loading-state">
-        <app-spinner></app-spinner>
-        <p>Cargando turnos...</p>
-      </div>
-    } @else if (error) {
-      <div class="error-state">
-        <app-error-text [message]="error"></app-error-text>
-      </div>
-    } @else if (filteredAppointments.length === 0) {
-      <div class="empty-state">
-        <i class="fas fa-calendar-times"></i>
-        <p>No hay turnos que coincidan con los filtros seleccionados</p>
-      </div>
-    } @else {
-      @for (appointment of filteredAppointments; track appointment.id) {
-        <div class="appointment-card">
-          <div class="appointment-header">
-            <div class="appointment-date">
-              <i class="fas fa-calendar-alt"></i>
-              <span>{{ formatDate(appointment.date) }}</span>
+      <!-- Filtro por Estado -->
+      <div class="filter-card border-none">
+        <app-label>ESTADO DEL TURNO</app-label>
+        <div class="state-filters">
+          @for (state of stateOptions; track state) {
+          <label class="state-filter-item">
+            <div class="state-identifier">
+              <div class="state-dot" [class]="getStateDotClass(state)"></div>
+              <span class="state-name">{{ getStateLabel(state) }}</span>
             </div>
-            <span 
-              class="state-badge"
-              [class]="getStateBadgeClass(appointment.state)">
-              {{ getStateLabel(appointment.state) }}
-            </span>
-          </div>
-
-          <div class="appointment-time">
-            <i class="fas fa-clock"></i>
-            <span>{{ appointment.startTime }} - {{ appointment.endTime }}</span>
-            <span class="duration">({{ appointment.durationMinutes }} min)</span>
-          </div>
-
-          @if (appointment.state === 'CREATED' && appointment.expiresAt) {
-            <div class="appointment-warning">
-              <i class="fas fa-exclamation-triangle"></i>
-              <span>Debes confirmar antes de {{ formatExpiresAt(appointment.expiresAt) }}</span>
-            </div>
+            <input type="checkbox" class="state-checkbox" [checked]="activeFilter === state"
+              (change)="setFilter(activeFilter === state ? 'ALL' : state)" />
+          </label>
           }
 
-          <div class="appointment-actions">
-            <app-button
-              type="button"
-              variant="secondary"
-              size="medium"
-              (clicked)="viewDetails(appointment.id)">
-              Ver detalles
-            </app-button>
-            @if (appointment.state === 'CREATED') {
-              <app-button
-                type="button"
-                variant="primary"
-                size="medium"
-                (clicked)="confirmAppointment(appointment.id)">
-                Confirmar turno
-              </app-button>
-            }
-            @if (appointment.state === 'CONFIRMED') {
-              <app-button
-                type="button"
-                variant="secondary"
-                size="medium"
-                (clicked)="requestReschedule(appointment.id)">
-                Reprogramar
-              </app-button>
-              <app-button
-                type="button"
-                variant="danger"
-                size="medium"
-                (clicked)="cancelAppointment(appointment.id)">
-                Cancelar
-              </app-button>
-            }
-          </div>
+          <app-button variant="secondary" size="small" (clicked)="clearFilters()" class="w-full mt-4">
+            <i class="fas fa-undo"></i> Limpiar Filtros
+          </app-button>
         </div>
-      }
-    }
+      </div>
+    </aside>
+
+    <!-- Appointment List Area -->
+    <section class="appointments-area">
+      <div class="area-header">
+        <div class="header-info">
+          <h2 class="area-title">Mis Turnos Registrados</h2>
+          <span class="result-badge">{{ totalElements }} turnos</span>
+        </div>
+      </div>
+
+      <div class="appointments-content">
+        @if (isLoading) {
+        <div class="loading-container">
+          <app-spinner></app-spinner>
+          <p>Cargando turnos...</p>
+        </div>
+        } @else if (error) {
+        <div class="error-container">
+          <app-error-text [message]="error"></app-error-text>
+        </div>
+        } @else if (appointments.length === 0) {
+        <div class="empty-container">
+          <i class="fas fa-calendar-times empty-icon"></i>
+          <p>No se encontraron turnos para los criterios seleccionados.</p>
+        </div>
+        } @else {
+        <div class="appointments-grid">
+          @for (appointment of appointments; track appointment.id) {
+          <div class="modern-appointment-card" [class]="appointment.state.toLowerCase()">
+            <div class="card-main">
+              <div class="card-user-info">
+                <div class="user-avatar-placeholder">
+                  <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="user-text">
+                  <h3 class="user-name">{{ formatDate(appointment.date) }}</h3>
+                </div>
+              </div>
+              <div class="card-time-info">
+                <span class="time-main">{{ appointment.startTime }}</span>
+                <span class="time-period">{{ appointment.startTime < '12:00' ? 'A.M.' : 'P.M.' }}</span>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="footer-badges">
+                <span class="footer-badge" [class]="getStateBadgeClass(appointment.state)">
+                  <div class="badge-dot"></div>
+                  {{ getStateLabel(appointment.state) }}
+                </span>
+                <span class="info-tag">
+                  <i class="fas fa-clock"></i>
+                  {{ appointment.startTime }} - {{ appointment.endTime }}
+                </span>
+                @if (appointment.state === 'CREATED' && appointment.expiresAt) {
+                <span class="info-tag warning-tag">
+                  <i class="fas fa-exclamation-triangle"></i>
+                  Confirma antes de {{ formatExpiresAt(appointment.expiresAt) }}
+                </span>
+                }
+              </div>
+
+              <div class="card-actions">
+                <button class="action-btn" (click)="viewDetails(appointment.id)" title="Ver Detalles">
+                  <i class="fas fa-eye"></i>
+                </button>
+                @if (appointment.state === 'CREATED') {
+                <button class="action-btn success" (click)="confirmAppointment(appointment.id)" title="Confirmar Turno">
+                  <i class="fas fa-check-circle"></i>
+                </button>
+                }
+                @if (appointment.state === 'CONFIRMED' || appointment.state === 'CREATED') {
+                <button class="action-btn" (click)="requestReschedule(appointment.id)" title="Reprogramar">
+                  <i class="fas fa-clock-rotate-left"></i>
+                </button>
+                <button class="action-btn danger" (click)="cancelAppointment(appointment.id)" title="Cancelar">
+                  <i class="fas fa-times-circle"></i>
+                </button>
+                }
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+
+        <!-- Paginación -->
+        @if (totalPages > 1) {
+        <div class="modern-pagination">
+          <app-button variant="secondary" size="medium" [disabled]="currentPage === 0"
+            (clicked)="goToPage(currentPage - 1)">
+            <i class="fas fa-chevron-left"></i> Anterior
+          </app-button>
+          <div class="pag-info">
+            Página <strong>{{ currentPage + 1 }}</strong> de {{ totalPages }}
+          </div>
+          <app-button variant="secondary" size="medium" [disabled]="currentPage >= totalPages - 1"
+            (clicked)="goToPage(currentPage + 1)">
+            Siguiente <i class="fas fa-chevron-right"></i>
+          </app-button>
+        </div>
+        }
+        }
+      </div>
+    </section>
   </div>
 
   <!-- Modal de cancelación -->

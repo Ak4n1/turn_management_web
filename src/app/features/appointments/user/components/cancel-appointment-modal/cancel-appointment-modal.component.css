@@ -20,13 +20,13 @@
 }
 
 .appointment-info {
-  background-color: var(--color-surface, #F8FAFC);
-  border: 1px solid var(--color-border, #E2E8F0);
-  border-radius: var(--border-radius-md, 8px);
-  padding: var(--spacing-md);
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
+  gap: 12px;
   text-align: left;
   width: 100%;
 }
@@ -89,4 +89,3 @@
     width: 100%;
   }
 }
-

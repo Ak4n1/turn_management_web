@@ -1,0 +1,50 @@
+<div class="day-view">
+    @if (day) {
+    <!-- Day Header -->
+    <div class="day-header">
+        <span class="day-title" [class.is-today]="day.isToday">{{ getDayTitle() }}</span>
+        @if (day.isToday) {
+        <span class="today-badge">Hoy</span>
+        }
+    </div>
+
+    <!-- Time Slots -->
+    <div class="day-slots-scroll">
+        <div class="grid-body">
+            @for (slot of timeSlots; track slot.hour) {
+            <div class="time-slot" [class.slot-closed]="!isSlotOpen(slot.hour)" (click)="onSlotClick(slot)">
+                <div class="time-label">{{ slot.label }}</div>
+                <div class="slot-bg"></div>
+            </div>
+            }
+
+            <!-- Events Overlay -->
+            <div class="events-overlay">
+                <div class="gutter-spacer"></div>
+                <div class="events-container">
+                    @for (occ of day.occupiedSlots || []; track occ.start + occ.end) {
+                    <div class="event-card slot-occupied" [ngStyle]="getOccupiedSlotStyle(occ)"
+                        (click)="$event.stopPropagation()">
+                        <div class="event-main">
+                            <span class="event-time">{{ occ.start }} - {{ occ.end }}</span>
+                            <span class="event-title">Ocupado</span>
+                        </div>
+                    </div>
+                    }
+                    @for (event of day.events; track event.id) {
+                    <div class="event-card" [class]="getStatusClass(event.status)" [ngStyle]="getEventStyle(event)"
+                        (click)="onEventClick(event, $event)">
+                        <div class="event-main">
+                            <span class="event-time">{{ formatEventTime(event) }}</span>
+                            <span class="event-title">{{ event.title }}</span>
+                        </div>
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    } @else {
+    <div class="no-day">No hay día seleccionado</div>
+    }
+</div>

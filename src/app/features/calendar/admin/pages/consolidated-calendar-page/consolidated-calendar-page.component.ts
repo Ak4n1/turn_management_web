@@ -2,147 +2,181 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AdminCalendarService } from '../../services/admin-calendar.service';
-import { ConsolidatedDayResponse } from '../../models/consolidated-calendar-response.model';
+import { AdminAppointmentService } from '../../../../appointments/admin/services/admin-appointment.service';
+import { AdminAppointmentResponse } from '../../../../appointments/admin/models/admin-appointment-response.model';
+import { ConsolidatedDayResponse, ConsolidatedCalendarResponse } from '../../models/consolidated-calendar-response.model';
+import { forkJoin } from 'rxjs';
 import { SpinnerComponent } from '../../../../../shared/atoms/spinner/spinner.component';
 import { ErrorTextComponent } from '../../../../../shared/atoms/error-text/error-text.component';
 import { DayDetailModalComponent, DayDetailData } from '../../components/day-detail-modal/day-detail-modal.component';
+import { CalendarViewComponent } from '../../../../../shared/organisms/calendar-view/calendar-view.component';
+import {
+  CalendarViewMode,
+  CalendarEvent,
+  CalendarDay as SharedCalendarDay
+} from '../../../../../shared/organisms/calendar-view/calendar-view.model';
 
 /**
  * Consolidated Calendar Page Component (Admin)
  * 
  * Página del calendario consolidado para administradores.
- * Muestra qué regla aplica a cada día (BASE, EXCEPTION, BLOCK).
- * 
- * ✅ Usa AdminCalendarService (servicio real con datos del backend)
+ * Usa el nuevo CalendarView con vistas día/semana/mes.
  */
 @Component({
   selector: 'app-consolidated-calendar-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, SpinnerComponent, ErrorTextComponent, DayDetailModalComponent],
+  imports: [
+    CommonModule,
+    RouterModule,
+    SpinnerComponent,
+    ErrorTextComponent,
+    DayDetailModalComponent,
+    CalendarViewComponent
+  ],
   templateUrl: './consolidated-calendar-page.component.html',
   styleUrl: './consolidated-calendar-page.component.css'
 })
 export class ConsolidatedCalendarPageComponent implements OnInit {
   private adminCalendarService = inject(AdminCalendarService);
+  private adminAppointmentService = inject(AdminAppointmentService);
 
-  currentMonth: Date = new Date();
-  days: CalendarDay[] = [];
+  currentDate: Date = new Date();
+  viewMode: CalendarViewMode = 'week';
+  calendarEvents: CalendarEvent[] = [];
+  dayStates: Map<string, 'open' | 'closed' | 'partial'> = new Map();
+  dayRanges: Map<string, { start: string; end: string }[]> = new Map(); // NUEVO
   isLoading = false;
   error: string | null = null;
+
+  // Utility to parse YYYY-MM-DD as local date (Fixes 1-day off bug)
+  private parseLocalDate(dateStr: string): Date {
+    const [year, month, day] = dateStr.split('-').map(Number);
+    return new Date(year, month - 1, day, 12, 0, 0); // Noon to avoid DST shifts
+  }
 
   // Modal state
   isModalOpen = false;
   selectedDayData: DayDetailData | null = null;
 
+  // Raw data from backend
+  private backendDays: Map<string, ConsolidatedDayResponse> = new Map();
+
   ngOnInit(): void {
-    this.loadCalendarDays();
+    this.loadCalendarData();
   }
 
-  private loadCalendarDays(): void {
+  private loadCalendarData(): void {
     this.isLoading = true;
     this.error = null;
 
-    const year = this.currentMonth.getFullYear();
-    const month = this.currentMonth.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    
-    const startDate = this.formatDate(firstDay);
-    const endDate = this.formatDate(lastDay);
+    const { startDate, endDate } = this.getDateRange();
 
-    this.adminCalendarService.getConsolidatedCalendar(startDate, endDate).subscribe({
-      next: (response) => {
-        // Crear un mapa de días del backend por fecha
-        const backendDaysMap = new Map<string, ConsolidatedDayResponse>();
-        response.days.forEach(day => {
-          backendDaysMap.set(day.date, day);
+    const consolidated$ = this.adminCalendarService.getConsolidatedCalendar(startDate, endDate);
+    const appointments$ = this.adminAppointmentService.getAppointments({
+      dateFrom: startDate,
+      dateTo: endDate,
+      state: 'CONFIRMED', // Solo turnos que ocupan el slot (excluir RESCHEDULED, etc.)
+      size: 100 // Máximo permitido por el backend
+    });
+
+    forkJoin({
+      consolidated: consolidated$,
+      appointments: appointments$
+    }).subscribe({
+      next: ({ consolidated, appointments }: { consolidated: ConsolidatedCalendarResponse, appointments: any }) => {
+        this.backendDays.clear();
+        this.dayStates.clear();
+        this.dayRanges.clear();
+        this.calendarEvents = [];
+
+        // 1. Procesar estados y rangos (Usar parseLocalDate para consistencia)
+        consolidated.days.forEach((day: ConsolidatedDayResponse) => {
+          this.backendDays.set(day.date, day);
+          this.dayStates.set(day.date, this.mapState(day.state));
+          this.dayRanges.set(day.date, day.timeRanges);
         });
 
-        // Generar todos los días del mes
-        const allDays: CalendarDay[] = [];
-        const firstDayOfWeek = firstDay.getDay(); // 0 = Domingo, 1 = Lunes, etc.
-        
-        // Agregar días vacíos al inicio para alinear el calendario
-        // El calendario empieza en lunes (columna 0), así que:
-        // - Si el mes empieza en lunes (1), no agregar días vacíos
-        // - Si el mes empieza en martes (2), agregar 1 día vacío
-        // - Si el mes empieza en miércoles (3), agregar 2 días vacíos
-        // - Si el mes empieza en jueves (4), agregar 3 días vacíos
-        // - Si el mes empieza en viernes (5), agregar 4 días vacíos
-        // - Si el mes empieza en sábado (6), agregar 5 días vacíos
-        // - Si el mes empieza en domingo (0), agregar 6 días vacíos
-        const emptyDaysCount = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
-        for (let i = 0; i < emptyDaysCount; i++) {
-          allDays.push({
-            date: `empty-${i}`,
-            day: 0,
-            state: 'CLOSED',
-            ruleType: 'BASE',
-            ruleDescription: '',
-            timeRanges: [],
-            hasAppointments: false,
-            appointmentsCount: 0,
-            isEmpty: true
-          });
-        }
+        // 2. Procesar turnos reales para el grid
+        this.calendarEvents = appointments.content.map((apt: AdminAppointmentResponse) => ({
+          id: apt.id.toString(),
+          title: `${apt.userFirstName || ''} ${apt.userLastName || apt.userEmail}`.trim(),
+          description: apt.cancellationReason || '',
+          date: apt.date.includes('T') ? apt.date.split('T')[0] : apt.date, // Asegurar formato YYYY-MM-DD
+          startTime: apt.startTime,
+          endTime: apt.endTime,
+          status: this.mapAppointmentStatus(apt.state)
+        }));
 
-        // Generar todos los días del mes
-        for (let day = 1; day <= lastDay.getDate(); day++) {
-          const currentDate = new Date(year, month, day);
-          const dateStr = this.formatDate(currentDate);
-          const backendDay = backendDaysMap.get(dateStr);
-
-          if (backendDay) {
-            // DEBUG: Log para días con turnos
-            if (backendDay.hasExistingAppointments && backendDay.appointmentsCount && backendDay.appointmentsCount > 0) {
-              console.log(`[DEBUG] Día ${day} (${dateStr}): state=${backendDay.state}, hasAppointments=${backendDay.hasExistingAppointments}, appointmentsCount=${backendDay.appointmentsCount}, timeRanges=${backendDay.timeRanges?.length || 0}`);
-            }
-            
-            // Usar datos del backend
-            allDays.push({
-              date: backendDay.date,
-              day: day,
-              state: backendDay.state,
-              ruleType: backendDay.ruleType,
-              ruleDescription: backendDay.ruleDescription,
-              timeRanges: backendDay.timeRanges,
-              hasAppointments: backendDay.hasExistingAppointments || false,
-              appointmentsCount: backendDay.appointmentsCount || 0,
-              isEmpty: false
-            });
-          } else {
-            // Día sin datos del backend - esto no debería pasar, pero por seguridad
-            // Si no hay datos, asumimos que está cerrado
-            // Log de depuración (solo aparece si hay un problema real)
-            console.warn(`[ConsolidatedCalendar] ⚠️ No se encontraron datos del backend para la fecha: ${dateStr}. Usando estado CLOSED por defecto.`);
-            allDays.push({
-              date: dateStr,
-              day: day,
-              state: 'CLOSED',
-              ruleType: 'BASE',
-              ruleDescription: 'Sin datos del backend',
-              timeRanges: [],
-              hasAppointments: false,
-              appointmentsCount: 0,
-              isEmpty: false
-            });
-          }
-        }
-
-        this.days = allDays;
         this.isLoading = false;
       },
       error: (err) => {
-        this.error = err.message || 'Error al cargar el calendario consolidado';
+        this.error = err.message || 'Error al cargar los datos del calendario';
         this.isLoading = false;
-        console.error('Error loading consolidated calendar:', err);
+        console.error('Error loading calendar data:', err);
       }
     });
   }
 
-  private getDayNumber(dateStr: string): number {
-    const date = new Date(dateStr);
-    return date.getDate();
+  private mapAppointmentStatus(state: string): 'confirmed' | 'pending' | 'cancelled' {
+    switch (state) {
+      case 'CONFIRMED':
+        return 'confirmed';
+      case 'CANCELLED':
+      case 'CANCELLED_BY_ADMIN':
+        return 'cancelled';
+      default:
+        return 'pending';
+    }
+  }
+
+  private getDateRange(): { startDate: string; endDate: string } {
+    const year = this.currentDate.getFullYear();
+    const month = this.currentDate.getMonth();
+
+    // Get range based on view mode
+    let startDate: Date;
+    let endDate: Date;
+
+    switch (this.viewMode) {
+      case 'day':
+        startDate = new Date(this.currentDate);
+        endDate = new Date(this.currentDate);
+        break;
+      case 'week':
+        startDate = this.getStartOfWeek(this.currentDate);
+        endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + 6);
+        break;
+      case 'month':
+      default:
+        startDate = new Date(year, month, 1);
+        endDate = new Date(year, month + 1, 0);
+        break;
+    }
+
+    return {
+      startDate: this.formatDate(startDate),
+      endDate: this.formatDate(endDate)
+    };
+  }
+
+  private getStartOfWeek(date: Date): Date {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+    return new Date(d.setDate(diff));
+  }
+
+  private mapState(state: string): 'open' | 'closed' | 'partial' {
+    switch (state) {
+      case 'OPEN':
+        return 'open';
+      case 'PARTIAL':
+        return 'partial';
+      case 'CLOSED':
+      default:
+        return 'closed';
+    }
   }
 
   private formatDate(date: Date): string {
@@ -152,90 +186,56 @@ export class ConsolidatedCalendarPageComponent implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
-  navigateMonth(direction: 'prev' | 'next'): void {
-    if (direction === 'prev') {
-      this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
-    } else {
-      this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1);
-    }
-    this.loadCalendarDays();
+  // Event handlers for CalendarView
+  onViewModeChange(mode: CalendarViewMode): void {
+    this.viewMode = mode;
+    this.loadCalendarData();
   }
 
-  getMonthYear(): string {
-    return this.currentMonth.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+  onDateChange(date: Date): void {
+    const localDate = new Date(date);
+    localDate.setHours(12, 0, 0, 0);
+    this.currentDate = localDate;
+    this.loadCalendarData();
   }
 
-  getRuleTypeIcon(ruleType: string): string {
-    switch (ruleType) {
-      case 'BLOCK':
-        return 'fas fa-lock';
-      case 'EXCEPTION':
-        return 'fas fa-exclamation-triangle';
-      case 'BASE':
-        return 'fas fa-calendar';
-      default:
-        return 'fas fa-calendar';
-    }
-  }
+  onDayClick(date: Date): void {
+    const localDate = new Date(date);
+    localDate.setHours(12, 0, 0, 0);
+    const dateStr = this.formatDate(localDate);
+    const backendDay = this.backendDays.get(dateStr);
 
-  getStateClass(state: string, hasAppointments: boolean = false): string {
-    // Si está cerrado pero tiene turnos existentes, usar clase especial
-    if (state === 'CLOSED' && hasAppointments) {
-      return 'state-closed-with-appointments';
-    }
-    
-    switch (state) {
-      case 'OPEN':
-        return 'state-open';
-      case 'CLOSED':
-        return 'state-closed';
-      case 'PARTIAL':
-        return 'state-partial';
-      default:
-        return '';
+    if (backendDay) {
+      this.selectedDayData = {
+        date: backendDay.date,
+        state: backendDay.state,
+        ruleType: backendDay.ruleType,
+        ruleDescription: backendDay.ruleDescription,
+        timeRanges: backendDay.timeRanges,
+        hasExistingAppointments: backendDay.hasExistingAppointments || false,
+        appointmentsCount: backendDay.appointmentsCount || 0
+      };
+      this.isModalOpen = true;
     }
   }
 
-  onDayClick(day: CalendarDay): void {
-    this.selectedDayData = {
-      date: day.date,
-      state: day.state,
-      ruleType: day.ruleType,
-      ruleDescription: day.ruleDescription,
-      timeRanges: day.timeRanges,
-      hasExistingAppointments: day.hasAppointments,
-      appointmentsCount: day.appointmentsCount || 0
-    };
-    this.isModalOpen = true;
+  onEventClick(event: CalendarEvent): void {
+    // Navigate to appointment details or open modal
+    console.log('Event clicked:', event);
+  }
+
+  onSlotClick(data: { date: Date; time: string }): void {
+    // Could open a modal to create new appointment
+    console.log('Slot clicked:', data);
+  }
+
+  onNewAppointment(): void {
+    // Navigate to new appointment form
+    console.log('New appointment clicked');
   }
 
   onModalClose(): void {
     this.isModalOpen = false;
     this.selectedDayData = null;
   }
-
-  formatTimeRanges(timeRanges: Array<{ start: string; end: string }>): string {
-    if (timeRanges.length === 0) return 'Sin horarios';
-    return timeRanges.map(r => `${r.start}-${r.end}`).join(', ');
-  }
-
-  isToday(day: CalendarDay): boolean {
-    if (day.isEmpty) return false;
-    
-    const todayStr = this.formatDate(new Date());
-    return todayStr === day.date;
-  }
 }
-
-interface CalendarDay {
-  date: string;
-  day: number;
-  state: 'OPEN' | 'CLOSED' | 'PARTIAL';
-  ruleType: 'BASE' | 'EXCEPTION' | 'BLOCK';
-  ruleDescription: string;
-  timeRanges: Array<{ start: string; end: string }>;
-  hasAppointments: boolean;
-  appointmentsCount: number;
-  isEmpty?: boolean; // Para días vacíos al inicio del mes
-}
-

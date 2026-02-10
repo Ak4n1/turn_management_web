@@ -1,50 +1,43 @@
-/* Dashboard Layout Template */
+/* Dashboard Layout Template - Sidebar desde arriba, header dentro del main */
 .dashboard-layout {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
-  background-color: var(--color-background);
+  flex-direction: row;
+  background-color: #ffffff !important;
+  overflow: hidden;
 }
 
-.dashboard-layout-body {
-  display: flex;
+.dashboard-layout-main {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
   overflow: hidden;
-  position: relative;
-  margin-top: var(--header-height, 64px); /* Espacio para el header fijo */
+  margin-left: 0;
+}
+
+/* Desktop: el main deja espacio a la sidebar fija */
+@media (min-width: 769px) {
+  .dashboard-layout-main {
+    margin-left: var(--sidebar-width);
+  }
 }
 
 .dashboard-layout-content {
   flex: 1;
   padding: var(--spacing-xl);
   overflow-y: auto;
-  background-color: var(--color-background);
-  height: calc(100vh - var(--header-height, 64px)); /* Altura total menos header */
-  margin-left: 0; /* Se ajustará en desktop */
+  background-color: #ffffff !important;
+  min-height: 0;
 }
 
-/* Desktop - Sidebar fijo */
-@media (min-width: 769px) {
-  .dashboard-layout-content {
-    margin-left: 250px; /* Ancho del sidebar */
-  }
-}
-
-/* Mobile adjustments - Mobile First */
+/* Mobile: main a ancho completo; la sidebar sigue en el DOM y se abre con el botón (drawer) */
 @media (max-width: 768px) {
-  .dashboard-layout-body {
-    flex-direction: column;
-    margin-top: var(--header-height, 56px); /* Espacio para el header fijo en mobile */
+  .dashboard-layout-main {
+    margin-left: 0;
   }
 
   .dashboard-layout-content {
     padding: var(--spacing-lg) var(--spacing-md);
-    margin-left: 0;
-    height: calc(100vh - var(--header-height, 56px)); /* Altura total menos header mobile */
-  }
-
-  /* Ocultar sidebar en mobile */
-  app-sidebar {
-    display: none;
   }
 }

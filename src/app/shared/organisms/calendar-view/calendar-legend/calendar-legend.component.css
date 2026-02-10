@@ -1,0 +1,55 @@
+/* Calendar Legend */
+.calendar-legend {
+    background: white;
+    border: 1px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 16px 20px;
+    min-width: 180px;
+}
+
+.legend-title {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: #94A3B8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin: 0 0 12px 0;
+}
+
+.legend-items {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.legend-label {
+    font-size: 0.875rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .calendar-legend {
+        width: 100%;
+    }
+
+    .legend-items {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+}

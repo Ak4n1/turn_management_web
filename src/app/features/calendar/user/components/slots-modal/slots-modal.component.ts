@@ -145,8 +145,11 @@ export class SlotsModalComponent implements OnInit, OnChanges {
 
     // Revalidar que la fecha no sea pasada usando parseo manual
     const selectedDateObj = this.parseDateString(this.selectedDate);
-    const now = new Date();
-    if (selectedDateObj < now) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    selectedDateObj.setHours(0, 0, 0, 0);
+
+    if (selectedDateObj < today) {
       this.error = 'No puedes reservar turnos para fechas pasadas';
       return;
     }
@@ -169,7 +172,7 @@ export class SlotsModalComponent implements OnInit, OnChanges {
       },
       error: (err) => {
         this.isCreatingAppointment = false;
-        
+
         if (err.userMessage) {
           this.error = err.userMessage;
         } else if (err.error?.message) {
@@ -177,7 +180,7 @@ export class SlotsModalComponent implements OnInit, OnChanges {
         } else {
           this.error = 'Error al crear el turno. Por favor, intenta nuevamente.';
         }
-        
+
         console.error('Error creating appointment:', err);
       }
     });
@@ -197,7 +200,7 @@ export class SlotsModalComponent implements OnInit, OnChanges {
       },
       error: (err) => {
         this.isConfirmingAppointment = false;
-        
+
         if (err.userMessage) {
           this.error = err.userMessage;
         } else if (err.error?.message) {
@@ -205,7 +208,7 @@ export class SlotsModalComponent implements OnInit, OnChanges {
         } else {
           this.error = 'Error al confirmar el turno. Por favor, intenta nuevamente.';
         }
-        
+
         console.error('Error confirming appointment:', err);
       }
     });
@@ -240,13 +243,13 @@ export class SlotsModalComponent implements OnInit, OnChanges {
 
   getTimeRemaining(): string {
     if (!this.createdAppointment?.expiresAt) return '';
-    
+
     const expiresAt = new Date(this.createdAppointment.expiresAt);
     const now = new Date();
     const diffMs = expiresAt.getTime() - now.getTime();
-    
+
     if (diffMs <= 0) return '0 minutos';
-    
+
     const diffMins = Math.floor(diffMs / 60000);
     return `${diffMins} minutos`;
   }
@@ -258,11 +261,11 @@ export class SlotsModalComponent implements OnInit, OnChanges {
     if (parts.length !== 3) {
       return new Date(dateStr); // Fallback
     }
-    
+
     const year = parseInt(parts[0], 10);
     const month = parseInt(parts[1], 10) - 1; // Los meses en JS son 0-indexed
     const day = parseInt(parts[2], 10);
-    
+
     return new Date(year, month, day);
   }
 
@@ -274,21 +277,21 @@ export class SlotsModalComponent implements OnInit, OnChanges {
     if (parts.length !== 3) {
       // Fallback si el formato no es el esperado
       const date = new Date(this.selectedDate);
-      return date.toLocaleDateString('es-AR', { 
-        weekday: 'long', 
+      return date.toLocaleDateString('es-AR', {
+        weekday: 'long',
         year: 'numeric',
         month: 'long',
         day: 'numeric'
       });
     }
-    
+
     const year = parseInt(parts[0], 10);
     const month = parseInt(parts[1], 10) - 1; // Los meses en JS son 0-indexed
     const day = parseInt(parts[2], 10);
-    
+
     const date = new Date(year, month, day);
-    return date.toLocaleDateString('es-AR', { 
-      weekday: 'long', 
+    return date.toLocaleDateString('es-AR', {
+      weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'

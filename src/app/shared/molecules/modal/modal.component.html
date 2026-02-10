@@ -1,20 +1,15 @@
 @if (isOpen) {
-  <div class="modal-backdrop" (click)="onBackdropClick($event)">
-    <div class="modal-container" [class.modal-no-border]="noBorder" (click)="$event.stopPropagation()">
-      <div class="modal-header" [ngClass]="headerClass">
-        <h2 class="modal-title">{{ title }}</h2>
-        <button
-          type="button"
-          class="modal-close"
-          (click)="onClose()"
-          aria-label="Cerrar modal">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      <div class="modal-body">
-        <ng-content></ng-content>
-      </div>
+<div class="modal-backdrop" (click)="onBackdropClick($event)">
+  <div class="modal-container" [class.modal-no-border]="noBorder" (click)="$event.stopPropagation()">
+    <div class="modal-header" [ngClass]="headerClass">
+      <h2 class="modal-title">{{ title }}</h2>
+      <button type="button" class="modal-close" (click)="onClose()" aria-label="Cerrar modal">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="modal-body">
+      <ng-content></ng-content>
     </div>
   </div>
+</div>
 }
-

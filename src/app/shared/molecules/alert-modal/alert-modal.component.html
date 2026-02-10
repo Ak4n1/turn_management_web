@@ -6,9 +6,11 @@
   (close)="onClose()">
   <div class="alert-content" [class]="getTypeClass()">
     <div class="alert-header">
-      <div class="alert-icon">
-        <i [class]="getIconClass()"></i>
-      </div>
+      @if (showIcon) {
+        <div class="alert-icon">
+          <i [class]="getIconClass()"></i>
+        </div>
+      }
       <div class="alert-message">
         <div  [innerHTML]="getFormattedMessage()"></div>
       </div>

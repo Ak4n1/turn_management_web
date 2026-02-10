@@ -76,5 +76,19 @@
   --color-error-dark: #991B1B; /* Rojo oscuro para texto */
   --color-warning-light: #FEF3C7; /* Amarillo claro para backgrounds */
   --color-warning-dark: #92400E; /* Amarillo oscuro para texto */
+
+  /* Layout - Sidebar y Header */
+  --sidebar-width: 260px;
+  --header-height: 64px;
+  --header-height-mobile: 56px;
+  --color-sidebar-bg: #FFFFFF;
+  --color-background-hover: #F8FAFC;
+  --color-active-indicator: var(--color-primary);
+  --color-logout-hover-bg: #FEF2F2;
+  --color-logout-hover-text: #DC2626;
+
+  /* Header / Navbar (backdrop opcional) */
+  --color-header-bg: var(--color-background);
+  --color-header-border: var(--color-border);
 }
 

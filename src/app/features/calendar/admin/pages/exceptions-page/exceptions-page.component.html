@@ -6,11 +6,7 @@
         <p class="page-subtitle">Gestiona excepciones del calendario (días especiales, horarios reducidos, etc.)</p>
       </div>
       <div class="help-button-container">
-        <app-button
-          type="button"
-          variant="secondary"
-          size="medium"
-          (clicked)="toggleInfo()"
+        <app-button type="button" variant="secondary" size="medium" (clicked)="toggleInfo()"
           ariaLabel="Ayuda sobre excepciones y bloqueos">
           <i class="fas fa-question-circle" aria-hidden="true"></i>
           Ayuda
@@ -20,378 +16,431 @@
   </div>
   <!-- Info Alert -->
   @if (showInfo) {
-    <div class="info-alert">
-      <div class="info-header">
-        <i class="fas fa-info-circle"></i>
-        <h3>¿Cuál es la diferencia entre Bloqueos y Excepciones?</h3>
-        <app-button
-          type="button"
-          variant="text"
-          size="small"
-          (clicked)="toggleInfo()"
-          ariaLabel="Cerrar información">
-          <i class="fas fa-times" aria-hidden="true"></i>
-        </app-button>
+  <div class="info-alert">
+    <div class="info-header">
+      <i class="fas fa-info-circle"></i>
+      <h3>¿Cuál es la diferencia entre Bloqueos y Excepciones?</h3>
+      <app-button type="button" variant="text" size="small" (clicked)="toggleInfo()" ariaLabel="Cerrar información">
+        <i class="fas fa-times" aria-hidden="true"></i>
+      </app-button>
+    </div>
+    <div class="info-content">
+      <div class="info-section">
+        <h4><i class="fas fa-ban"></i> Bloqueos Operativos</h4>
+        <ul>
+          <li><strong>Prioridad máxima:</strong> Tienen prioridad sobre todas las reglas (base, excepciones, etc.)</li>
+          <li><strong>Uso:</strong> Mantenimiento, reuniones internas, emergencias operativas</li>
+          <li><strong>Rango horario:</strong> Un solo rango horario o día completo</li>
+          <li><strong>Afecta turnos:</strong> Puede afectar turnos existentes (opción configurable)</li>
+          <li><strong>Restrictivo:</strong> Bloquea completamente la disponibilidad</li>
+        </ul>
       </div>
-      <div class="info-content">
-        <div class="info-section">
-          <h4><i class="fas fa-ban"></i> Bloqueos Operativos</h4>
-          <ul>
-            <li><strong>Prioridad máxima:</strong> Tienen prioridad sobre todas las reglas (base, excepciones, etc.)</li>
-            <li><strong>Uso:</strong> Mantenimiento, reuniones internas, emergencias operativas</li>
-            <li><strong>Rango horario:</strong> Un solo rango horario o día completo</li>
-            <li><strong>Afecta turnos:</strong> Puede afectar turnos existentes (opción configurable)</li>
-            <li><strong>Restrictivo:</strong> Bloquea completamente la disponibilidad</li>
-          </ul>
-        </div>
-        <div class="info-section">
-          <h4><i class="fas fa-calendar-alt"></i> Excepciones</h4>
-          <ul>
-            <li><strong>Prioridad media:</strong> Tienen prioridad sobre reglas base, pero no sobre bloqueos</li>
-            <li><strong>Uso:</strong> Días especiales, horarios reducidos, feriados, aperturas especiales</li>
-            <li><strong>Rangos horarios:</strong> Múltiples rangos horarios permitidos</li>
-            <li><strong>Afecta turnos:</strong> No tiene opción de afectar turnos existentes</li>
-            <li><strong>Flexible:</strong> Permite abrir o cerrar días específicos</li>
-          </ul>
-        </div>
-        <div class="info-example">
-          <strong>Ejemplo:</strong> Si tienes una excepción que abre un sábado, pero luego creas un bloqueo para ese mismo sábado, el bloqueo tendrá prioridad y el día quedará cerrado.
-        </div>
+      <div class="info-section">
+        <h4><i class="fas fa-calendar-alt"></i> Excepciones</h4>
+        <ul>
+          <li><strong>Prioridad media:</strong> Tienen prioridad sobre reglas base, pero no sobre bloqueos</li>
+          <li><strong>Uso:</strong> Días especiales, horarios reducidos, feriados, aperturas especiales</li>
+          <li><strong>Rangos horarios:</strong> Múltiples rangos horarios permitidos</li>
+          <li><strong>Afecta turnos:</strong> No tiene opción de afectar turnos existentes</li>
+          <li><strong>Flexible:</strong> Permite abrir o cerrar días específicos</li>
+        </ul>
+      </div>
+      <div class="info-example">
+        <strong>Ejemplo:</strong> Si tienes una excepción que abre un sábado, pero luego creas un bloqueo para ese mismo
+        sábado, el bloqueo tendrá prioridad y el día quedará cerrado.
       </div>
     </div>
+  </div>
   }
 
-  <div class="page-actions">
-    <app-button
-      type="button"
-      [variant]="showForm ? 'danger' : 'primary'"
-      size="medium"
-      (clicked)="toggleForm()">
-      <i class="fas fa-plus" aria-hidden="true"></i>
-      {{ showForm ? 'Cancelar' : 'Nueva Excepción' }}
-    </app-button>
-  </div>
 
   @if (successMessage) {
-    <div class="success-message">
-      <i class="fas fa-check-circle"></i>
-      <span>{{ successMessage }}</span>
-    </div>
+  <div class="success-message">
+    <i class="fas fa-check-circle"></i>
+    <span>{{ successMessage }}</span>
+  </div>
   }
 
   @if (error) {
-    <div class="error-message">
-      <app-error-text [message]="error"></app-error-text>
-    </div>
+  <div class="error-message">
+    <app-error-text [message]="error"></app-error-text>
+  </div>
+  }
+
+  @if (!showForm) {
+  <div class="page-actions">
+    <app-button type="button" variant="primary" size="medium" (clicked)="toggleForm()">
+      <i class="fas fa-plus" aria-hidden="true"></i>
+      Nueva Excepción
+    </app-button>
+  </div>
   }
 
   <!-- Step: Turnos Afectados -->
   @if (currentStep === 'affected-appointments' && affectedImpact) {
-    <div class="affected-appointments-step">
-      <div class="step-header">
-        <h2 class="step-title">Turnos Futuros Afectados</h2>
-        <p class="step-subtitle">Revisa y gestiona los turnos que se verán afectados por esta excepción</p>
+  <div class="affected-appointments-step">
+    <div class="step-header">
+      <h2 class="step-title">Turnos Futuros Afectados</h2>
+      <p class="step-subtitle">Revisa y gestiona los turnos que se verán afectados por esta excepción</p>
+    </div>
+
+    <!-- Advertencia -->
+    <div class="warning-section" [class.success]="affectedImpact.existingAppointmentsAffected === 0">
+      <div class="warning-icon">
+        <i class="fas" [class.fa-exclamation-triangle]="affectedImpact.existingAppointmentsAffected > 0"
+          [class.fa-check-circle]="affectedImpact.existingAppointmentsAffected === 0"></i>
       </div>
-
-      <!-- Advertencia -->
-      <div class="warning-section">
-        <div class="warning-icon">
-          <i class="fas fa-exclamation-triangle"></i>
-        </div>
-        <div class="warning-text">
-          Se detectaron <strong>{{ affectedImpact.existingAppointmentsAffected }}</strong> turno(s) futuro(s) que serán cancelados automáticamente por esta excepción.
-        </div>
-      </div>
-
-      <!-- Estadísticas -->
-      <div class="stats-section">
-        <div class="stat-item">
-          <span class="stat-label">Días afectados:</span>
-          <span class="stat-value">{{ affectedImpact.affectedDays }}</span>
-        </div>
-        <div class="stat-item">
-          <span class="stat-label">Slots que desaparecerían:</span>
-          <span class="stat-value">{{ affectedImpact.slotsLost }}</span>
-        </div>
-      </div>
-
-      <!-- Título de sección -->
-      <h3 class="section-title">Turnos Afectados</h3>
-
-      <!-- Lista de turnos con paginación -->
-      <div class="appointments-list">
-        @if (affectedAppointmentsPaginated.length > 0) {
-          @for (appointment of affectedAppointmentsPaginated; track appointment.id || appointment.date + appointment.time) {
-            <div class="appointment-item">
-              <i class="fas fa-calendar-check appointment-icon"></i>
-              <div class="appointment-content">
-                <div class="appointment-main">
-                  <span class="appointment-date">{{ formatAffectedAppointmentDate(appointment) }}</span>
-                  <span class="appointment-time">a las {{ formatAffectedAppointmentTime(appointment) }}</span>
-                </div>
-                <div class="appointment-user">
-                  <i class="fas fa-user"></i>
-                  <span>{{ getAffectedAppointmentUserFullName(appointment) }}</span>
-                </div>
-              </div>
-            </div>
-          }
+      <div class="warning-text">
+        @if (affectedImpact.existingAppointmentsAffected > 0) {
+        Se detectaron <strong>{{ affectedImpact.existingAppointmentsAffected }}</strong> turno(s) futuro(s) que serán
+        cancelados automáticamente por esta excepción.
         } @else {
-          <div class="empty-message">
-            No hay turnos para mostrar en esta página.
+        Esta excepción <strong>habilitará nueva disponibilidad</strong> para este día sin afectar turnos existentes.
+        }
+      </div>
+    </div>
+
+    <!-- Estadísticas -->
+    <div class="stats-section">
+      <div class="stat-item">
+        <span class="stat-label">Días afectados:</span>
+        <span class="stat-value">{{ affectedImpact.affectedDays }}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Slots que desaparecerían:</span>
+        <span class="stat-value">{{ affectedImpact.slotsLost }}</span>
+      </div>
+    </div>
+
+    <!-- Título de sección -->
+    <h3 class="section-title">Turnos Afectados</h3>
+
+    <!-- Lista de turnos con paginación -->
+    <div class="appointments-list">
+      @if (affectedAppointmentsPaginated.length > 0) {
+      @for (appointment of affectedAppointmentsPaginated; track appointment.id || appointment.date + appointment.time) {
+      <div class="appointment-item">
+        <i class="fas fa-calendar-check appointment-icon"></i>
+        <div class="appointment-content">
+          <div class="appointment-main">
+            <span class="appointment-date">{{ formatAffectedAppointmentDate(appointment) }}</span>
+            <span class="appointment-time">a las {{ formatAffectedAppointmentTime(appointment) }}</span>
           </div>
+          <div class="appointment-user">
+            <i class="fas fa-user"></i>
+            <span>{{ getAffectedAppointmentUserFullName(appointment) }}</span>
+          </div>
+        </div>
+      </div>
+      }
+      } @else {
+      <div class="empty-message">
+        No hay turnos para mostrar en esta página.
+      </div>
+      }
+    </div>
+
+    <!-- Paginación -->
+    @if (affectedAppointmentsTotalPages > 1) {
+    <div class="pagination">
+      <app-button type="button" variant="secondary" size="small" [disabled]="affectedAppointmentsCurrentPage === 0"
+        (clicked)="affectedAppointmentsPreviousPage()">
+        <i class="fas fa-chevron-left"></i> Anterior
+      </app-button>
+
+      <div class="page-numbers">
+        @for (page of getAffectedAppointmentsPageNumbers(); track page) {
+        <button type="button" class="page-button" [class.active]="page === affectedAppointmentsCurrentPage"
+          (click)="affectedAppointmentsGoToPage(page)">
+          {{ page + 1 }}
+        </button>
         }
       </div>
 
-      <!-- Paginación -->
-      @if (affectedAppointmentsTotalPages > 1) {
-        <div class="pagination">
-          <app-button
-            type="button"
-            variant="secondary"
-            size="small"
-            [disabled]="affectedAppointmentsCurrentPage === 0"
-            (clicked)="affectedAppointmentsPreviousPage()">
-            <i class="fas fa-chevron-left"></i> Anterior
-          </app-button>
+      <app-button type="button" variant="secondary" size="small"
+        [disabled]="affectedAppointmentsCurrentPage === affectedAppointmentsTotalPages - 1"
+        (clicked)="affectedAppointmentsNextPage()">
+        Siguiente <i class="fas fa-chevron-right"></i>
+      </app-button>
+    </div>
 
-          <div class="page-numbers">
-            @for (page of getAffectedAppointmentsPageNumbers(); track page) {
-              <button
-                type="button"
-                class="page-button"
-                [class.active]="page === affectedAppointmentsCurrentPage"
-                (click)="affectedAppointmentsGoToPage(page)">
-                {{ page + 1 }}
-              </button>
-            }
-          </div>
+    <div class="pagination-info">
+      Página {{ affectedAppointmentsCurrentPage + 1 }} de {{ affectedAppointmentsTotalPages }} ({{
+      affectedImpact.appointments.length }} turno(s) en total)
+    </div>
+    } @else if (affectedImpact.appointments && affectedImpact.appointments.length > 0) {
+    <div class="pagination-info">
+      Mostrando {{ affectedImpact.appointments.length }} turno(s)
+    </div>
+    }
 
-          <app-button
-            type="button"
-            variant="secondary"
-            size="small"
-            [disabled]="affectedAppointmentsCurrentPage === affectedAppointmentsTotalPages - 1"
-            (clicked)="affectedAppointmentsNextPage()">
-            Siguiente <i class="fas fa-chevron-right"></i>
-          </app-button>
-        </div>
+    <!-- Input de razón de cancelación -->
+    <div class="cancellation-reason-section">
+      <label for="cancellation-reason" class="reason-label">
+        Razón de la cancelación (personalizable):
+      </label>
+      <app-textarea id="cancellation-reason" name="cancellation-reason" [(ngModel)]="cancellationReason" [rows]="3"
+        placeholder="Ej: Día cerrado según excepción de calendario. Por favor, vuelva a solicitar un turno en un día hábil.">
+      </app-textarea>
+      <p class="reason-hint">
+        Esta razón será incluida en el email que se enviará a los usuarios afectados.
+      </p>
+    </div>
 
-        <div class="pagination-info">
-          Página {{ affectedAppointmentsCurrentPage + 1 }} de {{ affectedAppointmentsTotalPages }} ({{ affectedImpact.appointments.length }} turno(s) en total)
-        </div>
-      } @else if (affectedImpact.appointments && affectedImpact.appointments.length > 0) {
-        <div class="pagination-info">
-          Mostrando {{ affectedImpact.appointments.length }} turno(s)
-        </div>
-      }
-
-      <!-- Input de razón de cancelación -->
-      <div class="cancellation-reason-section">
-        <label for="cancellation-reason" class="reason-label">
-          Razón de la cancelación (personalizable):
-        </label>
-        <app-textarea
-          id="cancellation-reason"
-          name="cancellation-reason"
-          [(ngModel)]="cancellationReason"
-          [rows]="3"
-          placeholder="Ej: Día cerrado según excepción de calendario. Por favor, vuelva a solicitar un turno en un día hábil.">
-        </app-textarea>
-        <p class="reason-hint">
-          Esta razón será incluida en el email que se enviará a los usuarios afectados.
-        </p>
-      </div>
-
-      <!-- Nota -->
-      <div class="note-section">
-        <i class="fas fa-info-circle note-icon"></i>
-        <div class="note-content">
-          <strong>Nota:</strong> Los turnos afectados serán cancelados automáticamente. Los usuarios recibirán un email con la lista de turnos cancelados y la razón especificada, solicitándoles que vuelvan a solicitar turnos en días hábiles.
-        </div>
-      </div>
-
-      <!-- Pregunta -->
-      <div class="question-section">
-        ¿Deseas continuar con la creación de la excepción?
-      </div>
-
-      <!-- Acciones -->
-      <div class="page-actions">
-        <app-button
-          type="button"
-          variant="secondary"
-          size="medium"
-          [disabled]="isLoading"
-          (clicked)="cancelAffectedAppointmentsStep()">
-          <i class="fas fa-times" aria-hidden="true"></i>
-          Cancelar
-        </app-button>
-        <app-button
-          type="button"
-          variant="primary"
-          size="medium"
-          [disabled]="isLoading"
-          [loading]="isLoading"
-          (clicked)="confirmAffectedAppointmentsStep()">
-          <i class="fas fa-check" aria-hidden="true"></i>
-          Continuar con la Creación
-        </app-button>
+    <!-- Nota -->
+    <div class="note-section">
+      <i class="fas fa-info-circle note-icon"></i>
+      <div class="note-content">
+        <strong>Nota:</strong> Los turnos afectados serán cancelados automáticamente. Los usuarios recibirán un email
+        con la lista de turnos cancelados y la razón especificada, solicitándoles que vuelvan a solicitar turnos en días
+        hábiles.
       </div>
     </div>
+
+    <!-- Pregunta -->
+    <div class="question-section">
+      ¿Deseas continuar con la creación de la excepción?
+    </div>
+
+    <!-- Acciones -->
+    <div class="page-actions">
+      <app-button type="button" variant="secondary" size="medium" [disabled]="isLoading"
+        (clicked)="cancelAffectedAppointmentsStep()">
+        <i class="fas fa-times" aria-hidden="true"></i>
+        Cancelar
+      </app-button>
+      <app-button type="button" variant="primary" size="medium" [disabled]="isLoading" [loading]="isLoading"
+        (clicked)="confirmAffectedAppointmentsStep()">
+        <i class="fas fa-check" aria-hidden="true"></i>
+        Continuar con la Creación
+      </app-button>
+    </div>
+  </div>
   }
 
   <!-- Step: Formulario -->
   @if (currentStep === 'form' && showForm) {
-    <div class="form-section">
-      <h2 class="form-title">Crear Nueva Excepción</h2>
-      
-      <div class="form-group">
-        <app-label for="date" [required]="true">Fecha</app-label>
-        <app-date-input
-          id="date"
-          name="date"
-          [ngModel]="formDate"
-          (ngModelChange)="formDate = $event"
-          [min]="getTodayDate()"
-          [required]="true"
-          [disabled]="isLoading">
-        </app-date-input>
-      </div>
-
-      <div class="form-group">
-        <app-label [required]="true">Estado del día</app-label>
-        <div class="radio-group">
-          <label class="radio-label">
-            <input
-              type="radio"
-              name="isOpen"
-              [(ngModel)]="formIsOpen"
-              [value]="true"
-              [disabled]="isLoading">
-            <span>Abierto</span>
-          </label>
-          <label class="radio-label">
-            <input
-              type="radio"
-              name="isOpen"
-              [(ngModel)]="formIsOpen"
-              [value]="false"
-              [disabled]="isLoading">
-            <span>Cerrado</span>
-          </label>
-        </div>
-      </div>
-
-      @if (formIsOpen) {
-        <div class="form-group">
-          <app-label [required]="true">Rangos Horarios</app-label>
-          @for (range of formTimeRanges; track $index) {
-            <div class="time-range-row">
-              <input
-                type="time"
-                class="time-input"
-                [(ngModel)]="range.start"
-                (ngModelChange)="validateAllTimeRanges()"
-                [disabled]="isLoading">
-              <span class="time-separator">-</span>
-              <input
-                type="time"
-                class="time-input"
-                [(ngModel)]="range.end"
-                (ngModelChange)="validateAllTimeRanges()"
-                [disabled]="isLoading">
-              <app-button
-                type="button"
-                variant="danger"
-                size="medium"
-                (clicked)="removeTimeRange($index)"
-                [disabled]="isLoading || formTimeRanges.length === 1">
-                <i class="fas fa-times" aria-hidden="true"></i>
-              </app-button>
-            </div>
-          }
-          <app-button
-            type="button"
-            variant="secondary"
-            size="medium"
-            (clicked)="addTimeRange()"
-            [disabled]="isLoading">
-            <i class="fas fa-plus" aria-hidden="true"></i>
-            Agregar rango horario
-          </app-button>
-        </div>
-      }
-
-      <div class="form-group">
-        <app-label for="reason" [required]="true">Motivo</app-label>
-        <app-textarea
-          id="reason"
-          name="reason"
-          [ngModel]="formReason"
-          (ngModelChange)="formReason = $event"
-          [rows]="3"
-          placeholder="Describe el motivo de la excepción (mínimo 10 caracteres)..."
-          [required]="true"
-          [maxLength]="500"
-          [disabled]="isLoading">
-        </app-textarea>
-        <p class="form-hint">Mínimo 10 caracteres, máximo 500</p>
-      </div>
-
-      <div class="form-actions">
-        <app-button
-          type="button"
-          variant="primary"
-          size="medium"
-          [disabled]="isLoading"
-          [loading]="isLoading"
-          (clicked)="submitForm()">
-          <i class="fas fa-save" aria-hidden="true"></i>
-          Crear Excepción
+  <section class="form-section-card">
+    <div class="form-card">
+      <div class="form-card-header">
+        <h2 class="form-title">
+          <i class="fas" [class.fa-plus-circle]="!editingExceptionId" [class.fa-edit]="!!editingExceptionId" class="form-title-icon"></i>
+          {{ editingExceptionId ? 'Editar Excepción' : 'Crear Nueva Excepción' }}
+        </h2>
+        <app-button type="button" variant="text" size="small" (clicked)="toggleForm()"
+          ariaLabel="Cancelar">
+          <i class="fas fa-times" aria-hidden="true"></i>
+          Cancelar
         </app-button>
       </div>
+      <form class="form-content" (ngSubmit)="submitForm()">
+        <div class="form-row">
+          <div class="form-group">
+            <app-label for="date" [required]="true">Fecha</app-label>
+            <app-date-input id="date" name="date" [ngModel]="formDate" (ngModelChange)="formDate = $event"
+              [min]="getTodayDate()" [required]="true" [disabled]="isLoading">
+            </app-date-input>
+          </div>
+          <div class="form-group">
+            <app-label [required]="true">Estado del día</app-label>
+            <div class="state-toggle">
+              <button type="button" class="state-toggle-btn" [class.active]="formIsOpen"
+                [disabled]="isLoading" (click)="formIsOpen = true">
+                Abierto
+              </button>
+              <button type="button" class="state-toggle-btn" [class.active]="!formIsOpen"
+                [disabled]="isLoading" (click)="formIsOpen = false">
+                Cerrado
+              </button>
+            </div>
+          </div>
+        </div>
+
+        @if (formIsOpen) {
+        <div class="form-group">
+          <app-label [required]="true">Rangos Horarios</app-label>
+          <div class="time-ranges-wrap">
+            @for (range of formTimeRanges; track $index) {
+            <div class="time-range-chip">
+              <input type="time" class="time-input-inline" [(ngModel)]="range.start"
+                (ngModelChange)="validateAllTimeRanges()" [disabled]="isLoading" name="start-{{$index}}">
+              <span class="time-sep">—</span>
+              <input type="time" class="time-input-inline" [(ngModel)]="range.end"
+                (ngModelChange)="validateAllTimeRanges()" [disabled]="isLoading" name="end-{{$index}}">
+              <button type="button" class="time-range-remove" (click)="removeTimeRange($index)"
+                [disabled]="isLoading || formTimeRanges.length === 1" aria-label="Quitar rango">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            }
+            <app-button type="button" variant="secondary" size="small" (clicked)="addTimeRange()"
+              [disabled]="isLoading" class="add-range-btn">
+              <i class="fas fa-plus" aria-hidden="true"></i>
+              Agregar rango horario
+            </app-button>
+          </div>
+        </div>
+        }
+
+        <div class="form-group">
+          <app-label for="reason" [required]="true">Motivo</app-label>
+          <app-textarea id="reason" name="reason" [ngModel]="formReason" (ngModelChange)="formReason = $event"
+            [rows]="4" placeholder="Describe el motivo de la excepción (mínimo 10 caracteres)..."
+            [required]="true" [maxLength]="500" [disabled]="isLoading">
+          </app-textarea>
+          <p class="form-hint">Mínimo 10 caracteres, máximo 500</p>
+        </div>
+
+        <div class="form-actions">
+          <app-button type="submit" variant="primary" size="medium" [disabled]="isLoading" [loading]="isLoading">
+            <i class="fas fa-save" aria-hidden="true"></i>
+            {{ editingExceptionId ? 'Guardar cambios' : 'Crear Excepción' }}
+          </app-button>
+        </div>
+      </form>
     </div>
+  </section>
   }
 
   <!-- Lista de Excepciones -->
-  <div class="exceptions-list">
-    <h2 class="section-title">Excepciones Existentes</h2>
+  <section class="exceptions-list-section">
+    <div class="exceptions-list-header">
+      <h2 class="section-title">Excepciones Existentes</h2>
+      <div class="exceptions-list-actions">
+        <button type="button" class="filter-btn" aria-label="Filtrar" (click)="openFilterModal()">
+          <i class="fas fa-filter"></i>
+        </button>
+      </div>
+    </div>
 
     @if (isLoading && exceptions.length === 0) {
-      <div class="loading-state">
-        <app-spinner></app-spinner>
-        <p>Cargando excepciones...</p>
-      </div>
-    } @else if (exceptions.length === 0) {
-      <div class="empty-state">
-        <i class="fas fa-inbox"></i>
-        <p>No hay excepciones configuradas</p>
-      </div>
+    <div class="loading-state">
+      <app-spinner></app-spinner>
+      <p>Cargando excepciones...</p>
+    </div>
+    } @else if (getFilteredExceptions().length === 0) {
+    <div class="empty-state">
+      <i class="fas fa-inbox"></i>
+      <p>{{ (filterDateFrom || filterDateTo || filterIsOpen !== null) ? 'No hay excepciones que coincidan con el filtro' : 'No hay excepciones configuradas' }}</p>
+    </div>
     } @else {
-      <div class="exceptions-grid">
-        @for (exception of exceptions; track exception.id) {
-          <div class="exception-card" [class.closed]="!exception.isOpen">
-            <div class="card-header">
-              <h3 class="card-title">{{ formatDate(exception.exceptionDate) }}</h3>
-              <span class="card-badge" [class.open]="exception.isOpen" [class.closed]="!exception.isOpen">
-                {{ exception.isOpen ? 'Abierto' : 'Cerrado' }}
-              </span>
-            </div>
-            <div class="card-body">
-              <p class="card-reason"><strong>Motivo:</strong> {{ exception.reason }}</p>
-              @if (exception.isOpen && exception.timeRanges.length > 0) {
-                <p class="card-time"><strong>Horarios:</strong> {{ formatTimeRanges(exception.timeRanges) }}</p>
-              }
-              <p class="card-meta">
-                <i class="fas fa-calendar"></i>
-                Creado: {{ formatDate(exception.createdAt) }}
-              </p>
+    <div class="exceptions-table-card">
+      <div class="exceptions-table-header">
+        <div class="col-date">Fecha</div>
+        <div class="col-details">Motivo y Horarios</div>
+        <div class="col-status">Estado</div>
+        <div class="col-actions">Acciones</div>
+      </div>
+      <div class="exceptions-table-body">
+        @for (exception of getFilteredExceptions(); track exception.id) {
+        <div class="exception-row">
+          <div class="col-date">
+            <div class="date-cell">
+              <div class="date-icon">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <div>
+                <p class="date-main">{{ formatDateList(exception.exceptionDate) }}</p>
+                <p class="date-weekday">{{ formatWeekday(exception.exceptionDate) }}</p>
+              </div>
             </div>
           </div>
+          <div class="col-details">
+            <span class="reason-text">{{ exception.reason }}</span>
+            @if (exception.isOpen && exception.timeRanges.length > 0) {
+            <div class="time-ranges-row">
+              <i class="fas fa-clock"></i>
+              <span class="time-ranges-text">{{ formatTimeRanges(exception.timeRanges) }}</span>
+            </div>
+            } @else if (!exception.isOpen) {
+            <div class="time-ranges-row closed">
+              <i class="fas fa-ban"></i>
+              <span class="time-ranges-text">Sin horarios de atención</span>
+            </div>
+            }
+          </div>
+          <div class="col-status">
+            <span class="status-badge" [class.open]="exception.isOpen" [class.closed]="!exception.isOpen">
+              {{ exception.isOpen ? 'Abierto' : 'Cerrado' }}
+            </span>
+          </div>
+          <div class="col-actions">
+            <button type="button" class="action-btn" title="Editar" aria-label="Editar" (click)="editException(exception)">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button type="button" class="action-btn delete" title="Eliminar" aria-label="Eliminar" (click)="openDeleteConfirm(exception)">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
         }
       </div>
+      <div class="exceptions-table-footer">
+        <p class="footer-count">Mostrando {{ getFilteredExceptions().length }} de {{ exceptions.length }} excepciones registradas</p>
+      </div>
+    </div>
     }
-  </div>
-</div>
+  </section>
 
+  <!-- Modal confirmar eliminar -->
+  @if (exceptionToDelete) {
+  <app-alert-modal
+    [isOpen]="true"
+    type="error"
+    title="Eliminar excepción"
+    [message]="'¿Eliminar la excepción del ' + formatDateList(exceptionToDelete.exceptionDate) + '? Esta acción no se puede deshacer.'"
+    [showCancelButton]="true"
+    cancelButtonText="Cancelar"
+    confirmButtonText="Eliminar"
+    (confirm)="confirmDelete()"
+    (close)="closeDeleteConfirm()"
+    (cancel)="closeDeleteConfirm()">
+  </app-alert-modal>
+  }
+
+  <!-- Modal filtros -->
+  @if (showFilterModal) {
+  <div class="modal-backdrop" (click)="closeFilterModal()">
+    <div class="filter-modal-content" (click)="$event.stopPropagation()">
+      <div class="filter-modal-header">
+        <h3 class="filter-modal-title"><i class="fas fa-filter"></i> Filtrar excepciones</h3>
+        <button type="button" class="filter-modal-close" aria-label="Cerrar" (click)="closeFilterModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="filter-modal-body">
+        <div class="filter-form-group">
+          <label class="filter-label">Desde fecha</label>
+          <input type="date" class="filter-input" [(ngModel)]="filterDateFrom" name="filterDateFrom">
+        </div>
+        <div class="filter-form-group">
+          <label class="filter-label">Hasta fecha</label>
+          <input type="date" class="filter-input" [(ngModel)]="filterDateTo" name="filterDateTo">
+        </div>
+        <div class="filter-form-group">
+          <label class="filter-label">Estado del día</label>
+          <div class="filter-state-options">
+            <button type="button" class="filter-state-btn" [class.active]="filterIsOpen === null" (click)="filterIsOpen = null">
+              Todos
+            </button>
+            <button type="button" class="filter-state-btn" [class.active]="filterIsOpen === true" (click)="filterIsOpen = true">
+              Abierto
+            </button>
+            <button type="button" class="filter-state-btn" [class.active]="filterIsOpen === false" (click)="filterIsOpen = false">
+              Cerrado
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="filter-modal-footer">
+        <app-button type="button" variant="secondary" size="medium" (clicked)="clearFilters()">
+          Limpiar
+        </app-button>
+        <app-button type="button" variant="primary" size="medium" (clicked)="applyFilters()">
+          Aplicar
+        </app-button>
+      </div>
+    </div>
+  </div>
+  }
+</div>

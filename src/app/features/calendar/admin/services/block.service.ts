@@ -3,18 +3,13 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { ManualBlockResponse, ManualBlockRequest } from '../models/block-response.model';
+import { PreviewImpactRequest, PreviewImpactResponse } from '../models/preview-impact.model';
 
 /**
  * Block Service
- * 
+ *
  * Servicio real para gestión de bloqueos operativos del calendario.
- * Reemplaza MockBlockService con llamadas HTTP reales al backend.
- * 
- * Endpoints:
- * - POST /api/admin/calendar/blocks
- * 
- * Nota: El backend no tiene endpoint GET para listar bloqueos.
- * Los bloqueos se pueden obtener del calendario consolidado si es necesario.
+ * Endpoints: GET, POST, PUT, DELETE /api/admin/calendar/blocks
  */
 @Injectable({
   providedIn: 'root'
@@ -24,14 +19,57 @@ export class BlockService {
   private readonly apiUrl = 'http://localhost:8080/api/admin/calendar';
 
   /**
+   * GET /api/admin/calendar/blocks
+   * Obtiene todos los bloqueos activos.
+   */
+  getBlocks(): Observable<ManualBlockResponse[]> {
+    return this.http.get<ManualBlockResponse[]>(`${this.apiUrl}/blocks`).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  /**
    * POST /api/admin/calendar/blocks
-   * Crea un bloqueo operativo del calendario
+   * Crea un bloqueo operativo del calendario.
    */
   createBlock(request: ManualBlockRequest): Observable<ManualBlockResponse> {
     return this.http.post<ManualBlockResponse>(
       `${this.apiUrl}/blocks`,
       request
     ).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  /**
+   * PUT /api/admin/calendar/blocks/{id}
+   * Actualiza un bloqueo existente.
+   */
+  updateBlock(id: number, request: ManualBlockRequest): Observable<ManualBlockResponse> {
+    return this.http.put<ManualBlockResponse>(
+      `${this.apiUrl}/blocks/${id}`,
+      request
+    ).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  /**
+   * POST /api/admin/calendar/preview-impact
+   * Previsualiza el impacto de un bloqueo (turnos afectados).
+   */
+  previewBlockImpact(request: PreviewImpactRequest): Observable<PreviewImpactResponse> {
+    return this.http.post<PreviewImpactResponse>(`${this.apiUrl}/preview-impact`, request).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  /**
+   * DELETE /api/admin/calendar/blocks/{id}
+   * Desactiva un bloqueo (eliminación lógica).
+   */
+  deleteBlock(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/blocks/${id}`).pipe(
       catchError(this.handleError.bind(this))
     );
   }
@@ -56,6 +94,9 @@ export class BlockService {
           break;
         case 403:
           errorMessage = 'No tienes permisos para realizar esta acción.';
+          break;
+        case 404:
+          errorMessage = error.error?.message || 'Bloqueo no encontrado.';
           break;
         case 409:
           errorMessage = error.error?.message || 'Existen turnos en el rango bloqueado. Debe resolverlos primero o establecer "affectsExistingAppointments" en true.';

@@ -2,8 +2,6 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChange
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ModalComponent } from '../../../../../shared/molecules/modal/modal.component';
-import { ButtonComponent } from '../../../../../shared/atoms/button/button.component';
-import { TextareaComponent } from '../../../../../shared/atoms/textarea/textarea';
 import { PreviewImpactResponse, AffectedAppointmentInfo } from '../../models/preview-impact.model';
 import { AdminAppointmentResponse } from '../../../../appointments/admin/models/admin-appointment-response.model';
 
@@ -13,7 +11,7 @@ import { AdminAppointmentResponse } from '../../../../appointments/admin/models/
 @Component({
   selector: 'app-affected-appointments-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, ButtonComponent, TextareaComponent],
+  imports: [CommonModule, FormsModule, ModalComponent],
   templateUrl: './affected-appointments-modal.component.html',
   styleUrl: './affected-appointments-modal.component.css'
 })
@@ -32,7 +30,7 @@ export class AffectedAppointmentsModalComponent implements OnInit, OnChanges {
 
   // Switch para cancelación automática (siempre checkeado por defecto)
   autoCancelAffectedAppointments: boolean = true;
-  
+
   // Razón de cancelación personalizable
   cancellationReason: string = 'Día cerrado según nueva configuración';
 
@@ -158,6 +156,21 @@ export class AffectedAppointmentsModalComponent implements OnInit, OnChanges {
     }
 
     return pages;
+  }
+  getUserInitials(appointment: AffectedAppointmentInfo): string {
+    const fullName = this.getUserFullName(appointment);
+    if (!fullName || fullName === 'Usuario desconocido' || fullName === 'Cargando...') {
+      return '??';
+    }
+
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    } else if (parts.length === 1) {
+      return parts[0].substring(0, 2).toUpperCase();
+    }
+
+    return '??';
   }
 }
 

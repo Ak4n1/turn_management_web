@@ -7,8 +7,6 @@ import { AdminAppointmentResponse, AppointmentState } from '../../models/admin-a
 import { SpinnerComponent } from '../../../../../shared/atoms/spinner/spinner.component';
 import { ErrorTextComponent } from '../../../../../shared/atoms/error-text/error-text.component';
 import { ButtonComponent } from '../../../../../shared/atoms/button/button.component';
-import { InputComponent } from '../../../../../shared/atoms/input/input.component';
-import { DateInputComponent } from '../../../../../shared/atoms/date-input/date-input.component';
 import { LabelComponent } from '../../../../../shared/atoms/label/label.component';
 import { AppointmentDetailsModalComponent } from '../../components/appointment-details-modal/appointment-details-modal';
 import { RescheduleModalComponent } from '../../components/reschedule-modal/reschedule-modal';
@@ -26,14 +24,12 @@ import { CancelModalComponent } from '../../components/cancel-modal/cancel-modal
   selector: 'app-admin-appointments-page',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterModule, 
-    FormsModule, 
-    SpinnerComponent, 
+    CommonModule,
+    RouterModule,
+    FormsModule,
+    SpinnerComponent,
     ErrorTextComponent,
     ButtonComponent,
-    InputComponent,
-    DateInputComponent,
     LabelComponent,
     AppointmentDetailsModalComponent,
     RescheduleModalComponent,
@@ -48,14 +44,14 @@ export class AdminAppointmentsPageComponent implements OnInit {
   appointments: AdminAppointmentResponse[] = [];
   isLoading = false;
   error: string | null = null;
-  
+
   // Filtros
   activeFilter: 'ALL' | AppointmentState = 'ALL';
   searchTerm: string = '';
   dateFrom: string = '';
   dateTo: string = '';
   selectedDaysOfWeek: Set<number> = new Set(); // 1=Lunes, 2=Martes, ..., 7=Domingo
-  
+
   // Paginación
   currentPage = 0;
   pageSize = 20;
@@ -67,6 +63,16 @@ export class AdminAppointmentsPageComponent implements OnInit {
   isDetailsModalOpen = false;
   isRescheduleModalOpen = false;
   isCancelModalOpen = false;
+
+  // Opciones de estado para el filtro (solo los que usamos en gestión)
+  readonly stateOptions: AppointmentState[] = [
+    'CONFIRMED',   // Confirmado
+    'CREATED',     // Pendiente (sin confirmar)
+    'COMPLETED',   // Completado
+    'CANCELLED',   // Cancelado
+    'CANCELLED_BY_ADMIN', // Cancelado por admin
+    'RESCHEDULED'  // Reprogramado
+  ];
 
   ngOnInit(): void {
     this.loadAppointments();
@@ -186,6 +192,19 @@ export class AdminAppointmentsPageComponent implements OnInit {
     }
   }
 
+  /** Clase CSS para el punto de estado en el filtro (solo clases definidas en CSS) */
+  getStateDotClass(state: AppointmentState): string {
+    switch (state) {
+      case 'CONFIRMED': return 'confirmed';
+      case 'CREATED': return 'created';
+      case 'CANCELLED':
+      case 'CANCELLED_BY_ADMIN': return 'cancelled';
+      case 'COMPLETED': return 'completed';
+      case 'RESCHEDULED': return 'rescheduled';
+      default: return 'cancelled';
+    }
+  }
+
   getStateBadgeClass(state: AppointmentState): string {
     switch (state) {
       case 'CONFIRMED':
@@ -200,6 +219,8 @@ export class AdminAppointmentsPageComponent implements OnInit {
       case 'EXPIRED':
       case 'NO_SHOW':
         return 'badge-error';
+      case 'RESCHEDULED':
+        return 'badge-info';
       default:
         return 'badge-secondary';
     }
@@ -234,25 +255,25 @@ export class AdminAppointmentsPageComponent implements OnInit {
     const parts = date.split('-');
     if (parts.length !== 3) {
       // Fallback si el formato no es el esperado
-    const d = new Date(date);
-      return d.toLocaleDateString('es-AR', { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric' 
+      const d = new Date(date);
+      return d.toLocaleDateString('es-AR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
       });
     }
-    
+
     const year = parseInt(parts[0], 10);
     const month = parseInt(parts[1], 10) - 1; // Los meses en JS son 0-indexed
     const day = parseInt(parts[2], 10);
-    
+
     const d = new Date(year, month, day);
-    return d.toLocaleDateString('es-AR', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return d.toLocaleDateString('es-AR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   }
 
@@ -261,6 +282,32 @@ export class AdminAppointmentsPageComponent implements OnInit {
       return `${appointment.userFirstName} ${appointment.userLastName}`;
     }
     return appointment.userEmail;
+  }
+
+  getUserInitials(appointment: AdminAppointmentResponse): string {
+    const first = (appointment.userFirstName || '').trim();
+    const last = (appointment.userLastName || '').trim();
+    if (first && last) {
+      return (first.charAt(0) + last.charAt(0)).toUpperCase();
+    }
+    if (first && first.length >= 2) {
+      return first.slice(0, 2).toUpperCase();
+    }
+    if (first) {
+      return first.charAt(0).toUpperCase();
+    }
+    if (last && last.length >= 2) {
+      return last.slice(0, 2).toUpperCase();
+    }
+    if (last) {
+      return last.charAt(0).toUpperCase();
+    }
+    const email = (appointment.userEmail || '').trim();
+    const part = email.split('@')[0] || '';
+    if (part.length >= 2) {
+      return part.slice(0, 2).toUpperCase();
+    }
+    return part ? part.charAt(0).toUpperCase() : '?';
   }
 
   viewDetails(id: number): void {
@@ -323,6 +370,66 @@ export class AdminAppointmentsPageComponent implements OnInit {
     // Recargar la lista para asegurar consistencia
     this.loadAppointments();
     this.onCancelModalClose();
+  }
+
+  exportToPdf(appointment: AdminAppointmentResponse): void {
+    if (appointment.state !== 'CONFIRMED') {
+      alert('Solo se pueden exportar los detalles de turnos CONFIRMADOS. Este turno está en estado: ' + this.getStateLabel(appointment.state));
+      return;
+    }
+
+    try {
+      // @ts-ignore - Usando jsPDF cargado via CDN
+      const { jsPDF } = (window as any).jspdf;
+      const doc = new jsPDF();
+
+      // Header
+      doc.setFillColor(37, 99, 235); // Primary Blue
+      doc.rect(0, 0, 210, 40, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.text('Comprobante de Turno', 105, 20, { align: 'center' });
+      doc.setFontSize(10);
+      doc.text('Sistema TurnFlow - Gestión Administrativa', 105, 30, { align: 'center' });
+
+      // Body
+      doc.setTextColor(15, 23, 42); // Title Text
+      doc.setFontSize(16);
+      doc.text('Detalles del Cliente', 20, 55);
+
+      doc.setDrawColor(226, 232, 240);
+      doc.line(20, 58, 190, 58);
+
+      doc.setFontSize(12);
+      doc.text(`Nombre: ${this.getUserName(appointment)}`, 20, 70);
+      doc.text(`Email: ${appointment.userEmail}`, 20, 80);
+
+      doc.setFontSize(16);
+      doc.text('Detalles de la Cita', 20, 100);
+      doc.line(20, 103, 190, 103);
+
+      doc.setFontSize(12);
+      doc.text(`Servicio: Consulta de Control`, 20, 115);
+      doc.text(`Fecha: ${this.formatDate(appointment.date)}`, 20, 125);
+      doc.text(`Horario: ${appointment.startTime} - ${appointment.endTime}`, 20, 135);
+      doc.text(`Estado: CONFIRMADO`, 20, 145);
+
+      // Footer
+      doc.setDrawColor(37, 99, 235);
+      doc.setLineWidth(1);
+      doc.line(20, 270, 190, 270);
+
+      doc.setFontSize(10);
+      doc.setTextColor(100, 116, 139);
+      doc.text('Este documento es un comprobante oficial generado por TurnFlow.', 105, 280, { align: 'center' });
+      doc.text(`Generado el: ${new Date().toLocaleString()}`, 105, 285, { align: 'center' });
+
+      doc.save(`Turno_${appointment.id}_${appointment.userLastName || 'Comprobante'}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Error al generar el PDF. Asegúrese de que jsPDF se haya cargado correctamente.');
+    }
   }
 }
 

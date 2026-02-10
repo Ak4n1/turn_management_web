@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -21,6 +21,13 @@ export class ModalComponent {
 
   onBackdropClick(event: MouseEvent): void {
     if ((event.target as HTMLElement).classList.contains('modal-backdrop')) {
+      this.onClose();
+    }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEsc(): void {
+    if (this.isOpen) {
       this.onClose();
     }
   }

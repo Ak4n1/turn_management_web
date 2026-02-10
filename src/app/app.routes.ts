@@ -24,7 +24,6 @@ import { MyAppointmentsPageComponent } from './features/appointments/user/pages/
 import { ConsolidatedCalendarPageComponent } from './features/calendar/admin/pages/consolidated-calendar-page/consolidated-calendar-page.component';
 import { AdminAppointmentsPageComponent } from './features/appointments/admin/pages/admin-appointments-page/admin-appointments-page.component';
 import { WeeklyConfigPageComponent } from './features/calendar/admin/pages/weekly-config-page/weekly-config-page.component';
-import { AffectedAppointmentsPageComponent } from './features/calendar/admin/pages/affected-appointments-page/affected-appointments-page.component';
 import { ExceptionsPageComponent } from './features/calendar/admin/pages/exceptions-page/exceptions-page.component';
 import { BlocksPageComponent } from './features/calendar/admin/pages/blocks-page/blocks-page.component';
 import { AuditPageComponent } from './features/admin/pages/audit-page/audit-page.component';
@@ -90,11 +89,6 @@ export const routes: Routes = [
       {
         path: 'admin/calendar/weekly-config',
         component: WeeklyConfigPageComponent,
-        canActivate: [adminGuard]
-      },
-      {
-        path: 'admin/calendar/weekly-config/affected-appointments',
-        component: AffectedAppointmentsPageComponent,
         canActivate: [adminGuard]
       },
       {

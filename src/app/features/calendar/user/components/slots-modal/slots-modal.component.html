@@ -1,239 +1,183 @@
-<app-modal
-  [isOpen]="isOpen"
-  [title]="currentStep === 'confirm-appointment' ? 'Confirmar Turno' : getFormattedDate()"
+<app-modal [isOpen]="isOpen" [title]="currentStep === 'confirm-appointment' ? 'Confirmar Turno' : getFormattedDate()"
   (close)="onClose()">
-  
+
   <div class="slots-modal-content">
     @if (validationError) {
-      <div class="error-container">
-        <app-error-text [message]="validationError"></app-error-text>
-        <button 
-          type="button" 
-          class="close-button"
-          (click)="onClose()">
-          Cerrar
-        </button>
-      </div>
+    <div class="error-container">
+      <app-error-text [message]="validationError"></app-error-text>
+      <button type="button" class="close-button" (click)="onClose()">
+        Cerrar
+      </button>
+    </div>
     } @else if (isLoading) {
-      <div class="loading-container">
-        <app-spinner></app-spinner>
-        <p>Cargando slots disponibles...</p>
-      </div>
+    <div class="loading-container">
+      <app-spinner></app-spinner>
+      <p>Cargando slots disponibles...</p>
+    </div>
     } @else if (error && !availability?.isAvailable) {
-      <div class="error-container">
-        <div class="error-icon">
-          <i class="fas fa-exclamation-circle"></i>
-        </div>
-        <app-error-text [message]="error"></app-error-text>
-        <button 
-          type="button" 
-          class="close-button"
-          (click)="onClose()">
-          Cerrar
-        </button>
+    <div class="error-container">
+      <div class="error-icon">
+        <i class="fas fa-exclamation-circle"></i>
       </div>
+      <app-error-text [message]="error"></app-error-text>
+      <button type="button" class="close-button" (click)="onClose()">
+        Cerrar
+      </button>
+    </div>
     } @else if (currentStep === 'confirm-appointment' && createdAppointment) {
-      <!-- Paso 2: Confirmar turno creado -->
-      <div class="confirmation-section">
-        <div class="success-banner">
-          <i class="fas fa-check-circle"></i>
-          <h3>¡Turno creado exitosamente!</h3>
-          <p>Tu turno ha sido reservado. Ahora debes confirmarlo para validarlo definitivamente.</p>
+    <!-- Paso 2: Confirmar turno creado -->
+    <div class="confirmation-section">
+      <div class="confirmation-success-banner">
+        <i class="fas fa-check-circle success-icon"></i>
+        <h3 class="success-title">¡Turno Reservado!</h3>
+        <p class="success-message">Por favor, confirma los detalles para finalizar.</p>
+      </div>
+
+      <div class="confirmation-details-card">
+        <div class="confirmation-header">
+          <div class="confirmation-time">
+            <i class="fas fa-clock time-icon"></i>
+            <span class="time-text">{{ formatTime(createdAppointment.startTime) }} - {{
+              formatTime(createdAppointment.endTime) }}</span>
+          </div>
+          <span class="status-badge review">
+            En revisión
+          </span>
         </div>
 
-        <div class="appointment-preview">
-          <h3 class="section-title">Detalles del turno</h3>
-          <div class="preview-grid">
-            <div class="preview-item">
-              <i class="fas fa-calendar-alt"></i>
-              <div class="preview-content">
-                <span class="preview-label">Fecha:</span>
-                <span class="preview-value">{{ getFormattedDate() }}</span>
-              </div>
-            </div>
-            <div class="preview-item">
-              <i class="fas fa-clock"></i>
-              <div class="preview-content">
-                <span class="preview-label">Horario:</span>
-                <span class="preview-value">{{ formatTime(createdAppointment.startTime) }} - {{ formatTime(createdAppointment.endTime) }}</span>
-              </div>
-            </div>
-            <div class="preview-item">
-              <i class="fas fa-hourglass-half"></i>
-              <div class="preview-content">
-                <span class="preview-label">Duración:</span>
-                <span class="preview-value">{{ createdAppointment.durationMinutes }} minutos</span>
-              </div>
-            </div>
-            <div class="preview-item">
-              <i class="fas fa-info-circle"></i>
-              <div class="preview-content">
-                <span class="preview-label">Estado:</span>
-                <span class="badge-warning">Pendiente de confirmación</span>
-              </div>
-            </div>
-            @if (createdAppointment.expiresAt) {
-              <div class="preview-item warning">
-                <i class="fas fa-exclamation-triangle"></i>
-                <div class="preview-content">
-                  <span class="preview-label">Tiempo restante:</span>
-                  <span class="preview-value time-warning">{{ getTimeRemaining() }}</span>
-                  <p class="warning-text">Debes confirmar el turno antes de que expire.</p>
-                </div>
-              </div>
-            }
+        <div class="confirmation-date-row">
+          <div class="date-icon-container">
+            <i class="fas fa-calendar-alt date-icon"></i>
+          </div>
+          <div>
+            <h3 class="date-text">{{ getFormattedDate() }}</h3>
+            <p class="duration-text">{{ createdAppointment.durationMinutes }} minutos de atención</p>
           </div>
         </div>
+      </div>
 
-        @if (error) {
+      @if (createdAppointment.expiresAt) {
+      <div class="expiry-warning">
+        <i class="fas fa-hourglass-half warning-icon"></i>
+        <div>
+          <p class="warning-title">Este turno expira en {{ getTimeRemaining() }}</p>
+          <p class="warning-desc">Confirma pronto para asegurar tu lugar.</p>
+        </div>
+      </div>
+      }
+
+      @if (error) {
+      <div class="error-message">
+        <app-error-text [message]="error"></app-error-text>
+      </div>
+      }
+
+      <div class="confirmation-actions">
+        <button type="button" class="cancel-button" [disabled]="isConfirmingAppointment" (click)="skipConfirmation()">
+          Confirmar más tarde
+        </button>
+        <button type="button" class="confirm-button" [disabled]="isConfirmingAppointment"
+          (click)="confirmAppointment()">
+          @if (isConfirmingAppointment) {
+          <i class="fas fa-spinner fa-spin mr-2"></i>
+          Confirmando...
+          } @else {
+          <i class="fas fa-check-circle mr-2"></i>
+          Confirmar Ahora
+          }
+        </button>
+      </div>
+    </div>
+    } @else {
+    <!-- Paso 1: Seleccionar slot -->
+    <div class="slots-section">
+      @if (availability) {
+      <div class="availability-info">
+        <div class="info-badge" [class.available]="availability.isAvailable">
+          {{ availability.isAvailable ? 'Abierto' : 'Cerrado' }}
+        </div>
+        @if (availability.description) {
+        <p class="description">{{ availability.description }}</p>
+        }
+      </div>
+      }
+
+      @if (isLoadingSlots) {
+      <div class="loading-slots">
+        <app-spinner></app-spinner>
+        <p>Buscando horarios...</p>
+      </div>
+      } @else if (slots.length === 0) {
+      <div class="no-slots">
+        <i class="fas fa-calendar-times text-4xl opacity-20"></i>
+        <p>No hay horarios disponibles</p>
+      </div>
+      } @else {
+      <div class="slots-grid">
+        <h3 class="slots-title">Selecciona un horario</h3>
+        <div class="slots-list">
+          @for (slot of slots; track slot.start + slot.end) {
+          <button type="button" class="slot-button" [class.available]="slot.available"
+            [class.occupied]="!slot.available" [class.selected]="isSlotSelected(slot)"
+            [disabled]="!slot.available || isCreatingAppointment" (click)="selectSlot(slot)">
+
+            <div class="slot-content-wrapper">
+              <i class="fas fa-clock slot-icon"></i>
+              <span class="slot-time-text">{{ formatTime(slot.start) }} - {{ formatTime(slot.end) }}</span>
+            </div>
+
+            @if (isSlotSelected(slot)) {
+            <i class="fas fa-check-circle check-icon"></i>
+            }
+          </button>
+          }
+        </div>
+      </div>
+      }
+
+      @if (selectedSlot && selectedSlot.available) {
+      <br><br>
+      <div class="sticky-footer-wrapper">
+        <div class="selected-slot-section">
+          <div class="selection-summary">
+            <div class="selection-details">
+              <span class="selection-label">Horario seleccionado:</span>
+              <strong class="selection-time">{{ formatTime(selectedSlot.start) }} - {{ formatTime(selectedSlot.end)
+                }}</strong>
+            </div>
+            <div class="actions">
+              <button type="button" class="cancel-button icon-only" [disabled]="isCreatingAppointment"
+                (click)="selectedSlot = null; notes = ''; error = null;" title="Cancelar selección">
+                <i class="fas fa-times"></i>
+              </button>
+              <button type="button" class="confirm-button" [disabled]="isCreatingAppointment"
+                (click)="createAppointment()">
+                @if (isCreatingAppointment) {
+                <i class="fas fa-spinner fa-spin mr-2"></i>
+                Reservando...
+                } @else {
+                <span>Confirmar Reserva</span>
+                <i class="fas fa-arrow-right ml-2"></i>
+                }
+              </button>
+            </div>
+          </div>
+
+          <!-- Optional Notes Expandable or Inline -->
+          <div class="notes-inline">
+            <input type="text" class="notes-input-simple" [(ngModel)]="notes" placeholder="Agregar nota (opcional)..."
+              [disabled]="isCreatingAppointment">
+          </div>
+
+          @if (error && selectedSlot) {
           <div class="error-message">
             <app-error-text [message]="error"></app-error-text>
           </div>
-        }
-
-        <div class="confirmation-actions">
-          <button
-            type="button"
-            class="skip-button"
-            [disabled]="isConfirmingAppointment"
-            (click)="skipConfirmation()">
-            <i class="fas fa-arrow-right"></i>
-            Confirmar después
-          </button>
-          <button
-            type="button"
-            class="confirm-now-button"
-            [disabled]="isConfirmingAppointment"
-            (click)="confirmAppointment()">
-            @if (isConfirmingAppointment) {
-              <i class="fas fa-spinner fa-spin"></i>
-              Confirmando...
-            } @else {
-              <i class="fas fa-check-circle"></i>
-              Confirmar ahora
-            }
-          </button>
+          }
         </div>
       </div>
-    } @else {
-      <!-- Paso 1: Seleccionar slot -->
-      <div class="slots-section">
-        @if (availability) {
-          <div class="availability-info">
-            <div class="info-badge" [class.available]="availability.isAvailable">
-              @if (availability.isAvailable) {
-                <i class="fas fa-check-circle"></i>
-                <span>Día disponible</span>
-              } @else {
-                <i class="fas fa-times-circle"></i>
-                <span>Día no disponible</span>
-              }
-            </div>
-            @if (availability.description) {
-              <p class="description">{{ availability.description }}</p>
-            }
-          </div>
-        }
-
-        @if (isLoadingSlots) {
-          <div class="loading-slots">
-            <app-spinner></app-spinner>
-            <p>Cargando horarios disponibles...</p>
-          </div>
-        } @else if (slots.length === 0) {
-          <div class="no-slots">
-            <i class="fas fa-calendar-times"></i>
-            <p>No hay slots disponibles para este día</p>
-          </div>
-        } @else {
-          <div class="slots-grid">
-            <h3 class="slots-title">Horarios disponibles</h3>
-            @if (error && availability?.isAvailable) {
-              <div class="error-message">
-                <app-error-text [message]="error"></app-error-text>
-              </div>
-            }
-            <div class="slots-list">
-              @for (slot of slots; track slot.start + slot.end) {
-                <button
-                  type="button"
-                  class="slot-button"
-                  [class.available]="slot.available"
-                  [class.unavailable]="!slot.available"
-                  [class.selected]="isSlotSelected(slot)"
-                  [disabled]="!slot.available || isCreatingAppointment"
-                  (click)="selectSlot(slot)">
-                  <span class="slot-time">{{ formatTime(slot.start) }} - {{ formatTime(slot.end) }}</span>
-                  @if (slot.available) {
-                    <span class="slot-badge available">
-                      <i class="fas fa-check"></i>
-                      Disponible
-                    </span>
-                  } @else {
-                    <span class="slot-badge unavailable">
-                      <i class="fas fa-times"></i>
-                      Ocupado
-                    </span>
-                  }
-                </button>
-              }
-            </div>
-          </div>
-        }
-
-        @if (selectedSlot && selectedSlot.available) {
-          <div class="selected-slot-section">
-            <h3 class="section-title">Turno seleccionado</h3>
-            <div class="selected-slot-info">
-              <div class="slot-display">
-                <i class="fas fa-clock"></i>
-                <span class="slot-time-large">{{ formatTime(selectedSlot.start) }} - {{ formatTime(selectedSlot.end) }}</span>
-              </div>
-              <div class="notes-section">
-                <label for="appointment-notes" class="notes-label">
-                  Notas (opcional):
-                </label>
-                <textarea
-                  id="appointment-notes"
-                  class="notes-input"
-                  [(ngModel)]="notes"
-                  placeholder="Agrega alguna nota o comentario para tu turno..."
-                  rows="3"
-                  [disabled]="isCreatingAppointment">
-                </textarea>
-              </div>
-              @if (error && selectedSlot) {
-                <div class="error-message">
-                  <app-error-text [message]="error"></app-error-text>
-                </div>
-              }
-              <div class="actions">
-                <button
-                  type="button"
-                  class="cancel-button"
-                  [disabled]="isCreatingAppointment"
-                  (click)="selectedSlot = null; notes = ''; error = null;">
-                  Cancelar selección
-                </button>
-                <button
-                  type="button"
-                  class="confirm-button"
-                  [disabled]="isCreatingAppointment"
-                  (click)="createAppointment()">
-                  @if (isCreatingAppointment) {
-                    <i class="fas fa-spinner fa-spin"></i>
-                    Creando turno...
-                  } @else {
-                    <i class="fas fa-calendar-plus"></i>
-                    Reservar turno
-                  }
-                </button>
-              </div>
-            </div>
-          </div>
-        }
-      </div>
+      }
+    </div>
     }
   </div>
 </app-modal>
-

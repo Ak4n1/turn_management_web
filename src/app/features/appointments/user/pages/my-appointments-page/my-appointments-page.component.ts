@@ -7,7 +7,6 @@ import { AppointmentResponse, AppointmentState } from '../../models/appointment-
 import { SpinnerComponent } from '../../../../../shared/atoms/spinner/spinner.component';
 import { ErrorTextComponent } from '../../../../../shared/atoms/error-text/error-text.component';
 import { ButtonComponent } from '../../../../../shared/atoms/button/button.component';
-import { DateInputComponent } from '../../../../../shared/atoms/date-input/date-input.component';
 import { LabelComponent } from '../../../../../shared/atoms/label/label.component';
 import { CancelAppointmentModalComponent } from '../../components/cancel-appointment-modal/cancel-appointment-modal.component';
 import { RescheduleAppointmentModalComponent } from '../../components/reschedule-appointment-modal/reschedule-appointment-modal.component';
@@ -23,7 +22,7 @@ import { AppointmentDetailsModalComponent } from '../../components/appointment-d
 @Component({
   selector: 'app-my-appointments-page',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, SpinnerComponent, ErrorTextComponent, ButtonComponent, DateInputComponent, LabelComponent, CancelAppointmentModalComponent, RescheduleAppointmentModalComponent, AppointmentDetailsModalComponent],
+  imports: [CommonModule, RouterModule, FormsModule, SpinnerComponent, ErrorTextComponent, ButtonComponent, LabelComponent, CancelAppointmentModalComponent, RescheduleAppointmentModalComponent, AppointmentDetailsModalComponent],
   templateUrl: './my-appointments-page.component.html',
   styleUrl: './my-appointments-page.component.css'
 })
@@ -32,7 +31,6 @@ export class MyAppointmentsPageComponent implements OnInit {
   private router = inject(Router);
 
   appointments: AppointmentResponse[] = [];
-  filteredAppointments: AppointmentResponse[] = [];
   // Cache para valores formateados (evita recalcular en cada change detection)
   private formattedDatesCache = new Map<string, string>();
   private formattedTimesCache = new Map<string, string>();
@@ -42,6 +40,16 @@ export class MyAppointmentsPageComponent implements OnInit {
   selectedDaysOfWeek: Set<number> = new Set(); // 1=Lunes, 2=Martes, ..., 7=Domingo
   isLoading = false;
   error: string | null = null;
+
+  // Paginación
+  currentPage = 0;
+  pageSize = 20;
+  totalElements = 0;
+  totalPages = 0;
+
+  // Opciones de estado para el filtro
+  readonly stateOptions: ('CONFIRMED' | 'PENDING' | 'CANCELLED')[] =
+    ['CONFIRMED', 'PENDING', 'CANCELLED'];
 
   // Modal de cancelación
   isCancelModalOpen = false;
@@ -65,8 +73,8 @@ export class MyAppointmentsPageComponent implements OnInit {
     this.error = null;
 
     const params: any = {
-      page: 0,
-      size: 20
+      page: this.currentPage,
+      size: this.pageSize
     };
 
     if (this.activeFilter === 'CONFIRMED') {
@@ -96,7 +104,9 @@ export class MyAppointmentsPageComponent implements OnInit {
         this.appointments = response.appointments;
         // Pre-calcular valores formateados para evitar ejecuciones múltiples en el template
         this.precomputeFormattedValues(response.appointments);
-        this.filteredAppointments = response.appointments;
+        this.totalElements = response.total;
+        this.totalPages = response.totalPages;
+        this.currentPage = response.page;
         this.isLoading = false;
       },
       error: (err) => {
@@ -109,10 +119,12 @@ export class MyAppointmentsPageComponent implements OnInit {
 
   setFilter(filter: 'ALL' | 'CONFIRMED' | 'PENDING' | 'CANCELLED'): void {
     this.activeFilter = filter;
+    this.currentPage = 0;
     this.loadAppointments();
   }
 
   onDateFilterChange(): void {
+    this.currentPage = 0;
     this.loadAppointments();
   }
 
@@ -121,6 +133,7 @@ export class MyAppointmentsPageComponent implements OnInit {
     this.dateFrom = '';
     this.dateTo = '';
     this.selectedDaysOfWeek.clear();
+    this.currentPage = 0;
     this.loadAppointments();
   }
 
@@ -130,12 +143,21 @@ export class MyAppointmentsPageComponent implements OnInit {
     } else {
       this.selectedDaysOfWeek.add(dayOfWeek);
     }
+    this.currentPage = 0;
     this.loadAppointments();
   }
 
   clearDaysOfWeek(): void {
     this.selectedDaysOfWeek.clear();
+    this.currentPage = 0;
     this.loadAppointments();
+  }
+
+  goToPage(page: number): void {
+    if (page >= 0 && page < this.totalPages) {
+      this.currentPage = page;
+      this.loadAppointments();
+    }
   }
 
   isDayOfWeekSelected(dayOfWeek: number): boolean {
@@ -166,11 +188,12 @@ export class MyAppointmentsPageComponent implements OnInit {
     }
   }
 
-  getStateLabel(state: AppointmentState): string {
+  getStateLabel(state: AppointmentState | 'PENDING'): string {
     switch (state) {
       case 'CONFIRMED':
         return 'Confirmado';
       case 'CREATED':
+      case 'PENDING':
         return 'Pendiente';
       case 'CANCELLED':
         return 'Cancelado';
@@ -186,6 +209,19 @@ export class MyAppointmentsPageComponent implements OnInit {
         return 'Reprogramado';
       default:
         return state;
+    }
+  }
+
+  getStateDotClass(state: 'CONFIRMED' | 'PENDING' | 'CANCELLED'): string {
+    switch (state) {
+      case 'CONFIRMED':
+        return 'confirmed';
+      case 'PENDING':
+        return 'pending';
+      case 'CANCELLED':
+        return 'cancelled';
+      default:
+        return '';
     }
   }
 
@@ -279,14 +315,8 @@ export class MyAppointmentsPageComponent implements OnInit {
 
     this.appointmentService.confirmAppointment(id).subscribe({
       next: (response) => {
-        // Actualizar el turno en la lista
-        const index = this.appointments.findIndex(a => a.id === id);
-        if (index !== -1) {
-          this.appointments[index] = response;
-          // Actualizar cache de valores formateados para el turno actualizado
-          this.updateFormattedValueForAppointment(response);
-          this.filteredAppointments = [...this.appointments];
-        }
+        // Recargar la página actual para reflejar los cambios
+        this.loadAppointments();
       },
       error: (err) => {
         this.error = err.userMessage || err.error?.message || 'Error al confirmar el turno';
@@ -321,14 +351,8 @@ export class MyAppointmentsPageComponent implements OnInit {
 
     this.appointmentService.cancelAppointment(appointmentId, reason).subscribe({
       next: (response) => {
-        // Actualizar el turno en la lista
-        const index = this.appointments.findIndex(a => a.id === appointmentId);
-        if (index !== -1) {
-          this.appointments[index] = response;
-          // Actualizar cache de valores formateados para el turno actualizado
-          this.updateFormattedValueForAppointment(response);
-          this.filteredAppointments = [...this.appointments];
-        }
+        // Recargar la página actual para reflejar los cambios
+        this.loadAppointments();
         this.onCancelModalClose();
       },
       error: (err) => {

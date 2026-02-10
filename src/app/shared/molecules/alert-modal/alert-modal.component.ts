@@ -23,6 +23,7 @@ export class AlertModalComponent {
   @Input() title = '';
   @Input() message = '';
   @Input() showConfirmButton = true;
+  @Input() showIcon = true;
   @Input() confirmButtonText = 'Aceptar';
   @Input() showCancelButton = false;
   @Input() cancelButtonText = 'Cancelar';
@@ -30,7 +31,7 @@ export class AlertModalComponent {
   @Output() confirm = new EventEmitter<void>();
   @Output() cancel = new EventEmitter<void>();
 
-  constructor(private sanitizer: DomSanitizer) {}
+  constructor(private sanitizer: DomSanitizer) { }
 
   onClose(): void {
     this.close.emit();
@@ -76,7 +77,7 @@ export class AlertModalComponent {
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
-      
+
       // Línea vacía
       if (!line) {
         if (inList) {
@@ -114,7 +115,12 @@ export class AlertModalComponent {
           inList = true;
         }
         const listItem = line.replace(/^[•\-\*]\s/, '').trim();
-        formattedHtml += `<div class="alert-list-item">${this.escapeHtml(listItem)}</div>`;
+
+        if (this.type === 'success') {
+          formattedHtml += `<div class="alert-list-item-success"><i class="fas fa-check-circle"></i><span>${this.escapeHtml(listItem)}</span></div>`;
+        } else {
+          formattedHtml += `<div class="alert-list-item">${this.escapeHtml(listItem)}</div>`;
+        }
         continue;
       }
 

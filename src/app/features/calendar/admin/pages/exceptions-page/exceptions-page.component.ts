@@ -15,6 +15,7 @@ import { ButtonComponent } from '../../../../../shared/atoms/button/button.compo
 import { DateInputComponent } from '../../../../../shared/atoms/date-input/date-input.component';
 import { LabelComponent } from '../../../../../shared/atoms/label/label.component';
 import { TextareaComponent } from '../../../../../shared/atoms/textarea/textarea';
+import { AlertModalComponent } from '../../../../../shared/molecules/alert-modal/alert-modal.component';
 
 /**
  * Exceptions Page Component (Admin)
@@ -27,14 +28,15 @@ import { TextareaComponent } from '../../../../../shared/atoms/textarea/textarea
   selector: 'app-exceptions-page',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    SpinnerComponent, 
+    CommonModule,
+    FormsModule,
+    SpinnerComponent,
     ErrorTextComponent,
     ButtonComponent,
     DateInputComponent,
     LabelComponent,
-    TextareaComponent
+    TextareaComponent,
+    AlertModalComponent
   ],
   templateUrl: './exceptions-page.component.html',
   styleUrl: './exceptions-page.component.css'
@@ -50,21 +52,30 @@ export class ExceptionsPageComponent implements OnInit {
   successMessage: string | null = null;
   showForm = false;
   showInfo = false;
+  /** ID de la excepción en edición (null = crear nueva) */
+  editingExceptionId: number | null = null;
+  /** Excepción pendiente de confirmar eliminación */
+  exceptionToDelete: CalendarExceptionResponse | null = null;
+  /** Filtros para la lista (modal) */
+  showFilterModal = false;
+  filterDateFrom = '';
+  filterDateTo = '';
+  filterIsOpen: boolean | null = null;
 
   // Estado para preview y step de turnos afectados
   affectedImpact: PreviewImpactResponse | null = null;
   appointmentsWithUsers: Map<number, AdminAppointmentResponse> = new Map();
-  
+
   // Sistema de steps: 'form' | 'affected-appointments'
   currentStep: 'form' | 'affected-appointments' = 'form';
-  
+
   // Valores para cancelación automática (siempre true para excepciones)
   autoCancelAffectedAppointments: boolean = true;
   cancellationReason: string = 'Día cerrado según excepción de calendario';
-  
+
   // Request pendiente que se enviará después de la confirmación del step
   pendingExceptionRequest: CalendarExceptionRequest | null = null;
-  
+
   // Paginación para turnos afectados
   affectedAppointmentsCurrentPage = 0;
   affectedAppointmentsItemsPerPage = 5;
@@ -105,12 +116,86 @@ export class ExceptionsPageComponent implements OnInit {
     this.showForm = !this.showForm;
     if (!this.showForm) {
       this.resetForm();
-      // Volver al step del formulario si estábamos en el step de turnos afectados
+      this.editingExceptionId = null;
       this.currentStep = 'form';
       this.affectedImpact = null;
       this.appointmentsWithUsers.clear();
       this.pendingExceptionRequest = null;
     }
+  }
+
+  /** Lista filtrada para mostrar en la tabla */
+  getFilteredExceptions(): CalendarExceptionResponse[] {
+    let list = this.exceptions;
+    if (this.filterDateFrom) {
+      list = list.filter(e => e.exceptionDate >= this.filterDateFrom);
+    }
+    if (this.filterDateTo) {
+      list = list.filter(e => e.exceptionDate <= this.filterDateTo);
+    }
+    if (this.filterIsOpen !== null) {
+      list = list.filter(e => e.isOpen === this.filterIsOpen);
+    }
+    return list;
+  }
+
+  openFilterModal(): void {
+    this.showFilterModal = true;
+  }
+
+  closeFilterModal(): void {
+    this.showFilterModal = false;
+  }
+
+  applyFilters(): void {
+    this.closeFilterModal();
+  }
+
+  clearFilters(): void {
+    this.filterDateFrom = '';
+    this.filterDateTo = '';
+    this.filterIsOpen = null;
+    this.closeFilterModal();
+  }
+
+  editException(exception: CalendarExceptionResponse): void {
+    this.formDate = exception.exceptionDate;
+    this.formIsOpen = exception.isOpen;
+    this.formTimeRanges = exception.timeRanges?.length
+      ? exception.timeRanges.map(r => ({ start: r.start, end: r.end }))
+      : [{ start: '09:00', end: '12:00' }];
+    this.formReason = exception.reason || '';
+    this.editingExceptionId = exception.id;
+    this.error = null;
+    this.showForm = true;
+  }
+
+  openDeleteConfirm(exception: CalendarExceptionResponse): void {
+    this.exceptionToDelete = exception;
+  }
+
+  closeDeleteConfirm(): void {
+    this.exceptionToDelete = null;
+  }
+
+  confirmDelete(): void {
+    if (!this.exceptionToDelete) return;
+    const id = this.exceptionToDelete.id;
+    this.closeDeleteConfirm();
+    this.isLoading = true;
+    this.error = null;
+    this.exceptionService.deleteException(id).subscribe({
+      next: () => {
+        this.loadExceptions();
+        this.successMessage = 'Excepción eliminada correctamente';
+        this.isLoading = false;
+        setTimeout(() => this.successMessage = null, 3000);
+      },
+      error: (err) => {
+        this.error = err.message || 'Error al eliminar la excepción';
+        this.isLoading = false;
+      }
+    });
   }
 
   toggleInfo(): void {
@@ -143,22 +228,22 @@ export class ExceptionsPageComponent implements OnInit {
     if (!start || !end) {
       return null; // Validación básica, no validar si está vacío
     }
-    
+
     const [startHours, startMinutes] = start.split(':').map(Number);
     const [endHours, endMinutes] = end.split(':').map(Number);
-    
+
     // Validar que sean números válidos
     if (isNaN(startHours) || isNaN(startMinutes) || isNaN(endHours) || isNaN(endMinutes)) {
       return null; // Dejar que el backend valide el formato
     }
-    
+
     const startTime = startHours * 60 + startMinutes;
     const endTime = endHours * 60 + endMinutes;
-    
+
     if (startTime >= endTime) {
       return `El horario de inicio (${start}) debe ser anterior al horario de fin (${end}).`;
     }
-    
+
     return null;
   }
 
@@ -169,7 +254,7 @@ export class ExceptionsPageComponent implements OnInit {
     if (!this.formIsOpen || this.formTimeRanges.length === 0) {
       return true;
     }
-    
+
     for (let i = 0; i < this.formTimeRanges.length; i++) {
       const range = this.formTimeRanges[i];
       const error = this.validateTimeRange(range.start, range.end);
@@ -178,7 +263,7 @@ export class ExceptionsPageComponent implements OnInit {
         return false;
       }
     }
-    
+
     return true;
   }
 
@@ -202,7 +287,7 @@ export class ExceptionsPageComponent implements OnInit {
           const [endHours, endMinutes] = range.end.split(':').map(Number);
           const startTime = startHours * 60 + startMinutes;
           const endTime = endHours * 60 + endMinutes;
-          
+
           if (startTime >= endTime) {
             this.error = `El rango horario ${i + 1} no es válido: el horario de inicio (${range.start}) debe ser anterior al horario de fin (${range.end}).`;
             return;
@@ -222,10 +307,28 @@ export class ExceptionsPageComponent implements OnInit {
       reason: this.formReason
     };
 
-    // Guardar request pendiente
-    this.pendingExceptionRequest = request;
+    // Edición: actualizar directamente sin preview
+    if (this.editingExceptionId != null) {
+      this.exceptionService.updateException(this.editingExceptionId, request).subscribe({
+        next: () => {
+          this.loadExceptions();
+          this.successMessage = 'Excepción actualizada correctamente';
+          this.isLoading = false;
+          this.showForm = false;
+          this.editingExceptionId = null;
+          this.resetForm();
+          setTimeout(() => this.successMessage = null, 3000);
+        },
+        error: (err) => {
+          this.error = err.message || 'Error al actualizar la excepción';
+          this.isLoading = false;
+        }
+      });
+      return;
+    }
 
-    // Previsualizar impacto antes de crear la excepción
+    // Crear: guardar request pendiente y previsualizar impacto
+    this.pendingExceptionRequest = request;
     this.previewExceptionImpact(request);
   }
 
@@ -262,9 +365,9 @@ export class ExceptionsPageComponent implements OnInit {
 
         // Si hay turnos afectados, mostrar step
         // Verificar tanto existingAppointmentsAffected como la lista de appointments
-        const hasAffectedAppointments = (impact.existingAppointmentsAffected > 0) || 
-                                       (impact.appointments && impact.appointments.length > 0);
-        
+        const hasAffectedAppointments = (impact.existingAppointmentsAffected > 0) ||
+          (impact.appointments && impact.appointments.length > 0);
+
         if (hasAffectedAppointments && impact.appointments && impact.appointments.length > 0) {
           console.log('[DEBUG] previewExceptionImpact: Hay turnos afectados, cargando información de usuarios', {
             existingAppointmentsAffected: impact.existingAppointmentsAffected,
@@ -342,10 +445,10 @@ export class ExceptionsPageComponent implements OnInit {
         // Actualizar mensaje por defecto según el tipo de excepción
         if (this.pendingExceptionRequest) {
           this.cancellationReason = this.pendingExceptionRequest.isOpen
-            ? 'Cambio de horarios según excepción de calendario'
+            ? 'Los horarios del día han sido modificados según una excepción de calendario. Por favor, revisa si tu turno sigue siendo válido o fue cancelado.'
             : 'Día cerrado según excepción de calendario';
         }
-        
+
         // Mostrar step con la información completa
         this.showAffectedAppointmentsStep();
       },
@@ -365,7 +468,7 @@ export class ExceptionsPageComponent implements OnInit {
     if (this.affectedImpact) {
       // Actualizar paginación
       this.updateAffectedAppointmentsPagination();
-      
+
       // Cambiar al step de turnos afectados
       this.currentStep = 'affected-appointments';
       this.isLoading = false;
@@ -374,7 +477,7 @@ export class ExceptionsPageComponent implements OnInit {
       this.isLoading = false;
     }
   }
-  
+
   /**
    * Vuelve al step del formulario
    */
@@ -384,7 +487,7 @@ export class ExceptionsPageComponent implements OnInit {
     this.appointmentsWithUsers.clear();
     this.pendingExceptionRequest = null;
   }
-  
+
   /**
    * Confirma y crea la excepción desde el step de turnos afectados
    */
@@ -395,7 +498,7 @@ export class ExceptionsPageComponent implements OnInit {
       this.createException(this.pendingExceptionRequest);
     }
   }
-  
+
   /**
    * Actualiza la paginación de turnos afectados
    */
@@ -411,7 +514,7 @@ export class ExceptionsPageComponent implements OnInit {
     const endIndex = startIndex + this.affectedAppointmentsItemsPerPage;
     this.affectedAppointmentsPaginated = this.affectedImpact.appointments.slice(startIndex, endIndex);
   }
-  
+
   /**
    * Métodos de paginación para turnos afectados
    */
@@ -435,7 +538,7 @@ export class ExceptionsPageComponent implements OnInit {
       this.updateAffectedAppointmentsPagination();
     }
   }
-  
+
   getAffectedAppointmentsPageNumbers(): number[] {
     const pages: number[] = [];
     const maxVisiblePages = 5;
@@ -452,7 +555,7 @@ export class ExceptionsPageComponent implements OnInit {
 
     return pages;
   }
-  
+
   getAffectedAppointmentUserFullName(appointment: AffectedAppointmentInfo): string {
     if (!appointment.id) {
       return 'Usuario desconocido';
@@ -501,8 +604,8 @@ export class ExceptionsPageComponent implements OnInit {
     const finalRequest: CalendarExceptionRequest = {
       ...request,
       autoCancelAffectedAppointments: true, // Siempre true para excepciones
-      cancellationReason: this.cancellationReason?.trim() || 
-        (request.isOpen 
+      cancellationReason: this.cancellationReason?.trim() ||
+        (request.isOpen
           ? 'Cambio de horarios según excepción de calendario'
           : 'Día cerrado según excepción de calendario')
     };
@@ -543,11 +646,35 @@ export class ExceptionsPageComponent implements OnInit {
 
   formatDate(dateStr: string): string {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('es-AR', { 
-      year: 'numeric', 
-      month: 'long', 
+    return date.toLocaleDateString('es-AR', {
+      year: 'numeric',
+      month: 'long',
       day: 'numeric'
     });
+  }
+
+  /** Parsea YYYY-MM-DD como fecha local (evita desfase de un día por UTC). */
+  private parseLocalDate(dateStr: string): Date {
+    const clean = (dateStr || '').split('T')[0];
+    const [y, m, d] = clean.split('-').map(Number);
+    if (isNaN(y) || isNaN(m) || isNaN(d)) return new Date(dateStr);
+    return new Date(y, m - 1, d, 12, 0, 0);
+  }
+
+  /** Formato para lista: "30 de enero, 2026" */
+  formatDateList(dateStr: string): string {
+    const date = this.parseLocalDate(dateStr);
+    return date.toLocaleDateString('es-AR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  }
+
+  /** Día de la semana para la lista: "Sábado" */
+  formatWeekday(dateStr: string): string {
+    const date = this.parseLocalDate(dateStr);
+    return date.toLocaleDateString('es-AR', { weekday: 'long' });
   }
 
   formatTimeRanges(ranges: Array<{ start: string; end: string }>): string {

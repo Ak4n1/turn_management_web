@@ -1,0 +1,293 @@
+/* Week View */
+.week-view {
+    display: flex;
+    flex-direction: column;
+    min-height: 600px;
+    overflow-x: auto;
+}
+
+/* Week Header */
+.week-header {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    border-bottom: 1px solid #E2E8F0;
+    background: #F8FAFC;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.time-gutter-header {
+    border-right: 1px solid #E2E8F0;
+}
+
+.day-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 8px;
+    border-right: 1px solid #E2E8F0;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.day-header:last-child {
+    border-right: none;
+}
+
+.day-header:hover {
+    background: #F1F5F9;
+}
+
+.day-header.is-today {
+    background: #F0F9FF;
+}
+
+.day-header.day-closed,
+.day-cell.day-closed {
+    background: #F1F5F9 !important;
+    cursor: default;
+}
+
+.day-header.day-closed .day-number,
+.day-header.day-closed .day-name {
+    color: #94A3B8;
+}
+
+.day-name {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #64748B;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.day-header.is-today .day-name {
+    color: #3B82F6;
+}
+
+.day-number {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1E293B;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.day-number.today-number {
+    background: #3B82F6;
+    color: white;
+}
+
+/* Week Grid */
+.week-grid {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.grid-body {
+    position: relative;
+    /* Coordenadas para el overlay */
+    width: 100%;
+}
+
+.time-row {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    min-height: 60px;
+    /* Una hora = 60px exactos */
+    border-bottom: 1px solid #F1F5F9;
+}
+
+.time-row:hover {
+    background: #FAFBFC;
+}
+
+.time-label {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 4px 12px 0 0;
+    border-right: 1px solid #E2E8F0;
+    color: #94A3B8;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: white;
+    position: relative;
+    z-index: 2;
+}
+
+.day-cell {
+    position: relative;
+    border-right: 1px solid #F1F5F9;
+    min-height: 60px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.day-cell:last-child {
+    border-right: none;
+}
+
+.day-cell.slot-closed {
+    background-color: rgba(241, 245, 249, 0.7);
+    /* Sombreado de fuera de horario */
+}
+
+.day-cell.is-today {
+    background: #F0F9FF;
+}
+
+/* Overlay Layer */
+.events-containers {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    pointer-events: none;
+    /* No bloquear clicks en las celdas vacías */
+    z-index: 5;
+}
+
+.gutter-spacer {
+    border-right: 1px solid transparent;
+}
+
+.day-events-column {
+    position: relative;
+    height: 100%;
+    margin-right: 2px;
+}
+
+/* Event Cards (Now Absolute) */
+.event-card {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 5;
+    pointer-events: auto;
+    /* Permitir clicks en los turnos */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Event Cards */
+.event-card {
+    position: absolute;
+    left: 4px;
+    right: 4px;
+    border-radius: 6px;
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 5;
+}
+
+.event-card:hover {
+    transform: scale(1.02);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 20;
+}
+
+/* Event Status Colors */
+.event-confirmed {
+    background: #DBEAFE;
+    border-left: 3px solid #3B82F6;
+    color: #1E40AF;
+}
+
+.event-pending {
+    background: #FEF3C7;
+    border-left: 3px solid #F59E0B;
+    color: #92400E;
+}
+
+.event-card.slot-occupied {
+    background: #FEF3C7;
+    border-left: 3px solid #F59E0B;
+    color: #92400E;
+    cursor: default;
+}
+
+.event-cancelled {
+    background: #FEE2E2;
+    border-left: 3px solid #EF4444;
+    color: #991B1B;
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
+.event-time {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    opacity: 0.8;
+}
+
+.event-title {
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.event-desc {
+    font-size: 0.6875rem;
+    opacity: 0.8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .week-header {
+        grid-template-columns: 60px repeat(7, 1fr);
+    }
+
+    .time-row {
+        grid-template-columns: 60px repeat(7, 1fr);
+    }
+
+    .day-number {
+        font-size: 1.25rem;
+        width: 36px;
+        height: 36px;
+    }
+
+    .event-card {
+        padding: 4px 6px;
+    }
+}
+
+@media (max-width: 768px) {
+    .week-header {
+        min-width: 800px;
+    }
+
+    .week-grid {
+        min-width: 800px;
+    }
+}

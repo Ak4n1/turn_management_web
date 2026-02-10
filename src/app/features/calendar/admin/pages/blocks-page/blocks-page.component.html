@@ -88,149 +88,374 @@
 
   <!-- Formulario -->
   @if (showForm) {
-    <div class="form-section">
-      <h2 class="form-title">Crear Nuevo Bloqueo</h2>
-      
-      <div class="form-group">
-        <app-label for="date" [required]="true">Fecha</app-label>
-        <app-date-input
-          id="date"
-          name="date"
-          [ngModel]="formDate"
-          (ngModelChange)="formDate = $event"
-          [min]="getTodayDate()"
-          [required]="true"
-          [disabled]="isLoading">
-        </app-date-input>
-      </div>
+    <section class="form-section-card">
+      <div class="form-card">
+        <!-- Paso: Turnos afectados (mismo estilo y opciones que Reglas de atención) -->
+        @if (currentStep === 'affected-appointments' && affectedImpact) {
+          <div class="form-card-header">
+            <h2 class="form-title">
+              <i class="fas fa-exclamation-triangle" class="form-title-icon"></i>
+              Turnos afectados por el bloqueo
+            </h2>
+            <app-button type="button" variant="text" size="small" (clicked)="backToBlockForm()" ariaLabel="Volver">
+              <i class="fas fa-arrow-left" aria-hidden="true"></i>
+              Volver
+            </app-button>
+          </div>
+          <div class="form-content affected-step-content">
+            <div class="affected-appointments-step">
+              <div class="affected-header">
+                <div class="affected-header-content">
+                  <div class="affected-warning-icon-wrapper">
+                    <i class="fas fa-exclamation-triangle"></i>
+                  </div>
+                  <div>
+                    <h2 class="affected-title">Turnos Futuros Afectados</h2>
+                    <p class="affected-subtitle">Revisa y gestiona los turnos que se verían afectados por este bloqueo</p>
+                  </div>
+                </div>
+              </div>
 
-      <div class="form-group">
-        <app-label [required]="true">Tipo de bloqueo</app-label>
-        <div class="radio-group">
-          <label class="radio-label">
-            <input
-              type="radio"
-              name="isFullDay"
-              [(ngModel)]="formIsFullDay"
-              [value]="true"
-              [disabled]="isLoading">
-            <span>Día completo</span>
-          </label>
-          <label class="radio-label">
-            <input
-              type="radio"
-              name="isFullDay"
-              [(ngModel)]="formIsFullDay"
-              [value]="false"
-              [disabled]="isLoading">
-            <span>Rango horario</span>
-          </label>
+              <div class="affected-stats-grid">
+                <div class="affected-stat-card">
+                  <div class="affected-stat-label">Turnos Afectados</div>
+                  <div class="affected-stat-value">{{ affectedImpact.existingAppointmentsAffected }}</div>
+                </div>
+                <div class="affected-stat-card">
+                  <div class="affected-stat-label">Días Afectados</div>
+                  <div class="affected-stat-value">{{ affectedImpact.affectedDays }}</div>
+                </div>
+                <div class="affected-stat-card">
+                  <div class="affected-stat-label">Slots Perdidos</div>
+                  <div class="affected-stat-value">{{ affectedImpact.slotsLost }}</div>
+                </div>
+              </div>
+
+              <div class="affected-list-section">
+                <h3 class="affected-list-title">
+                  <i class="fas fa-list-alt"></i>
+                  Detalle de Turnos
+                </h3>
+                <div class="affected-appointments-list">
+                  @if (affectedAppointmentsPaginated.length > 0) {
+                    @for (appointment of affectedAppointmentsPaginated; track appointment.id || appointment.date + appointment.time) {
+                      <div class="affected-appointment-item">
+                        <div class="affected-appointment-main">
+                          <div class="affected-user-avatar">{{ getAffectedAppointmentUserInitials(appointment) }}</div>
+                          <div>
+                            <h3 class="affected-user-name">{{ getAffectedAppointmentUserFullName(appointment) }}</h3>
+                            <p class="affected-date">{{ formatAffectedAppointmentDate(appointment) }}</p>
+                          </div>
+                        </div>
+                        <div class="affected-time-wrapper">
+                          <div class="affected-time-badge">{{ formatAffectedAppointmentTime(appointment) }}</div>
+                        </div>
+                      </div>
+                    }
+                  } @else {
+                    <div class="affected-empty-message">No hay turnos para mostrar.</div>
+                  }
+                </div>
+                @if (affectedAppointmentsTotalPages > 1) {
+                  <div class="affected-pagination">
+                    <button type="button" class="affected-pagination-btn" [disabled]="affectedAppointmentsCurrentPage === 0"
+                      (click)="affectedAppointmentsPreviousPage()">
+                      <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="affected-pagination-info">
+                      {{ affectedAppointmentsCurrentPage + 1 }} / {{ affectedAppointmentsTotalPages }}
+                    </span>
+                    <button type="button" class="affected-pagination-btn"
+                      [disabled]="affectedAppointmentsCurrentPage === affectedAppointmentsTotalPages - 1"
+                      (click)="affectedAppointmentsNextPage()">
+                      <i class="fas fa-chevron-right"></i>
+                    </button>
+                  </div>
+                }
+              </div>
+
+              <div class="affected-settings-section">
+                <div class="affected-settings-header">
+                  <div class="affected-settings-info">
+                    <h3 class="affected-settings-title">Cancelar automáticamente</h3>
+                    <p class="affected-settings-description">Si está activado, los turnos afectados se cancelarán y se notificará a los usuarios por email.</p>
+                  </div>
+                  <label class="switch">
+                    <input type="checkbox" [(ngModel)]="autoCancelAffectedAppointments" [disabled]="isLoading">
+                    <span class="slider round"></span>
+                  </label>
+                </div>
+                @if (autoCancelAffectedAppointments) {
+                  <div class="affected-reason-container">
+                    <label class="affected-reason-label">Razón de la cancelación (personalizable)</label>
+                    <textarea class="affected-reason-textarea" [(ngModel)]="cancellationReason" rows="3"
+                      placeholder="Escribe el motivo..."></textarea>
+                    <p class="affected-reason-hint">
+                      <i class="fas fa-info-circle"></i>
+                      Esta razón será incluida en el email que se enviará a los usuarios afectados.
+                    </p>
+                  </div>
+                }
+              </div>
+
+              <div class="affected-info-box">
+                <i class="fas fa-info-circle affected-info-icon"></i>
+                <p class="affected-info-text">
+                  @if (autoCancelAffectedAppointments) {
+                    <strong>Nota:</strong> Los turnos afectados serán gestionados automáticamente al confirmar. Asegúrate de haber revisado la lista antes de continuar.
+                  } @else {
+                    <strong>Nota:</strong> Los turnos existentes no se cancelarán; solo se creará el bloqueo.
+                  }
+                  <span class="affected-question">¿Deseas continuar con la creación del bloqueo?</span>
+                </p>
+              </div>
+
+              <div class="affected-page-actions">
+                <button type="button" class="affected-btn-cancel" (click)="backToBlockForm()">
+                  <i class="fas fa-times"></i>
+                  Cancelar
+                </button>
+                <button type="button" class="affected-btn-confirm" [disabled]="isLoading" (click)="confirmCreateBlockWithAffected()">
+                  <i class="fas fa-check-circle"></i>
+                  Continuar y crear bloqueo
+                </button>
+              </div>
+            </div>
+          </div>
+        } @else {
+        <div class="form-card-header">
+          <h2 class="form-title">
+            <i class="fas" [class.fa-plus-circle]="!editingBlockId" [class.fa-edit]="!!editingBlockId" class="form-title-icon"></i>
+            {{ editingBlockId ? 'Editar Bloqueo' : 'Crear Nuevo Bloqueo' }}
+          </h2>
+          <app-button type="button" variant="text" size="small" (clicked)="toggleForm()" ariaLabel="Cancelar">
+            <i class="fas fa-times" aria-hidden="true"></i>
+            Cancelar
+          </app-button>
         </div>
-      </div>
+        <div class="form-content">
+          <div class="form-row">
+            <div class="form-group">
+              <app-label for="date" [required]="true">Fecha</app-label>
+              <app-date-input
+                id="date"
+                name="date"
+                [ngModel]="formDate"
+                (ngModelChange)="formDate = $event"
+                [min]="getTodayDate()"
+                [required]="true"
+                [disabled]="isLoading">
+              </app-date-input>
+            </div>
+            <div class="form-group">
+              <app-label [required]="true">Tipo de bloqueo</app-label>
+              <div class="state-toggle">
+                <button type="button" class="state-toggle-btn" [class.active]="formIsFullDay"
+                  [disabled]="isLoading" (click)="formIsFullDay = true">
+                  Día completo
+                </button>
+                <button type="button" class="state-toggle-btn" [class.active]="!formIsFullDay"
+                  [disabled]="isLoading" (click)="formIsFullDay = false">
+                  Rango horario
+                </button>
+              </div>
+            </div>
+          </div>
 
-      @if (!formIsFullDay) {
-        <div class="form-group">
-          <app-label [required]="true">Rango Horario</app-label>
-          <div class="time-range-row">
-            <input
-              type="time"
-              class="time-input"
-              [(ngModel)]="formTimeRange.start"
+          @if (!formIsFullDay) {
+            <div class="form-group">
+              <app-label [required]="true">Rango Horario</app-label>
+              <div class="time-ranges-wrap">
+                <div class="time-range-chip">
+                  <input type="time" class="time-input-inline" [(ngModel)]="formTimeRange.start" [disabled]="isLoading" name="block-time-start">
+                  <span class="time-sep">—</span>
+                  <input type="time" class="time-input-inline" [(ngModel)]="formTimeRange.end" [disabled]="isLoading" name="block-time-end">
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="form-group">
+            <app-label for="reason" [required]="true">Motivo</app-label>
+            <app-textarea
+              id="reason"
+              name="reason"
+              [ngModel]="formReason"
+              (ngModelChange)="formReason = $event"
+              [rows]="3"
+              placeholder="Describe el motivo del bloqueo (mínimo 10 caracteres)..."
+              [required]="true"
+              [maxLength]="500"
               [disabled]="isLoading">
-            <span class="time-separator">-</span>
-            <input
-              type="time"
-              class="time-input"
-              [(ngModel)]="formTimeRange.end"
-              [disabled]="isLoading">
+            </app-textarea>
+            <p class="form-hint">Mínimo 10 caracteres, máximo 500</p>
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" [(ngModel)]="formAffectsExisting" [disabled]="isLoading">
+              <span>Afectar turnos existentes</span>
+            </label>
+            <p class="form-hint">Si está marcado, se permitirá crear el bloqueo aunque haya turnos afectados</p>
+          </div>
+
+          <div class="form-actions">
+            <app-button
+              type="button"
+              variant="primary"
+              size="medium"
+              [disabled]="isLoading"
+              [loading]="isLoading"
+              (clicked)="submitForm()">
+              <i class="fas fa-save" aria-hidden="true"></i>
+              {{ editingBlockId ? 'Guardar cambios' : 'Crear Bloqueo' }}
+            </app-button>
           </div>
         </div>
-      }
-
-      <div class="form-group">
-        <app-label for="reason" [required]="true">Motivo</app-label>
-        <app-textarea
-          id="reason"
-          name="reason"
-          [ngModel]="formReason"
-          (ngModelChange)="formReason = $event"
-          [rows]="3"
-          placeholder="Describe el motivo del bloqueo (mínimo 10 caracteres)..."
-          [required]="true"
-          [maxLength]="500"
-          [disabled]="isLoading">
-        </app-textarea>
-        <p class="form-hint">Mínimo 10 caracteres, máximo 500</p>
+        }
       </div>
-
-      <div class="form-group">
-        <label class="checkbox-label">
-          <input
-            type="checkbox"
-            [(ngModel)]="formAffectsExisting"
-            [disabled]="isLoading">
-          <span>Afectar turnos existentes</span>
-        </label>
-        <p class="form-hint">Si está marcado, se permitirá crear el bloqueo aunque haya turnos afectados</p>
-      </div>
-
-      <div class="form-actions">
-        <app-button
-          type="button"
-          variant="primary"
-          size="medium"
-          [disabled]="isLoading"
-          [loading]="isLoading"
-          (clicked)="submitForm()">
-          <i class="fas fa-save" aria-hidden="true"></i>
-          Crear Bloqueo
-        </app-button>
-      </div>
-    </div>
+    </section>
   }
 
   <!-- Lista de Bloqueos -->
-  <div class="exceptions-list">
-    <h2 class="section-title">Bloqueos Existentes</h2>
+  <section class="exceptions-list-section">
+    <div class="exceptions-list-header">
+      <h2 class="section-title">Bloqueos Existentes</h2>
+      <div class="exceptions-list-actions">
+        <button type="button" class="filter-btn" aria-label="Filtrar" (click)="openFilterModal()">
+          <i class="fas fa-filter"></i>
+        </button>
+      </div>
+    </div>
 
     @if (isLoading && blocks.length === 0) {
       <div class="loading-state">
         <app-spinner></app-spinner>
         <p>Cargando bloqueos...</p>
       </div>
-    } @else if (blocks.length === 0) {
+    } @else if (getFilteredBlocks().length === 0) {
       <div class="empty-state">
         <i class="fas fa-inbox"></i>
-        <p>No hay bloqueos configurados</p>
+        <p>{{ (filterDateFrom || filterDateTo || filterIsFullDay !== null) ? 'No hay bloqueos que coincidan con el filtro' : 'No hay bloqueos configurados' }}</p>
       </div>
     } @else {
-      <div class="exceptions-grid">
-        @for (block of blocks; track block.id) {
-          <div class="exception-card block-card" [class.full-day]="block.isFullDay" [class.partial]="!block.isFullDay">
-            <div class="card-header">
-              <h3 class="card-title">{{ formatDate(block.blockDate) }}</h3>
-              <span class="card-badge" [class.full-day]="block.isFullDay" [class.partial]="!block.isFullDay">
-                {{ block.isFullDay ? 'Día completo' : 'Parcial' }}
-              </span>
+      <div class="exceptions-table-card">
+        <div class="exceptions-table-header">
+          <div class="col-date">Fecha</div>
+          <div class="col-details">Motivo y Horarios</div>
+          <div class="col-status">Tipo</div>
+          <div class="col-actions">Acciones</div>
+        </div>
+        <div class="exceptions-table-body">
+          @for (block of getFilteredBlocks(); track block.id) {
+            <div class="exception-row">
+              <div class="col-date">
+                <div class="date-cell">
+                  <div class="date-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                  </div>
+                  <div>
+                    <p class="date-main">{{ formatDateList(block.blockDate) }}</p>
+                    <p class="date-weekday">{{ formatWeekday(block.blockDate) }}</p>
+                  </div>
+                </div>
+              </div>
+              <div class="col-details">
+                <span class="reason-text">{{ block.reason }}</span>
+                <div class="time-ranges-row">
+                  <i class="fas fa-clock"></i>
+                  <span class="time-ranges-text">{{ formatTimeRange(block) }}</span>
+                </div>
+                @if (block.affectsExistingAppointments) {
+                  <p class="card-warning" style="margin: 0.25rem 0 0 0;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Afecta turnos existentes
+                  </p>
+                }
+              </div>
+              <div class="col-status">
+                <span class="status-badge" [class.open]="block.isFullDay" [class.closed]="!block.isFullDay">
+                  {{ block.isFullDay ? 'Día completo' : 'Parcial' }}
+                </span>
+              </div>
+              <div class="col-actions">
+                <button type="button" class="action-btn" title="Editar" aria-label="Editar" (click)="editBlock(block)">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button type="button" class="action-btn delete" title="Eliminar" aria-label="Eliminar" (click)="openDeleteConfirm(block)">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
             </div>
-            <div class="card-body">
-              <p class="card-reason"><strong>Motivo:</strong> {{ block.reason }}</p>
-              <p class="card-time"><strong>Horario:</strong> {{ formatTimeRange(block) }}</p>
-              @if (block.affectsExistingAppointments) {
-                <p class="card-warning">
-                  <i class="fas fa-exclamation-triangle"></i>
-                  Afecta turnos existentes
-                </p>
-              }
-              <p class="card-meta">
-                <i class="fas fa-calendar"></i>
-                Creado: {{ formatDate(block.createdAt) }}
-              </p>
-            </div>
-          </div>
-        }
+          }
+        </div>
+        <div class="exceptions-table-footer">
+          <p class="footer-count">Mostrando {{ getFilteredBlocks().length }} de {{ blocks.length }} bloqueos registrados</p>
+        </div>
       </div>
     }
-  </div>
+  </section>
+
+  <!-- Modal confirmar eliminar -->
+  @if (blockToDelete) {
+    <app-alert-modal
+      [isOpen]="true"
+      type="error"
+      title="Eliminar bloqueo"
+      [message]="'¿Eliminar el bloqueo del ' + formatDateList(blockToDelete.blockDate) + '? Esta acción no se puede deshacer.'"
+      [showCancelButton]="true"
+      cancelButtonText="Cancelar"
+      confirmButtonText="Eliminar"
+      (confirm)="confirmDelete()"
+      (close)="closeDeleteConfirm()"
+      (cancel)="closeDeleteConfirm()">
+    </app-alert-modal>
+  }
+
+  <!-- Modal filtros -->
+  @if (showFilterModal) {
+    <div class="modal-backdrop" (click)="closeFilterModal()">
+      <div class="filter-modal-content" (click)="$event.stopPropagation()">
+        <div class="filter-modal-header">
+          <h3 class="filter-modal-title"><i class="fas fa-filter"></i> Filtrar bloqueos</h3>
+          <button type="button" class="filter-modal-close" aria-label="Cerrar" (click)="closeFilterModal()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="filter-modal-body">
+          <div class="filter-form-group">
+            <label class="filter-label">Desde fecha</label>
+            <input type="date" class="filter-input" [(ngModel)]="filterDateFrom" name="filterDateFrom">
+          </div>
+          <div class="filter-form-group">
+            <label class="filter-label">Hasta fecha</label>
+            <input type="date" class="filter-input" [(ngModel)]="filterDateTo" name="filterDateTo">
+          </div>
+          <div class="filter-form-group">
+            <label class="filter-label">Tipo</label>
+            <div class="filter-state-options">
+              <button type="button" class="filter-state-btn" [class.active]="filterIsFullDay === null" (click)="filterIsFullDay = null">
+                Todos
+              </button>
+              <button type="button" class="filter-state-btn" [class.active]="filterIsFullDay === true" (click)="filterIsFullDay = true">
+                Día completo
+              </button>
+              <button type="button" class="filter-state-btn" [class.active]="filterIsFullDay === false" (click)="filterIsFullDay = false">
+                Parcial
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="filter-modal-footer">
+          <app-button type="button" variant="secondary" size="medium" (clicked)="clearFilters()">
+            Limpiar
+          </app-button>
+          <app-button type="button" variant="primary" size="medium" (clicked)="applyFilters()">
+            Aplicar
+          </app-button>
+        </div>
+      </div>
+    </div>
+  }
 </div>
 

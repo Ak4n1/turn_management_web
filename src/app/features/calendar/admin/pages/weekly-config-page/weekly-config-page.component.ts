@@ -13,8 +13,6 @@ import { SpinnerComponent } from '../../../../../shared/atoms/spinner/spinner.co
 import { ErrorTextComponent } from '../../../../../shared/atoms/error-text/error-text.component';
 import { ButtonComponent } from '../../../../../shared/atoms/button/button.component';
 import { InputComponent } from '../../../../../shared/atoms/input/input.component';
-import { LabelComponent } from '../../../../../shared/atoms/label/label.component';
-import { TextareaComponent } from '../../../../../shared/atoms/textarea/textarea';
 import { AlertModalComponent } from '../../../../../shared/molecules/alert-modal/alert-modal.component';
 
 /**
@@ -28,14 +26,12 @@ import { AlertModalComponent } from '../../../../../shared/molecules/alert-modal
   selector: 'app-weekly-config-page',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    SpinnerComponent, 
+    CommonModule,
+    FormsModule,
+    SpinnerComponent,
     ErrorTextComponent,
     ButtonComponent,
     InputComponent,
-    LabelComponent,
-    TextareaComponent,
     AlertModalComponent
   ],
   templateUrl: './weekly-config-page.component.html',
@@ -61,25 +57,25 @@ export class WeeklyConfigPageComponent implements OnInit {
   alertTitle = '';
   alertMessage = '';
   showCancelButton = false;
+  showAlertIcon = true;
   pendingSaveAction: (() => void) | null = null; // Acción a ejecutar si el usuario confirma
 
   // Estado de turnos afectados
   affectedImpact: PreviewImpactResponse | null = null;
   appointmentsWithUsers: Map<number, AdminAppointmentResponse> = new Map();
-  
+
   // Valores para cancelación automática
   autoCancelAffectedAppointments: boolean = true;
   cancellationReason: string = 'Día cerrado según nueva configuración';
-  
+
   // Sistema de steps: 'config' | 'affected-appointments'
   currentStep: 'config' | 'affected-appointments' = 'config';
-  
+
   // Paginación para turnos afectados
   affectedAppointmentsCurrentPage = 0;
   affectedAppointmentsItemsPerPage = 5;
   affectedAppointmentsTotalPages = 0;
-  affectedAppointmentsPaginated: AffectedAppointmentInfo[] = [];
-
+  affectedAppointmentsPaginated: AffectedAppointmentInfo[] = []; // Fix: Explicitly initializing as empty array
   // Formulario semanal
   weeklyConfig: WeeklyConfigRequest = {
     monday: true,
@@ -107,14 +103,14 @@ export class WeeklyConfigPageComponent implements OnInit {
   appointmentDuration: number = 30;
   durationNotes: string = '';
 
-  activeTab: 'weekly' | 'daily' | 'duration' = 'weekly';
+
 
   ngOnInit(): void {
     // Cargar configuración activa siempre
     this.loadActiveConfig();
   }
 
-  private loadActiveConfig(): void {
+  public loadActiveConfig(): void {
     this.isLoading = true;
     this.error = null;
 
@@ -170,10 +166,6 @@ export class WeeklyConfigPageComponent implements OnInit {
     });
   }
 
-  setActiveTab(tab: 'weekly' | 'daily' | 'duration'): void {
-    this.activeTab = tab;
-    this.successMessage = null;
-  }
 
   saveWeeklyConfig(): void {
     this.isLoading = true;
@@ -203,11 +195,11 @@ export class WeeklyConfigPageComponent implements OnInit {
     // Filtrar solo los días que están abiertos según weeklyConfig
     const filteredDailyHours: Record<string, Array<{ start: string; end: string }>> = {};
     const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
-    
+
     for (const day of dayNames) {
       const dayKey = day as keyof WeeklyConfigRequest;
       const isOpen = this.weeklyConfig[dayKey] as boolean;
-      
+
       if (isOpen && this.dailyHours[day] && this.dailyHours[day].length > 0) {
         filteredDailyHours[day] = this.dailyHours[day];
       }
@@ -282,22 +274,22 @@ export class WeeklyConfigPageComponent implements OnInit {
     if (!start || !end) {
       return null; // Validación básica, no validar si está vacío
     }
-    
+
     const [startHours, startMinutes] = start.split(':').map(Number);
     const [endHours, endMinutes] = end.split(':').map(Number);
-    
+
     // Validar que sean números válidos
     if (isNaN(startHours) || isNaN(startMinutes) || isNaN(endHours) || isNaN(endMinutes)) {
       return null; // Dejar que el backend valide el formato
     }
-    
+
     const startTime = startHours * 60 + startMinutes;
     const endTime = endHours * 60 + endMinutes;
-    
+
     if (startTime >= endTime) {
       return `El horario de inicio (${start}) debe ser anterior al horario de fin (${end}).`;
     }
-    
+
     return null;
   }
 
@@ -306,7 +298,7 @@ export class WeeklyConfigPageComponent implements OnInit {
    */
   validateAllTimeRanges(): boolean {
     const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-    
+
     for (const day of dayNames) {
       const hours = this.dailyHours[day];
       if (hours && hours.length > 0) {
@@ -320,7 +312,7 @@ export class WeeklyConfigPageComponent implements OnInit {
         }
       }
     }
-    
+
     return true;
   }
 
@@ -354,9 +346,9 @@ export class WeeklyConfigPageComponent implements OnInit {
 
   formatDate(dateStr: string): string {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('es-AR', { 
-      year: 'numeric', 
-      month: 'long', 
+    return date.toLocaleDateString('es-AR', {
+      year: 'numeric',
+      month: 'long',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit'
@@ -382,7 +374,7 @@ export class WeeklyConfigPageComponent implements OnInit {
     for (const day of ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']) {
       const dayKey = day as keyof WeeklyConfigRequest;
       const isOpen = this.weeklyConfig[dayKey] as boolean;
-      
+
       if (isOpen) {
         // Si el día está abierto, debe tener al menos un rango horario
         const hours = this.dailyHours[day];
@@ -507,15 +499,15 @@ export class WeeklyConfigPageComponent implements OnInit {
       cancellationReason: this.autoCancelAffectedAppointments ? this.cancellationReason : undefined,
       appointmentIdsToCancel: appointmentIdsToCancel.length > 0 ? appointmentIdsToCancel : undefined
     };
-    
+
     // Preparar horarios diarios (solo días abiertos)
     const filteredDailyHours: Record<string, Array<{ start: string; end: string }>> = {};
     const dayNames = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'] as const;
-    
+
     for (const day of dayNames) {
       const dayKey = day as keyof WeeklyConfigRequest;
       const isOpen = this.weeklyConfig[dayKey] as boolean;
-      
+
       if (isOpen && this.dailyHours[day] && this.dailyHours[day].length > 0) {
         filteredDailyHours[day] = this.dailyHours[day];
       }
@@ -550,18 +542,20 @@ export class WeeklyConfigPageComponent implements OnInit {
       next: (config3) => {
         this.activeConfig = config3;
         this.isSavingAll = false;
-        
+
         // Si veníamos del step de turnos afectados, volver al step de configuración
         if (this.currentStep === 'affected-appointments') {
           this.currentStep = 'config';
           this.affectedImpact = null;
           this.appointmentsWithUsers.clear();
         }
-        
+
         this.showAlertModal(
           'success',
           'Configuración Guardada',
-          'Todas las configuraciones se han guardado exitosamente:\n\n• Calendario semanal\n• Horarios diarios\n• Duración de turnos'
+          'Todas las configuraciones se han guardado exitosamente:\n\n• Calendario semanal\n• Horarios diarios\n• Duración de turnos',
+          false,
+          false // showIcon = false (User request: remove top checkmark)
         );
       },
       error: (err) => {
@@ -587,7 +581,7 @@ export class WeeklyConfigPageComponent implements OnInit {
       this.executeSaveAll();
       return;
     }
-    
+
     if (!affectedAppointments || affectedAppointments.length === 0) {
       // Si no hay turnos afectados en la lista, pero sí hay impacto, mostrar step de todas formas
       this.showAffectedAppointmentsStep();
@@ -652,17 +646,17 @@ export class WeeklyConfigPageComponent implements OnInit {
         affectedImpact: this.affectedImpact,
         appointmentsCount: this.appointmentsWithUsers.size
       });
-      
+
       // Actualizar paginación
       this.updateAffectedAppointmentsPagination();
-      
+
       // Cambiar al step de turnos afectados
       this.currentStep = 'affected-appointments';
     } else {
       console.warn('[DEBUG] showAffectedAppointmentsStep: affectedImpact es null, no se puede mostrar step');
     }
   }
-  
+
   /**
    * Vuelve al step de configuración
    */
@@ -671,7 +665,7 @@ export class WeeklyConfigPageComponent implements OnInit {
     this.affectedImpact = null;
     this.appointmentsWithUsers.clear();
   }
-  
+
   /**
    * Confirma y guarda desde el step de turnos afectados
    */
@@ -679,7 +673,7 @@ export class WeeklyConfigPageComponent implements OnInit {
     // Guardar con las preferencias de cancelación
     this.executeSaveAll();
   }
-  
+
   /**
    * Actualiza la paginación de turnos afectados
    */
@@ -695,7 +689,7 @@ export class WeeklyConfigPageComponent implements OnInit {
     const endIndex = startIndex + this.affectedAppointmentsItemsPerPage;
     this.affectedAppointmentsPaginated = this.affectedImpact.appointments.slice(startIndex, endIndex);
   }
-  
+
   /**
    * Métodos de paginación para turnos afectados
    */
@@ -719,7 +713,7 @@ export class WeeklyConfigPageComponent implements OnInit {
       this.updateAffectedAppointmentsPagination();
     }
   }
-  
+
   getAffectedAppointmentsPageNumbers(): number[] {
     const pages: number[] = [];
     const maxVisiblePages = 5;
@@ -736,7 +730,7 @@ export class WeeklyConfigPageComponent implements OnInit {
 
     return pages;
   }
-  
+
   getAffectedAppointmentUserFullName(appointment: AffectedAppointmentInfo): string {
     if (!appointment.id) {
       return 'Usuario desconocido';
@@ -757,6 +751,24 @@ export class WeeklyConfigPageComponent implements OnInit {
     } else {
       return userEmail || 'Usuario desconocido';
     }
+  }
+
+  getAffectedAppointmentUserInitials(appointment: AffectedAppointmentInfo): string {
+    const fullName = this.getAffectedAppointmentUserFullName(appointment);
+    if (!fullName) {
+      return '?';
+    }
+
+    // Si todavía está cargando, mostrar placeholder estable
+    if (fullName === 'Cargando...') {
+      return '…';
+    }
+
+    const parts = fullName.trim().split(/\s+/);
+    const first = parts[0]?.charAt(0) ?? '';
+    const last = parts.length > 1 ? parts[parts.length - 1].charAt(0) : '';
+    const initials = (first + last).toUpperCase();
+    return initials || '?';
   }
 
   formatAffectedAppointmentDate(appointment: AffectedAppointmentInfo): string {
@@ -791,17 +803,23 @@ export class WeeklyConfigPageComponent implements OnInit {
   /**
    * Muestra el modal de alerta con el mensaje correspondiente
    */
+
+  /**
+   * Muestra el modal de alerta con el mensaje correspondiente
+   */
   private showAlertModal(
     type: 'success' | 'error' | 'warning' | 'info',
     title: string,
     message: string,
     showCancel: boolean = false,
+    showIcon: boolean = true,
     onConfirm?: () => void
   ): void {
     this.alertType = type;
     this.alertTitle = title;
     this.alertMessage = message;
     this.showCancelButton = showCancel;
+    this.showAlertIcon = showIcon;
     this.pendingSaveAction = onConfirm || null;
     this.isAlertModalOpen = true;
   }

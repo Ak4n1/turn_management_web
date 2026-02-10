@@ -1,0 +1,45 @@
+<div class="calendar-view-container">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-left">
+      <h1 class="page-title">Calendario General</h1>
+      <p class="page-subtitle">Gestiona y visualiza todos los turnos de tu organización</p>
+    </div>
+
+  </div>
+
+  <!-- Calendar Header -->
+  <app-calendar-header [dateLabel]="getDateRangeLabel()" [viewMode]="viewMode" (navigate)="onNavigate($event)"
+    (viewModeChange)="onViewModeChange($event)">
+  </app-calendar-header>
+
+  <!-- Calendar Content -->
+  <div class="calendar-content">
+    @switch (viewMode) {
+    @case ('week') {
+    <app-week-view [days]="days" [timeSlots]="timeSlots" [events]="events" (dayClick)="onDayClick($event)"
+      (eventClick)="onEventClick($event)" (slotClick)="onSlotClick($event.date, $event.time)">
+    </app-week-view>
+    }
+    @case ('month') {
+    <app-month-view [days]="days" (dayClick)="onDayClick($event)" (eventClick)="onEventClick($event)">
+    </app-month-view>
+    }
+    @case ('day') {
+    <app-day-view [day]="days[0]" [timeSlots]="timeSlots" (eventClick)="onEventClick($event)"
+      (slotClick)="onSlotClick($event.date, $event.time)">
+    </app-day-view>
+    }
+    }
+  </div>
+
+  <!-- Footer: Legend + Stats -->
+  <div class="calendar-footer">
+    @if (showLegend) {
+    <app-calendar-legend></app-calendar-legend>
+    }
+    @if (showStats) {
+    <app-calendar-stats [stats]="stats"></app-calendar-stats>
+    }
+  </div>
+</div>

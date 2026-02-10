@@ -29,6 +29,8 @@ html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Forzar tema claro para que el fondo sea blanco aunque el navegador esté en modo oscuro */
+  color-scheme: light;
   /* Ocultar scrollbar pero mantener funcionalidad */
   overflow-y: scroll;
   scrollbar-width: none; /* Firefox */
@@ -44,11 +46,18 @@ html::-webkit-scrollbar {
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--color-background);
+  background-color: #ffffff !important;
   color: var(--color-text-primary);
   /* Ocultar scrollbar pero mantener funcionalidad */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE y Edge antiguo */
+}
+
+/* Forzar fondo blanco en toda la app (sobre todo con modo oscuro del navegador) */
+app-root {
+  display: block;
+  background-color: #ffffff !important;
+  min-height: 100vh;
 }
 
 body::-webkit-scrollbar {
@@ -101,5 +110,14 @@ input, textarea, select {
 
 input:focus, textarea:focus, select:focus {
   outline: none;
+}
+
+/* Si el sistema pide modo oscuro, forzar igual fondo blanco en la app */
+@media (prefers-color-scheme: dark) {
+  html, body, app-root,
+  .dashboard-layout, .dashboard-layout-main, .dashboard-layout-content,
+  .sidebar, .sidebar-content, .dashboard-header {
+    background-color: #ffffff !important;
+  }
 }
 

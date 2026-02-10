@@ -1,0 +1,36 @@
+<div class="month-view">
+    <!-- Week Days Header -->
+    <div class="month-header">
+        @for (day of weekDays; track day) {
+        <div class="weekday-header">{{ day }}</div>
+        }
+    </div>
+
+    <!-- Days Grid -->
+    <div class="month-grid">
+        @for (day of days; track day.dateString) {
+        <div class="month-day" [class.is-today]="day.isToday" [class.other-month]="!day.isCurrentMonth"
+            [class.has-events]="day.events.length > 0" [class.day-closed]="day.state === 'closed'"
+            (click)="onDayClick(day)">
+
+            <span class="day-number" [class.today-number]="day.isToday">
+                {{ day.dayNumber }}
+            </span>
+
+            <!-- Event indicators -->
+            <div class="day-events">
+                @for (event of getVisibleEvents(day); track event.id) {
+                <div class="event-pill" [class]="getStatusClass(event.status)" (click)="onEventClick(event, $event)"
+                    [title]="event.title">
+                    <span class="event-time">{{ event.startTime }}</span>
+                    <span class="event-name">{{ event.title }}</span>
+                </div>
+                }
+                @if (getRemainingCount(day) > 0) {
+                <span class="more-events">+{{ getRemainingCount(day) }} más</span>
+                }
+            </div>
+        </div>
+        }
+    </div>
+</div>

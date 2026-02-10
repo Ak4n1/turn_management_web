@@ -1,9 +1,9 @@
-/* Sidebar Component - Organism */
+/* Sidebar Component - Organism (estilo TurnFlow Premium) */
 .sidebar {
-  width: 250px;
+  width: var(--sidebar-width);
   min-height: 100vh;
-  background-color: var(--color-background);
-  border-right: 1px solid var(--color-border, #e5e7eb);
+  background-color: #ffffff !important;
+  border-right: 1px solid var(--color-border);
   display: flex;
   flex-direction: column;
   position: relative;
@@ -17,31 +17,34 @@
 .sidebar-content {
   display: flex;
   flex-direction: column;
-  padding: var(--spacing-lg) 0;
   height: 100%;
+  padding: 0;
+  position: relative;
+  z-index: 1;
 }
 
-.sidebar-header {
-  padding: 0 var(--spacing-lg) var(--spacing-lg);
-  border-bottom: 1px solid var(--color-border, #e5e7eb);
-  margin-bottom: var(--spacing-md);
+/* Brand area */
+.sidebar-brand {
+  height: var(--header-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+  flex-shrink: 0;
 }
 
-.sidebar-title {
-  font-size: var(--font-size-h3);
-  font-weight: var(--font-weight-bold);
-  color: var(--color-text-primary);
-  margin: 0;
+.sidebar-brand-inner {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
 }
 
 .sidebar-close {
   display: none;
   width: 44px;
   height: 44px;
-  background-color: transparent;
+  background: transparent;
   border: none;
   color: var(--color-text-primary);
   cursor: pointer;
@@ -53,7 +56,7 @@
 }
 
 .sidebar-close:hover {
-  background-color: var(--color-background-hover, #f5f5f5);
+  background-color: var(--color-background-hover);
   color: var(--color-primary);
 }
 
@@ -62,28 +65,77 @@
   outline-offset: 2px;
 }
 
-.sidebar-menu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.sidebar-brand-icon {
+  width: var(--spacing-xl);
+  height: var(--spacing-xl);
+  background-color: var(--color-primary);
+  border-radius: var(--border-radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-background);
+  font-size: var(--font-size-body);
+}
+
+.sidebar-brand-title {
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+/* Nav */
+.sidebar-nav {
   flex: 1;
+  padding: 0 var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  overflow-y: auto;
 }
 
-.sidebar-menu-item {
-  margin: 0;
-  padding: 0;
+.sidebar-nav-item-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.sidebar-button {
+.sidebar-nav-item-wrapper .sidebar-link-active {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.sidebar-nav-item-wrapper .sidebar-link-active i {
+  color: var(--color-primary);
+}
+
+/* Indicador activo: solo visual, no intercepta clics */
+.sidebar-nav-item-wrapper.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background-color: var(--color-active-indicator);
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.sidebar-link {
   width: 100%;
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--border-radius-md);
   background-color: transparent;
   border: none;
-  color: var(--color-text-primary);
-  font-size: var(--font-size-body);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-body-small);
   font-weight: var(--font-weight-medium);
   text-align: left;
   cursor: pointer;
@@ -91,54 +143,127 @@
   font-family: var(--font-family);
   text-decoration: none;
   position: relative;
+  z-index: 1;
 }
 
-.sidebar-button:hover {
-  background-color: var(--color-surface, #F8FAFC);
+.sidebar-link:hover {
+  background-color: var(--color-background-hover);
+  color: var(--color-text-primary);
+}
+
+.sidebar-link:hover i {
   color: var(--color-primary);
 }
 
-.sidebar-button:active {
-  background-color: var(--color-primary-light, #DBEAFE);
-  color: var(--color-primary);
-}
-
-.sidebar-button:focus-visible {
+.sidebar-link:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: -2px;
 }
 
-.sidebar-button.active {
-  background-color: var(--color-primary-light, #DBEAFE);
-  color: var(--color-primary-dark, #1E40AF);
-  font-weight: var(--font-weight-semibold, 600);
-}
-
-.sidebar-button.active::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background-color: var(--color-primary, #2563EB);
-  border-radius: 0 2px 2px 0;
-}
-
-.sidebar-button i {
+.sidebar-link i {
   font-size: var(--font-size-body-large);
   width: 1.5rem;
   text-align: center;
-  color: var(--color-text-secondary, #475569);
+  color: inherit;
   transition: color 0.2s ease;
 }
 
-.sidebar-button:hover i,
-.sidebar-button.active i {
-  color: var(--color-primary);
+.sidebar-link-text {
+  flex: 1;
 }
 
-/* Mobile adjustments - Mobile First */
+/* Footer: user + logout */
+.sidebar-footer {
+  padding: var(--spacing-lg);
+  margin-top: auto;
+  border-top: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.sidebar-user-card {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-xl);
+  background-color: var(--color-background-hover);
+}
+
+.sidebar-avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  min-width: 2.5rem;
+  min-height: 2.5rem;
+  border-radius: var(--border-radius-full);
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-body-small);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  text-transform: uppercase;
+}
+
+.sidebar-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-user-name {
+  font-size: var(--font-size-body-small);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-role {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-secondary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-logout {
+  margin-top: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--border-radius-md);
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-body-small);
+  font-weight: var(--font-weight-medium);
+  font-family: var(--font-family);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidebar-logout:hover {
+  background-color: var(--color-logout-hover-bg);
+  color: var(--color-logout-hover-text);
+}
+
+.sidebar-logout:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.sidebar-logout i {
+  font-size: var(--font-size-body);
+}
+
+/* Mobile: misma estructura (drawer + overlay) pero mismos colores que desktop */
 @media (max-width: 768px) {
   .sidebar {
     position: fixed;
@@ -150,7 +275,11 @@
     transform: translateX(-100%);
     transition: transform 0.3s ease;
     z-index: 1000;
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 0 1px var(--color-shadow), 2px 0 var(--spacing-md) var(--color-shadow);
+    /* Mismos colores que desktop (forzado blanco) */
+    background-color: #ffffff !important;
+    border-right: 1px solid var(--color-border);
+    color: var(--color-text-primary);
   }
 
   .sidebar.open {
@@ -164,31 +293,95 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: var(--color-overlay);
     z-index: 999;
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
     transition: opacity 0.3s ease, visibility 0.3s ease;
   }
 
   .sidebar-overlay.open {
     opacity: 1;
     visibility: visible;
+    pointer-events: auto;
+    cursor: pointer;
+  }
+
+  /* Contenido por encima del overlay para que los clics en la sidebar no cierren el menú */
+  .sidebar-content {
+    z-index: 1000;
+    background-color: transparent;
+  }
+
+  .sidebar-brand {
+    height: var(--header-height-mobile);
+  }
+
+  .sidebar-brand-title {
+    color: var(--color-text-primary);
   }
 
   .sidebar-close {
     display: flex;
+    color: var(--color-text-primary);
+  }
+
+  .sidebar-link {
+    color: var(--color-text-secondary);
+  }
+
+  .sidebar-link:hover {
+    background-color: var(--color-background-hover);
+    color: var(--color-text-primary);
+  }
+
+  .sidebar-link:hover i {
+    color: var(--color-primary);
+  }
+
+  .sidebar-nav-item-wrapper .sidebar-link-active {
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+
+  .sidebar-nav-item-wrapper .sidebar-link-active i {
+    color: var(--color-primary);
+  }
+
+  .sidebar-footer {
+    border-top-color: var(--color-border);
+  }
+
+  .sidebar-user-card {
+    background-color: var(--color-background-hover);
+  }
+
+  .sidebar-user-name {
+    color: var(--color-text-primary);
+  }
+
+  .sidebar-user-role {
+    color: var(--color-text-secondary);
+  }
+
+  .sidebar-logout {
+    color: var(--color-text-secondary);
+  }
+
+  .sidebar-logout:hover {
+    background-color: var(--color-logout-hover-bg);
+    color: var(--color-logout-hover-text);
   }
 }
 
-/* Desktop - Sidebar fijo */
+/* Desktop - Sidebar fijo desde arriba (altura completa) */
 @media (min-width: 769px) {
   .sidebar {
     position: fixed;
-    top: var(--header-height, 64px); /* Debajo del header */
+    top: 0;
     left: 0;
-    height: calc(100vh - var(--header-height, 64px)); /* Altura total menos header */
-    display: flex;
+    height: 100vh;
     overflow-y: auto;
     overflow-x: hidden;
   }

@@ -1,7 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, computed, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
-import { AuthStateService } from '../../../core/services/auth-state';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { AuthStateService, AuthState } from '../../../core/services/auth-state';
+import { AuthService } from '../../../core/services/auth.service';
+import { UserResponse } from '../../../features/auth/models/user-response.model';
 
 interface SidebarMenuItem {
   label: string;
@@ -19,11 +22,44 @@ interface SidebarMenuItem {
 })
 export class SidebarComponent implements OnInit {
   private authStateService = inject(AuthStateService);
+  private authService = inject(AuthService);
   private router = inject(Router);
 
   isOpen = false;
   menuItems: SidebarMenuItem[] = [];
   userRoles: string[] = [];
+
+  private authState = toSignal(this.authStateService.authState$, {
+    initialValue: { user: null, isAuthenticated: false } as AuthState
+  });
+
+  displayName = computed(() => {
+    const user = this.authState()?.user;
+    if (!user) return '';
+    const first = user.firstName?.trim() || '';
+    const last = user.lastName?.trim() || '';
+    if (first || last) return `${first} ${last}`.trim();
+    return user.email || '';
+  });
+
+  initials = computed(() => {
+    const user = this.authState()?.user;
+    if (!user) return '?';
+    const first = (user.firstName || '').trim();
+    const last = (user.lastName || '').trim();
+    if (first && last) return (first[0] + last[0]).toUpperCase();
+    if (first) return first.slice(0, 2).toUpperCase();
+    if (user.email) return user.email.slice(0, 2).toUpperCase();
+    return '?';
+  });
+
+  roleLabel = computed(() => {
+    const user = this.authState()?.user;
+    if (!user?.roles?.length) return '';
+    if (user.roles.includes('ROLE_ADMIN')) return 'Administrador';
+    if (user.roles.includes('ROLE_USER')) return 'Usuario';
+    return user.roles[0] || '';
+  });
 
   // Items de menú para usuarios normales (ROLE_USER)
   private userMenuItems: SidebarMenuItem[] = [
@@ -133,5 +169,20 @@ export class SidebarComponent implements OnInit {
 
   isActiveRoute(route: string): boolean {
     return this.router.url === route || this.router.url.startsWith(route + '/');
+  }
+
+  logout(): void {
+    this.authService.logout().subscribe({
+      next: () => {
+        this.authStateService.clearState();
+        this.closeSidebar();
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        this.authStateService.clearState();
+        this.closeSidebar();
+        this.router.navigate(['/login']);
+      }
+    });
   }
 }

@@ -1,0 +1,26 @@
+<div class="calendar-header">
+    <!-- Navigation Controls (Left) -->
+    <div class="nav-controls">
+        <button class="nav-btn" (click)="onPrev()" aria-label="Anterior">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="nav-btn" (click)="onNext()" aria-label="Siguiente">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        <span class="date-label">{{ dateLabel }}</span>
+        <button class="today-btn" (click)="onToday()">Hoy</button>
+    </div>
+
+    <!-- View Mode Selector (Right) -->
+    <div class="view-selector">
+        <button class="view-btn" [class.active]="viewMode === 'day'" (click)="onViewModeChange('day')">
+            Día
+        </button>
+        <button class="view-btn" [class.active]="viewMode === 'week'" (click)="onViewModeChange('week')">
+            Semana
+        </button>
+        <button class="view-btn" [class.active]="viewMode === 'month'" (click)="onViewModeChange('month')">
+            Mes
+        </button>
+    </div>
+</div>

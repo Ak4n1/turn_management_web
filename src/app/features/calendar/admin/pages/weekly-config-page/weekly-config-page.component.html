@@ -1,462 +1,312 @@
 <div class="weekly-config-page">
-  <div class="page-header">
-    <h1 class="page-title">Reglas de Atención</h1>
-    <p class="page-subtitle">Configura los días de la semana, horarios y duración de turnos</p>
-  </div>
+  <div class="rules-content">
+    <!-- Page Header - Estilo code.html -->
+    <header class="rules-header">
+      <div class="rules-header-text">
+        <h1 class="rules-title">Reglas de Atención</h1>
+        <p class="rules-subtitle">Configura los días, horarios y parámetros de tu servicio.</p>
+      </div>
+      <div class="rules-header-actions">
+        <app-button variant="primary" (clicked)="saveAll()" [disabled]="isLoading || isSavingAll"
+          [loading]="isSavingAll">
+          Guardar Cambios
+        </app-button>
+      </div>
+    </header>
 
-  @if (isLoading && !activeConfig) {
+    @if (isLoading && !activeConfig) {
     <div class="loading-state">
       <app-spinner></app-spinner>
       <p>Cargando configuración...</p>
     </div>
-  } @else if (error && !activeConfig) {
+    } @else if (error && !activeConfig) {
     <div class="error-state">
       <app-error-text [message]="error"></app-error-text>
     </div>
-  } @else {
+    } @else {
     <!-- Step: Turnos Afectados -->
     @if (currentStep === 'affected-appointments' && affectedImpact) {
-      <div class="affected-appointments-step">
-        <div class="step-header">
-          <h2 class="step-title">Turnos Futuros Afectados</h2>
-          <p class="step-subtitle">Revisa y gestiona los turnos que se verán afectados por este cambio de configuración</p>
-        </div>
-
-        <!-- Advertencia -->
-        <div class="warning-section">
-          <div class="warning-icon">
+    <div class="affected-appointments-step">
+      <!-- Header Section -->
+      <div class="affected-header">
+        <div class="affected-header-content">
+          <div class="affected-warning-icon-wrapper">
             <i class="fas fa-exclamation-triangle"></i>
           </div>
-          <div class="warning-text">
-            Se detectaron <strong>{{ affectedImpact.existingAppointmentsAffected }}</strong> turno(s) futuro(s) que se verían afectados por este cambio.
+          <div>
+            <h2 class="affected-title">Turnos Futuros Afectados</h2>
+            <p class="affected-subtitle">Revisa y gestiona los turnos que se verían afectados por este cambio de
+              configuración</p>
           </div>
         </div>
+      </div>
 
-        <!-- Estadísticas -->
-        <div class="stats-section">
-          <div class="stat-item">
-            <span class="stat-label">Días afectados:</span>
-            <span class="stat-value">{{ affectedImpact.affectedDays }}</span>
-          </div>
-          <div class="stat-item">
-            <span class="stat-label">Slots que desaparecerían:</span>
-            <span class="stat-value">{{ affectedImpact.slotsLost }}</span>
-          </div>
+      <!-- Stats Grid -->
+      <div class="affected-stats-grid">
+        <div class="affected-stat-card">
+          <div class="affected-stat-label">Turnos Afectados</div>
+          <div class="affected-stat-value">{{ affectedImpact.existingAppointmentsAffected }}</div>
         </div>
+        <div class="affected-stat-card">
+          <div class="affected-stat-label">Días Afectados</div>
+          <div class="affected-stat-value">{{ affectedImpact.affectedDays }}</div>
+        </div>
+        <div class="affected-stat-card">
+          <div class="affected-stat-label">Slots Perdidos</div>
+          <div class="affected-stat-value">{{ affectedImpact.slotsLost }}</div>
+        </div>
+      </div>
 
-        <!-- Título de sección -->
-        <h3 class="section-title">Turnos Afectados</h3>
+      <!-- List Section -->
+      <div class="affected-list-section">
+        <h3 class="affected-list-title">
+          <i class="fas fa-list-alt"></i>
+          Detalle de Turnos
+        </h3>
 
-        <!-- Lista de turnos con paginación -->
-        <div class="appointments-list">
+        <div class="affected-appointments-list">
           @if (affectedAppointmentsPaginated.length > 0) {
-            @for (appointment of affectedAppointmentsPaginated; track appointment.id || appointment.date + appointment.time) {
-              <div class="appointment-item">
-                <i class="fas fa-calendar-check appointment-icon"></i>
-                <div class="appointment-content">
-                  <div class="appointment-main">
-                    <span class="appointment-date">{{ formatAffectedAppointmentDate(appointment) }}</span>
-                    <span class="appointment-time">a las {{ formatAffectedAppointmentTime(appointment) }}</span>
-                  </div>
-                  <div class="appointment-user">
-                    <i class="fas fa-user"></i>
-                    <span>{{ getAffectedAppointmentUserFullName(appointment) }}</span>
-                  </div>
-                </div>
+          @for (appointment of affectedAppointmentsPaginated; track appointment.id || appointment.date +
+          appointment.time) {
+          <div class="affected-appointment-item">
+            <div class="affected-appointment-main">
+              <div class="affected-user-avatar">
+                {{ getAffectedAppointmentUserInitials(appointment) }}
               </div>
-            }
-          } @else {
-            <div class="empty-message">
-              No hay turnos para mostrar en esta página.
+              <div>
+                <h3 class="affected-user-name">{{ getAffectedAppointmentUserFullName(appointment) }}</h3>
+                <p class="affected-date">{{ formatAffectedAppointmentDate(appointment) }}</p>
+              </div>
             </div>
+            <div class="affected-time-wrapper">
+              <div class="affected-time-badge">{{ formatAffectedAppointmentTime(appointment) }}</div>
+            </div>
+          </div>
+          }
+          } @else {
+          <div class="affected-empty-message">No hay turnos para mostrar.</div>
           }
         </div>
 
-        <!-- Paginación -->
+        <!-- Pagination -->
         @if (affectedAppointmentsTotalPages > 1) {
-          <div class="pagination">
-            <app-button
-              type="button"
-              variant="secondary"
-              size="small"
-              [disabled]="affectedAppointmentsCurrentPage === 0"
-              (clicked)="affectedAppointmentsPreviousPage()">
-              <i class="fas fa-chevron-left"></i> Anterior
-            </app-button>
+        <div class="affected-pagination">
+          <button type="button" class="affected-pagination-btn" [disabled]="affectedAppointmentsCurrentPage === 0"
+            (click)="affectedAppointmentsPreviousPage()">
+            <i class="fas fa-chevron-left"></i>
+          </button>
 
-            <div class="page-numbers">
-              @for (page of getAffectedAppointmentsPageNumbers(); track page) {
-                <button
-                  type="button"
-                  class="page-button"
-                  [class.active]="page === affectedAppointmentsCurrentPage"
-                  (click)="affectedAppointmentsGoToPage(page)">
-                  {{ page + 1 }}
-                </button>
-              }
-            </div>
+          <span class="affected-pagination-info">
+            {{ affectedAppointmentsCurrentPage + 1 }} / {{ affectedAppointmentsTotalPages }}
+          </span>
 
-            <app-button
-              type="button"
-              variant="secondary"
-              size="small"
-              [disabled]="affectedAppointmentsCurrentPage === affectedAppointmentsTotalPages - 1"
-              (clicked)="affectedAppointmentsNextPage()">
-              Siguiente <i class="fas fa-chevron-right"></i>
-            </app-button>
-          </div>
-
-          <div class="pagination-info">
-            Página {{ affectedAppointmentsCurrentPage + 1 }} de {{ affectedAppointmentsTotalPages }} ({{ affectedImpact.appointments.length }} turno(s) en total)
-          </div>
-        } @else if (affectedImpact.appointments && affectedImpact.appointments.length > 0) {
-          <div class="pagination-info">
-            Mostrando {{ affectedImpact.appointments.length }} turno(s)
-          </div>
+          <button type="button" class="affected-pagination-btn"
+            [disabled]="affectedAppointmentsCurrentPage === affectedAppointmentsTotalPages - 1"
+            (click)="affectedAppointmentsNextPage()">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
         }
+      </div>
 
-        <!-- Switch para cancelación automática -->
-        <div class="auto-cancel-section">
-          <label class="switch-label">
-            <input 
-              type="checkbox" 
-              [(ngModel)]="autoCancelAffectedAppointments"
-              class="switch-input">
-            <span class="switch-text">
-              <strong>Cancelar automáticamente los turnos afectados</strong>
-            </span>
+      <!-- Settings Section -->
+      <div class="affected-settings-section">
+        <div class="affected-settings-header">
+          <div class="affected-settings-info">
+            <h3 class="affected-settings-title">Cancelar automáticamente</h3>
+            <p class="affected-settings-description">Si está activado, los turnos afectados se cancelarán y se
+              notificará a los usuarios por email.</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" [(ngModel)]="autoCancelAffectedAppointments">
+            <span class="slider round"></span>
           </label>
-          <p class="switch-description">
-            Si está activado, todos los turnos afectados serán cancelados automáticamente y se enviará un email a los usuarios informándoles que deben volver a solicitar turnos en días hábiles.
+        </div>
+
+        @if (autoCancelAffectedAppointments) {
+        <div class="affected-reason-container">
+          <label class="affected-reason-label">Razón de la cancelación (personalizable)</label>
+          <textarea class="affected-reason-textarea" [(ngModel)]="cancellationReason" rows="3"
+            placeholder="Escribe el motivo...">
+            </textarea>
+          <p class="affected-reason-hint">
+            <i class="fas fa-info-circle"></i>
+            Esta razón será incluida en el email que se enviará a los usuarios afectados.
           </p>
         </div>
-
-        <!-- Input de razón de cancelación (solo visible si switch está activado) -->
-        @if (autoCancelAffectedAppointments) {
-          <div class="cancellation-reason-section">
-            <label for="cancellation-reason" class="reason-label">
-              Razón de la cancelación (personalizable):
-            </label>
-            <app-textarea
-              id="cancellation-reason"
-              name="cancellation-reason"
-              [(ngModel)]="cancellationReason"
-              [rows]="3"
-              placeholder="Ej: Día cerrado según nueva configuración. Por favor, vuelva a solicitar un turno en un día hábil.">
-            </app-textarea>
-            <p class="reason-hint">
-              Esta razón será incluida en el email que se enviará a los usuarios afectados.
-            </p>
-          </div>
         }
-
-        <!-- Nota -->
-        <div class="note-section">
-          <i class="fas fa-info-circle note-icon"></i>
-          <div class="note-content">
-            @if (autoCancelAffectedAppointments) {
-              <strong>Nota:</strong> Los turnos afectados serán cancelados automáticamente. Los usuarios recibirán un email con la lista de turnos cancelados y la razón especificada, solicitándoles que vuelvan a solicitar turnos en días hábiles.
-            } @else {
-              <strong>Nota:</strong> Los turnos existentes mantendrán su versión original de configuración, pero los nuevos turnos usarán la nueva configuración. Los usuarios serán notificados de que sus turnos siguen siendo válidos.
-            }
-          </div>
-        </div>
-
-        <!-- Pregunta -->
-        <div class="question-section">
-          ¿Deseas continuar con el guardado?
-        </div>
-
-        <!-- Acciones -->
-        <div class="page-actions">
-          <app-button
-            type="button"
-            variant="secondary"
-            size="medium"
-            [disabled]="isSavingAll"
-            (clicked)="cancelAffectedAppointmentsStep()">
-            <i class="fas fa-times" aria-hidden="true"></i>
-            Cancelar
-          </app-button>
-          <app-button
-            type="button"
-            variant="primary"
-            size="medium"
-            [disabled]="isSavingAll"
-            [loading]="isSavingAll"
-            (clicked)="confirmAffectedAppointmentsStep()">
-            <i class="fas fa-check" aria-hidden="true"></i>
-            Continuar con el Guardado
-          </app-button>
-        </div>
       </div>
-    }
 
-    <!-- Step: Configuración (tabs normales) -->
-    @if (currentStep === 'config') {
-    <!-- Tabs -->
-    <div class="tabs">
-      <button 
-        type="button"
-        class="tab-button"
-        [class.active]="activeTab === 'weekly'"
-        (click)="setActiveTab('weekly')">
-        <i class="fas fa-calendar-week"></i>
-        Calendario Semanal
-      </button>
-      <button 
-        type="button"
-        class="tab-button"
-        [class.active]="activeTab === 'daily'"
-        (click)="setActiveTab('daily')">
-        <i class="fas fa-clock"></i>
-        Horarios Diarios
-      </button>
-      <button 
-        type="button"
-        class="tab-button"
-        [class.active]="activeTab === 'duration'"
-        (click)="setActiveTab('duration')">
-        <i class="fas fa-hourglass-half"></i>
-        Duración de Turnos
-      </button>
-    </div>
-
-    <!-- Success Message -->
-    @if (successMessage) {
-      <div class="success-message">
-        <i class="fas fa-check-circle"></i>
-        <span>{{ successMessage }}</span>
-      </div>
-    }
-
-    <!-- Tab Content: Weekly Config -->
-    @if (activeTab === 'weekly') {
-      <div class="tab-content">
-        <div class="config-section">
-          <h2 class="section-title">Días de la Semana</h2>
-          <p class="section-description">Selecciona qué días de la semana están abiertos</p>
-
-          <div class="days-grid">
-            @for (day of ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']; track day) {
-              <label class="day-checkbox">
-                <input
-                  type="checkbox"
-                  [ngModel]="getDayValue(day)"
-                  (ngModelChange)="setDayValue(day, $event)"
-                  [disabled]="isLoading">
-                <span class="day-label">{{ getDayName(day) }}</span>
-              </label>
-            }
-          </div>
-
-          <div class="form-group">
-            <app-label for="notes">Notas (opcional)</app-label>
-            <app-textarea
-              id="notes"
-              name="notes"
-              [ngModel]="weeklyConfig.notes"
-              (ngModelChange)="weeklyConfig.notes = $event"
-              [rows]="3"
-              placeholder="Descripción de esta configuración..."
-              [disabled]="isLoading">
-            </app-textarea>
-          </div>
-
-          <div class="form-actions">
-            <app-button
-              type="button"
-              variant="primary"
-              size="medium"
-              [disabled]="isLoading || isSavingAll"
-              [loading]="isSavingAll"
-              (clicked)="saveAll()">
-              <i class="fas fa-save" aria-hidden="true"></i>
-              Guardar Configuración
-            </app-button>
-          </div>
-        </div>
-      </div>
-    }
-
-    <!-- Tab Content: Daily Hours -->
-    @if (activeTab === 'daily') {
-      <div class="tab-content">
-        <div class="config-section">
-          <h2 class="section-title">Horarios Diarios</h2>
-          <p class="section-description">Configura los horarios de atención para cada día abierto</p>
-
-          @for (day of ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']; track day) {
-            @if (isDayOpen(day)) {
-              <div class="day-hours-section">
-                <h3 class="day-name">{{ getDayName(day) }}</h3>
-                
-                @for (range of dailyHours[day]; track $index) {
-                  <div class="time-range-row">
-                    <app-input
-                      type="time"
-                      id="start-{{day}}-{{$index}}"
-                      name="start-{{day}}-{{$index}}"
-                      [ngModel]="range.start"
-                      (ngModelChange)="range.start = $event; validateAllTimeRanges()"
-                      [disabled]="isLoading">
-                    </app-input>
-                    <span class="time-separator">-</span>
-                    <app-input
-                      type="time"
-                      id="end-{{day}}-{{$index}}"
-                      name="end-{{day}}-{{$index}}"
-                      [ngModel]="range.end"
-                      (ngModelChange)="range.end = $event; validateAllTimeRanges()"
-                      [disabled]="isLoading">
-                    </app-input>
-                    <app-button
-                      type="button"
-                      variant="danger"
-                      size="medium"
-                      (clicked)="removeTimeRange(day, $index)"
-                      [disabled]="isLoading">
-                      <i class="fas fa-times" aria-hidden="true"></i>
-                    </app-button>
-                  </div>
-                }
-
-                <app-button
-                  type="button"
-                  variant="secondary"
-                  size="medium"
-                  (clicked)="addTimeRange(day)"
-                  [disabled]="isLoading">
-                  <i class="fas fa-plus" aria-hidden="true"></i>
-                  Agregar rango horario
-                </app-button>
-              </div>
-            }
+      <!-- Info Box -->
+      <div class="affected-info-box">
+        <i class="fas fa-info-circle affected-info-icon"></i>
+        <p class="affected-info-text">
+          @if (autoCancelAffectedAppointments) {
+          <strong>Nota:</strong> Los turnos afectados serán gestionados automáticamente al confirmar. Asegúrate de haber
+          revisado la lista antes de continuar.
+          } @else {
+          <strong>Nota:</strong> Los turnos existentes mantendrán su versión original de configuración, pero los nuevos
+          turnos usarán la nueva configuración.
           }
-
-          <div class="form-actions">
-            <app-button
-              type="button"
-              variant="primary"
-              size="medium"
-              [disabled]="isLoading || isSavingAll"
-              [loading]="isSavingAll"
-              (clicked)="saveAll()">
-              <i class="fas fa-save" aria-hidden="true"></i>
-              Guardar Configuración
-            </app-button>
-          </div>
-        </div>
+          <span class="affected-question">¿Deseas continuar con el guardado?</span>
+        </p>
       </div>
+
+      <!-- Actions -->
+      <div class="affected-page-actions">
+        <button type="button" class="affected-btn-cancel" (click)="cancelAffectedAppointmentsStep()">
+          <i class="fas fa-times"></i>
+          Cancelar
+        </button>
+        <button type="button" class="affected-btn-confirm" [disabled]="isSavingAll"
+          (click)="confirmAffectedAppointmentsStep()">
+          <i class="fas fa-check-circle"></i>
+          Continuar con el Guardado
+        </button>
+      </div>
+    </div>
     }
 
-    <!-- Tab Content: Duration -->
-    @if (activeTab === 'duration') {
-      <div class="tab-content">
-        <div class="config-section">
-          <h2 class="section-title">Duración de Turnos</h2>
-          <p class="section-description">Define cuánto dura cada turno (debe ser compatible con los horarios configurados)</p>
-
-          <div class="form-group">
-            <app-label for="duration">Duración (minutos)</app-label>
-            <app-input
-              type="number"
-              id="duration"
-              name="duration"
-              [ngModel]="appointmentDuration"
-              (ngModelChange)="appointmentDuration = $event"
-              [min]="15"
-              [max]="240"
-              [step]="15"
-              [disabled]="isLoading">
-            </app-input>
-            <p class="form-hint">Debe ser divisible por 15 (15, 30, 45, 60, etc.)</p>
+    <!-- Step: Configuration - Layout 2 columnas (7+5) estilo code.html -->
+    @if (currentStep === 'config') {
+    <div class="config-grid">
+      <!-- Columna izquierda (7 cols) -->
+      <div class="config-col-left">
+        <!-- Horarios de la Semana -->
+        <div class="rules-card schedule-card">
+          <div class="rules-card-header">
+            <h2 class="rules-card-title">
+              <i class="fas fa-calendar-alt rules-icon-primary"></i>
+              Horarios de la Semana
+            </h2>
           </div>
+          <div class="days-list">
+            @for (day of ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']; track day) {
+            <div class="day-row" [class.day-row-inactive]="!getDayValue(day)">
+              <div class="day-info">
+                <label class="switch">
+                  <input type="checkbox" [ngModel]="getDayValue(day)" (ngModelChange)="setDayValue(day, $event)"
+                    [disabled]="isLoading">
+                  <span class="slider"></span>
+                </label>
+                <span class="day-name">{{ getDayName(day) }}</span>
+              </div>
 
-          <div class="form-group">
-            <app-label for="durationNotes">Notas (opcional)</app-label>
-            <app-textarea
-              id="durationNotes"
-              name="durationNotes"
-              [ngModel]="durationNotes"
-              (ngModelChange)="durationNotes = $event"
-              [rows]="3"
-              placeholder="Descripción de esta configuración..."
-              [disabled]="isLoading">
-            </app-textarea>
+              @if (getDayValue(day)) {
+              <div class="day-ranges">
+                @for (range of dailyHours[day]; track $index) {
+                <div class="time-pill">
+                  <input type="time" [(ngModel)]="range.start" (ngModelChange)="validateAllTimeRanges()"
+                    [disabled]="isLoading" class="time-input" [name]="'start-' + day + '-' + $index">
+                  <span class="time-separator">–</span>
+                  <input type="time" [(ngModel)]="range.end" (ngModelChange)="validateAllTimeRanges()"
+                    [disabled]="isLoading" class="time-input" [name]="'end-' + day + '-' + $index">
+                  <button type="button" class="time-pill-remove" (click)="removeTimeRange(day, $index)"
+                    [disabled]="isLoading">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                }
+                <button type="button" class="btn-add-range" (click)="addTimeRange(day)" [disabled]="isLoading">
+                  <i class="fas fa-plus-circle"></i>
+                  Añadir
+                </button>
+              </div>
+              } @else {
+              <span class="closed-status">Cerrado por defecto</span>
+              }
+            </div>
+            }
           </div>
+        </div>
 
-          <div class="form-actions">
-            <app-button
-              type="button"
-              variant="primary"
-              size="medium"
-              [disabled]="isLoading || isSavingAll"
-              [loading]="isSavingAll"
-              (clicked)="saveAll()">
-              <i class="fas fa-save" aria-hidden="true"></i>
-              Guardar Configuración
-            </app-button>
+      </div>
+
+      <!-- Columna derecha (5 cols) -->
+      <div class="config-col-right">
+        <!-- Configuración Activa - Panel oscuro -->
+        <div class="config-active-card">
+          <div class="config-active-content">
+            <h2 class="config-active-title">Configuración Activa</h2>
+            <div class="config-active-rows">
+              <div class="config-active-row">
+                <span class="config-active-label">Versión del Sistema</span>
+                <span class="config-active-value config-version">{{ activeConfig?.version ?? '—' }}</span>
+              </div>
+              <div class="config-active-row">
+                <span class="config-active-label">Última actualización</span>
+                <span class="config-active-value">{{ activeConfig ? formatDate(activeConfig.updatedAt) : '—' }}</span>
+              </div>
+              <div class="config-active-row">
+                <span class="config-active-label">Duración de turnos</span>
+                <div class="config-duration-wrap">
+                  <input type="number" [(ngModel)]="appointmentDuration" name="appointmentDuration" [min]="15" [max]="240" [step]="15"
+                    [disabled]="isLoading" class="config-duration-input">
+                  <span class="config-duration-suffix">min</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="config-active-blur config-active-blur-1"></div>
+          <div class="config-active-blur config-active-blur-2"></div>
+        </div>
+
+        <!-- Estados y Reglas -->
+        <div class="rules-card states-card">
+          <h3 class="states-title">
+            <i class="fas fa-info-circle rules-icon-primary"></i>
+            Estados y Reglas
+          </h3>
+          <div class="states-badges">
+            <div class="state-badge state-open">
+              <span>Abierto</span>
+            </div>
+            <div class="state-badge state-partial">
+              <span>Parcial</span>
+            </div>
+            <div class="state-badge state-closed">
+              <span>Cerrado</span>
+            </div>
+          </div>
+          <div class="rules-explanations">
+            <div class="rule-item">
+              <div class="rule-badge rule-base">BASE</div>
+              <div class="rule-text">
+                <h4>Configuración Base</h4>
+                <p>Horarios regulares que se repiten cada semana. Es la base de todo el calendario.</p>
+              </div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-badge rule-excp">EXCP</div>
+              <div class="rule-text">
+                <h4>Excepciones</h4>
+                <p>Modificaciones para días específicos (feriados, horarios reducidos). Tienen prioridad sobre la BASE.</p>
+              </div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-badge rule-block">BLOCK</div>
+              <div class="rule-text">
+                <h4>Bloqueos</h4>
+                <p>Máxima prioridad. Impide cualquier reserva sin importar la configuración base o excepción.</p>
+              </div>
+            </div>
+          </div>
+          <div class="rules-guide-wrap">
+            <button type="button" class="btn-guide">
+              <i class="fas fa-question-circle"></i>
+              Guía Completa de Configuración
+            </button>
           </div>
         </div>
       </div>
-    }
-
-    <!-- Info de configuración activa -->
-    @if (activeConfig) {
-      <div class="config-info">
-        <h3>Configuración Activa</h3>
-        <p><strong>Versión:</strong> {{ activeConfig.version }}</p>
-        <p><strong>Última actualización:</strong> {{ formatDate(activeConfig.updatedAt) }}</p>
-        @if (activeConfig.appointmentDurationMinutes) {
-          <p><strong>Duración de turnos:</strong> {{ activeConfig.appointmentDurationMinutes }} minutos</p>
-        }
-      </div>
-
-      <!-- Alert explicativo de estados y reglas -->
-      <div class="rules-explanation">
-        <div class="rules-explanation-header">
-          <i class="fas fa-info-circle"></i>
-          <h4>Estados y Reglas del Calendario</h4>
-        </div>
-        <div class="rules-explanation-content">
-          <div class="rule-item">
-            <strong>Abierto:</strong> El día tiene horarios disponibles y puede recibir turnos. Los usuarios pueden reservar turnos en los rangos horarios configurados.
-          </div>
-          <div class="rule-item">
-            <strong>Parcial:</strong> El día tiene algunos rangos horarios disponibles, pero otros están bloqueados. Los turnos solo se pueden reservar en los rangos disponibles.
-          </div>
-          <div class="rule-item">
-            <strong>Cerrado:</strong> El día no tiene horarios disponibles. No se pueden reservar turnos nuevos en este día.
-          </div>
-          <div class="rule-divider"></div>
-          <div class="rule-item">
-            <strong>BASE:</strong> Define los días de la semana que están abiertos o cerrados por defecto y sus horarios regulares. Esta es la configuración base sobre la cual se aplican excepciones y bloqueos. Todos los días de la semana siguen esta configuración a menos que haya una excepción o bloqueo que la sobrescriba.
-          </div>
-          <div class="rule-item">
-            <strong>EXCEPTION:</strong> Permite modificar días específicos del calendario (abrir un día que normalmente está cerrado, cerrar uno que está abierto, o cambiar sus horarios). Útil para días especiales, feriados, o horarios reducidos. Tiene prioridad sobre BASE pero no sobre BLOCK.
-          </div>
-          <div class="rule-item">
-            <strong>BLOCK:</strong> Bloquea completamente un día o rango horario específico, incluso si está abierto en BASE o EXCEPTION. Tiene la máxima prioridad. Útil para mantenimiento, reuniones internas, o emergencias operativas. Puede afectar turnos existentes si se configura así.
-          </div>
-        </div>
-      </div>
+    </div>
     }
 
     <!-- Modal de Alerta (Success/Error/Warning) -->
-    <app-alert-modal
-      [isOpen]="isAlertModalOpen"
-      [type]="alertType"
-      [title]="alertTitle"
-      [message]="alertMessage"
-      [showCancelButton]="showCancelButton"
-      cancelButtonText="Cancelar"
-      confirmButtonText="Continuar"
-      (close)="closeAlertModal()"
-      (confirm)="onAlertConfirm()"
-      (cancel)="closeAlertModal()">
+    <app-alert-modal [isOpen]="isAlertModalOpen" [type]="alertType" [title]="alertTitle" [message]="alertMessage"
+      [showCancelButton]="showCancelButton" cancelButtonText="Cancelar" confirmButtonText="Continuar"
+      (close)="closeAlertModal()" (confirm)="onAlertConfirm()" (cancel)="closeAlertModal()">
     </app-alert-modal>
     }
-  }
+  </div>
 </div>
-

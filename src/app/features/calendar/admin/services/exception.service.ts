@@ -49,6 +49,29 @@ export class ExceptionService {
   }
 
   /**
+   * PUT /api/admin/calendar/exceptions/{id}
+   * Actualiza una excepción existente
+   */
+  updateException(id: number, request: CalendarExceptionRequest): Observable<CalendarExceptionResponse> {
+    return this.http.put<CalendarExceptionResponse>(
+      `${this.apiUrl}/exceptions/${id}`,
+      request
+    ).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  /**
+   * DELETE /api/admin/calendar/exceptions/{id}
+   * Elimina (desactiva) una excepción
+   */
+  deleteException(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/exceptions/${id}`).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  /**
    * Manejo centralizado de errores HTTP
    */
   private handleError(error: HttpErrorResponse): Observable<never> {

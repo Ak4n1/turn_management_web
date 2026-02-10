@@ -23,6 +23,10 @@ export interface ManualBlockRequest {
   timeRange: TimeRangeResponse | null;
   reason: string;
   affectsExistingAppointments: boolean;
+  /** Si se envían turnos afectados (tras preview): cancelar o solo notificar por email */
+  autoCancelAffectedAppointments?: boolean;
+  cancellationReason?: string;
+  appointmentIdsToCancel?: number[];
 }
 
 export interface TimeRangeResponse {

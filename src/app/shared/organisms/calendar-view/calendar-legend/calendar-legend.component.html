@@ -1,0 +1,11 @@
+<div class="calendar-legend">
+    <h4 class="legend-title">LEYENDA DE ESTADOS</h4>
+    <div class="legend-items">
+        @for (status of statuses; track status.key) {
+        <div class="legend-item">
+            <span class="legend-dot" [style.background-color]="status.color"></span>
+            <span class="legend-label">{{ status.label }}</span>
+        </div>
+        }
+    </div>
+</div>

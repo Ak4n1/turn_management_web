@@ -55,7 +55,7 @@ export class DayDetailModalComponent implements OnInit, OnChanges {
     this.appointmentService.getAppointmentsByDate(this.dayData.date).subscribe({
       next: (response) => {
         // Ordenar por hora ascendente
-        this.appointments = response.content.sort((a, b) => 
+        this.appointments = response.content.sort((a, b) =>
           a.startTime.localeCompare(b.startTime)
         );
         this.isLoading = false;
@@ -74,12 +74,15 @@ export class DayDetailModalComponent implements OnInit, OnChanges {
 
   getFormattedDate(): string {
     if (!this.dayData) return '';
-    const date = new Date(this.dayData.date);
-    return date.toLocaleDateString('es-AR', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    // Parsear YYYY-MM-DD como fecha local sin desfase
+    const [year, month, day] = this.dayData.date.split('-').map(Number);
+    const date = new Date(year, month - 1, day, 12, 0, 0);
+
+    return date.toLocaleDateString('es-AR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
     });
   }
 
