@@ -1,59 +1,156 @@
-# TurnManagementWeb
+# TurnFlow - Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.2.1.
+Aplicacion web para gestion de turnos. Interfaz desarrollada en Angular 20 que consume la API REST del backend, permite a los usuarios solicitar y gestionar turnos, y a los administradores configurar calendarios, gestionar citas y enviar notificaciones. Actualizaciones en tiempo real mediante WebSocket.
 
-## Development server
+## Tecnologias
 
-To start a local development server, run:
+- Angular 20 (standalone components)
+- TypeScript 5.9
+- RxJS 7.8
+- Chart.js / ng2-charts
+- Font Awesome 7
+- Signals (Angular 16+)
 
-```bash
-ng serve
+## Arquitectura de paquetes
+
+```
+src/app/
+|
++-- core/
+|   +-- components/           # RootRedirectComponent (redireccion segun auth)
+|   +-- guards/               # authGuard, guestGuard, emailVerifiedGuard, adminGuard
+|   +-- interceptors/         # credentialsInterceptor, authRefreshInterceptor, rateLimitInterceptor
+|   +-- models/               # websocket-message.model
+|   +-- services/             # AuthService, AuthStateService, WebSocketService
+|
++-- features/
+|   +-- account/
+|   |   +-- models/
+|   |   +-- pages/            # AccountSettingsPageComponent
+|   |   +-- services/         # NotificationPreferenceService
+|   |
+|   +-- admin/
+|   |   +-- models/
+|   |   +-- pages/            # UserManagementPageComponent, AuditPageComponent
+|   |   +-- services/         # AdminUserManagementService
+|   |
+|   +-- appointments/
+|   |   +-- user/
+|   |   |   +-- components/   # SlotsModal, AppointmentDetailsModal, RescheduleModal, CancelModal
+|   |   |   +-- pages/        # MyAppointmentsPageComponent
+|   |   |   +-- services/     # AppointmentService
+|   |   +-- admin/
+|   |       +-- components/   # AppointmentDetailsModal, RescheduleModal, CancelModal
+|   |       +-- models/
+|   |       +-- pages/        # AdminAppointmentsPageComponent
+|   |       +-- services/     # AdminAppointmentService
+|   |
+|   +-- auth/
+|   |   +-- models/
+|   |   +-- pages/            # LoginComponent, RegisterComponent, VerifyEmail, ForgotPassword, ResetPassword
+|   |
+|   +-- calendar/
+|   |   +-- user/
+|   |   |   +-- components/   # SlotsModal
+|   |   |   +-- pages/        # CalendarPageComponent
+|   |   |   +-- services/     # AvailabilityService
+|   |   +-- admin/
+|   |       +-- components/   # ConfigSavedModal, AffectedAppointmentsModal, DayDetailModal
+|   |       +-- models/
+|   |       +-- pages/        # ConsolidatedCalendarPage, WeeklyConfigPage, ExceptionsPage, BlocksPage
+|   |       +-- services/     # AdminCalendarService, ExceptionService, BlockService
+|   |
+|   +-- dashboard/
+|   |   +-- pages/            # UserDashboardPageComponent, AdminDashboardPageComponent
+|   |   +-- utils/
+|   |
+|   +-- help/
+|   |   +-- pages/            # HelpCenterPageComponent
+|   |
+|   +-- home/
+|   |   +-- pages/            # DashboardHomeComponent
+|   |
+|   +-- notifications/
+|   |   +-- constants/
+|   |   +-- models/
+|   |   +-- pages/            # NotificationsListPageComponent
+|   |   +-- services/         # UserNotificationService, AdminManualNotificationService, NotificationSoundService
+|   |   +-- utils/
+|   |
+|   +-- public/
+|       +-- pages/            # HomeComponent, ServicesComponent, AboutComponent
+|
++-- shared/
+|   +-- atoms/                # Button, Label, Input, Textarea, DateInput, ErrorText, Spinner
+|   +-- molecules/            # Modal, AlertModal, NavLink, PasswordInput, InputGroup, FormRow
+|   +-- organisms/            # Sidebar, DashboardHeader, PublicNavbar, LoginForm, RegisterForm,
+|   |                          # CalendarView (week-view, day-view, month-view, header, stats, legend)
+|   +-- templates/            # DashboardLayout, DashboardLayoutWrapper, AuthLayout
+|   +-- styles/               # colors.css, typography.css, spacing.css, shared.css
+|
++-- app.routes.ts
++-- app.config.ts
++-- app.ts
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Features
 
-## Code scaffolding
+### Account (Mi Cuenta)
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+Configuracion del perfil de usuario y preferencias de notificacion. Los usuarios pueden activar o desactivar tipos de notificacion (turnos, anuncios, recordatorios, etc.).
 
-```bash
-ng generate component component-name
-```
+### Admin (Administracion)
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Gestion de usuarios con filtros (busqueda, fecha, verificacion, perfil completo, rol, estado). Cards de usuario con acciones: cambiar rol, deshabilitar, reenviar verificacion, reenviar cambio de contraseña. Modal de detalle con informacion completa. Badge de usuarios en linea (WebSocket). Pagina de auditoria con historial de acciones.
 
-```bash
-ng generate --help
-```
+### Appointments (Turnos)
 
-## Building
+Usuario: calendario de slots disponibles, solicitud de turno, listado de mis turnos, confirmar, cancelar o solicitar reprogramacion. Modales para detalles, cancelacion y reprogramacion. Admin: listado paginado de todos los turnos con filtros, cancelar, reprogramar, crear override. Cards con estado, fecha y usuario.
 
-To build the project run:
+### Auth (Autenticacion)
 
-```bash
-ng build
-```
+Login, registro, verificacion de email, recuperacion y reset de contraseña. Layout dedicado (AuthLayout) para pantallas de autenticacion. Guards para rutas protegidas (auth, guest, emailVerified, admin).
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+### Calendar (Calendario)
 
-## Running unit tests
+Usuario: vista de calendario con slots disponibles por dia, seleccion de horario para pedir turno. Admin: calendario consolidado con vista semanal, diaria y mensual. Configuracion semanal (dias abiertos/cerrados), excepciones de calendario, bloqueos manuales. Modales de impacto y turnos afectados.
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### Dashboard
 
-```bash
-ng test
-```
+Dashboard de usuario con actividad reciente, proximos turnos y enlaces rapidos. Dashboard de admin con metricas y accesos a gestion de turnos, calendario y usuarios. Graficos con Chart.js.
 
-## Running end-to-end tests
+### Help (Centro de ayuda)
 
-For end-to-end (e2e) testing, run:
+Pagina de ayuda con secciones frecuentes, guias y enlaces de soporte.
 
-```bash
-ng e2e
-```
+### Home
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Pagina principal del dashboard (redireccion o bienvenida).
 
-## Additional Resources
+### Notifications (Notificaciones)
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+Listado de notificaciones con filtros (busqueda, tipo, rango de fechas, estado leidas/no leidas). Paginacion. Admins pueden enviar notificaciones manuales a todos los usuarios o a seleccionados. Sonido al recibir nueva notificacion. Actualizacion en tiempo real via WebSocket.
+
+### Public
+
+Paginas publicas: home, services, about. Navbar publica sin autenticacion.
+
+## Patrones arquitectonicos
+
+- **Feature-based structure**: Modulos por dominio de negocio (account, admin, appointments, auth, calendar, etc.). Cada feature agrupa pages, components, services y models propios.
+
+- **Atomic Design**: Componentes compartidos organizados por complejidad. Atoms (Button, Label, Input), Molecules (Modal, FormRow, InputGroup), Organisms (Sidebar, CalendarView, LoginForm), Templates (DashboardLayout, AuthLayout).
+
+- **Standalone components**: Todos los componentes son standalone, sin NgModules. Imports directos donde se necesitan.
+
+- **Route guards**: Proteccion de rutas con guards funcionales (authGuard, guestGuard, emailVerifiedGuard, adminGuard). Redireccion segun estado de autenticacion y rol.
+
+- **HTTP interceptors**: Interceptores para withCredentials, refresh token automatico y manejo de rate limit (429).
+
+- **Services**: Servicios inyectables para comunicacion con la API (AuthService, AppointmentService, AdminCalendarService, etc.). Estado compartido en AuthStateService.
+
+- **Signals**: Uso de signals para estado reactivo en componentes (computed, toSignal). Evita suscripciones manuales a Observables.
+
+- **Smart / Presentational**: Paginas (smart) cargan datos y orquestan; componentes compartidos (presentational) reciben inputs y emiten outputs.
+
+- **Design system**: Variables CSS centralizadas (colors, typography, spacing) en shared/styles. Consistencia visual en toda la app.
