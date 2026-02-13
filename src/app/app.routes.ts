@@ -17,16 +17,26 @@ import { RootRedirectComponent } from './core/components/root-redirect/root-redi
 import { DashboardLayoutWrapperComponent } from './shared/templates/dashboard-layout/dashboard-layout-wrapper.component';
 
 // User routes
+import { UserDashboardPageComponent } from './features/dashboard/pages/user-dashboard-page/user-dashboard-page.component';
 import { CalendarPageComponent } from './features/calendar/user/pages/calendar-page/calendar-page.component';
 import { MyAppointmentsPageComponent } from './features/appointments/user/pages/my-appointments-page/my-appointments-page.component';
+import { HelpCenterPageComponent } from './features/help/pages/help-center-page/help-center-page.component';
+
+// Account (Mi Cuenta) - disponible para todos los usuarios autenticados
+import { AccountSettingsPageComponent } from './features/account/pages/account-settings-page/account-settings-page.component';
+
+// Notificaciones (Ver todas)
+import { NotificationsListPageComponent } from './features/notifications/pages/notifications-list-page/notifications-list-page.component';
 
 // Admin routes
+import { AdminDashboardPageComponent } from './features/dashboard/pages/admin-dashboard-page/admin-dashboard-page.component';
 import { ConsolidatedCalendarPageComponent } from './features/calendar/admin/pages/consolidated-calendar-page/consolidated-calendar-page.component';
 import { AdminAppointmentsPageComponent } from './features/appointments/admin/pages/admin-appointments-page/admin-appointments-page.component';
 import { WeeklyConfigPageComponent } from './features/calendar/admin/pages/weekly-config-page/weekly-config-page.component';
 import { ExceptionsPageComponent } from './features/calendar/admin/pages/exceptions-page/exceptions-page.component';
 import { BlocksPageComponent } from './features/calendar/admin/pages/blocks-page/blocks-page.component';
 import { AuditPageComponent } from './features/admin/pages/audit-page/audit-page.component';
+import { UserManagementPageComponent } from './features/admin/pages/user-management-page/user-management-page.component';
 
 export const routes: Routes = [
   {
@@ -66,7 +76,10 @@ export const routes: Routes = [
         path: 'home',
         component: DashboardHomeComponent
       },
-      // User routes
+      {
+        path: 'user',
+        component: UserDashboardPageComponent
+      },
       {
         path: 'calendar',
         component: CalendarPageComponent
@@ -75,7 +88,24 @@ export const routes: Routes = [
         path: 'appointments/my-appointments',
         component: MyAppointmentsPageComponent
       },
+      {
+        path: 'account',
+        component: AccountSettingsPageComponent
+      },
+      {
+        path: 'notifications',
+        component: NotificationsListPageComponent
+      },
+      {
+        path: 'help',
+        component: HelpCenterPageComponent
+      },
       // Admin routes
+      {
+        path: 'admin/dashboard',
+        component: AdminDashboardPageComponent,
+        canActivate: [adminGuard]
+      },
       {
         path: 'admin/calendar/consolidated',
         component: ConsolidatedCalendarPageComponent,
@@ -104,6 +134,11 @@ export const routes: Routes = [
       {
         path: 'admin/audit',
         component: AuditPageComponent,
+        canActivate: [adminGuard]
+      },
+      {
+        path: 'admin/users',
+        component: UserManagementPageComponent,
         canActivate: [adminGuard]
       }
     ]

@@ -38,8 +38,8 @@ export class RootRedirectComponent implements OnInit {
     // Redirigir según el estado de autenticación y verificación de email
     if (this.authStateService.isAuthenticated) {
       if (this.authStateService.isEmailVerified) {
-        // Usuario autenticado y email verificado, ir a dashboard
-        this.router.navigate(['/dashboard/home']);
+        const isAdmin = this.authStateService.user?.roles?.includes('ROLE_ADMIN');
+        this.router.navigate([isAdmin ? '/dashboard/admin/dashboard' : '/dashboard/user']);
       } else {
         // Usuario autenticado pero email no verificado, ir a verificación
         const email = this.authStateService.user?.email || '';

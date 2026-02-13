@@ -1,0 +1,206 @@
+/* Inspirado en code.html - Modal éxito guardar configuración */
+.config-saved-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(15, 23, 42, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: configSavedFadeIn 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.config-saved-card {
+  width: 100%;
+  max-width: 34rem;
+  background: var(--color-background, #fff);
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
+  border: 1px solid var(--color-border, #f1f5f9);
+  animation: configSavedSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.config-saved-header {
+  background: var(--color-primary, #2563eb);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.config-saved-header-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: #fff;
+}
+
+.config-saved-close {
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  border-radius: 0.5rem;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.config-saved-close:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.config-saved-close i {
+  font-size: 1rem;
+}
+
+.config-saved-body {
+  padding: 2rem 2rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.config-saved-icon-wrap {
+  position: relative;
+  margin-bottom: 2rem;
+  margin-top: 0.5rem;
+}
+
+.config-saved-icon-glow {
+  position: absolute;
+  inset: 0;
+  background: rgba(16, 185, 129, 0.2);
+  filter: blur(2rem);
+  border-radius: 50%;
+  transform: scale(1.5);
+}
+
+.config-saved-icon-circle {
+  position: relative;
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.1);
+  border: 4px solid var(--color-background, #fff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.config-saved-icon {
+  font-size: 3.75rem;
+  color: #10b981;
+}
+
+.config-saved-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary, #0f172a);
+  line-height: 1.2;
+}
+
+.config-saved-subtitle {
+  margin: 0 0 2.5rem 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary, #64748b);
+  max-width: 280px;
+}
+
+.config-saved-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 2.5rem;
+}
+
+.config-saved-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: 1rem;
+  background: var(--color-surface, #f8fafc);
+  border: 1px solid var(--color-border, #e2e8f0);
+}
+
+.config-saved-item-check {
+  flex-shrink: 0;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.config-saved-item-check i {
+  font-size: 0.75rem;
+}
+
+.config-saved-item-label {
+  font-weight: 500;
+  color: var(--color-text-primary, #334155);
+}
+
+.config-saved-btn {
+  width: 100%;
+  padding: 1rem 2rem;
+  background: var(--color-primary, #2563eb);
+  color: #fff;
+  border: none;
+  border-radius: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.2);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.config-saved-btn:hover {
+  background: var(--color-primary-dark, #1d4ed8);
+}
+
+.config-saved-btn:active {
+  transform: scale(0.98);
+}
+
+@keyframes configSavedFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes configSavedSlideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .config-saved-title {
+    font-size: 1.875rem;
+  }
+  .config-saved-body {
+    padding: 2.5rem 2.5rem 2.5rem;
+  }
+}

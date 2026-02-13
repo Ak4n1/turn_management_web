@@ -34,6 +34,20 @@
         </div>
       </div>
 
+      <!-- Fecha concreta y Hoy -->
+      <div class="filter-card">
+        <app-label>VER UN DÍA</app-label>
+        <div class="date-inputs date-single-row">
+          <div class="date-group flex-1">
+            <input type="date" class="styled-date-input" [ngModel]="singleDate"
+              (ngModelChange)="onSingleDateChange($event)" aria-label="Fecha" />
+          </div>
+          <app-button variant="secondary" size="small" (clicked)="setTodayAndLoad()" class="btn-today">
+            <i class="fas fa-calendar-day"></i> Hoy
+          </app-button>
+        </div>
+      </div>
+
       <!-- Filtro Días de la Semana -->
       <div class="filter-card">
         <app-label>DÍAS DE LA SEMANA</app-label>
@@ -76,12 +90,107 @@
     <!-- Appointment List Area -->
     <section class="appointments-area">
       <div class="area-header">
-        <div class="header-info">
-          <h2 class="area-title">Turnos Registrados</h2>
+        <div class="view-tabs">
+          <button type="button" class="view-tab" [class.active]="viewMode === 'appointments'"
+            (click)="setViewMode('appointments')">
+            <i class="fas fa-calendar-alt"></i> Turnos registrados
+          </button>
+          <button type="button" class="view-tab" [class.active]="viewMode === 'reschedule-requests'"
+            (click)="setViewMode('reschedule-requests')">
+            <i class="fas fa-clock-rotate-left"></i> Reprogramaciones solicitadas
+            @if (rescheduleRequestsTotal > 0 && viewMode === 'appointments') {
+            <span class="tab-badge">{{ rescheduleRequestsTotal }}</span>
+            }
+          </button>
+        </div>
+        <div class="header-info" *ngIf="viewMode === 'appointments'">
           <span class="result-badge">{{ totalElements }} turnos</span>
+        </div>
+        <div class="header-info" *ngIf="viewMode === 'reschedule-requests'">
+          <span class="result-badge">{{ rescheduleRequestsTotal }} solicitudes pendientes</span>
         </div>
       </div>
 
+      <!-- Vista: Reprogramaciones solicitadas -->
+      @if (viewMode === 'reschedule-requests') {
+      <div class="appointments-content">
+        @if (rescheduleRequestsLoading) {
+        <div class="loading-container">
+          <app-spinner></app-spinner>
+          <p>Cargando solicitudes...</p>
+        </div>
+        } @else if (rescheduleRequestsError) {
+        <div class="error-container">
+          <app-error-text [message]="rescheduleRequestsError"></app-error-text>
+        </div>
+        } @else if (rescheduleRequests.length === 0) {
+        <div class="empty-container">
+          <i class="fas fa-inbox empty-icon"></i>
+          <p>No hay reprogramaciones pendientes de aprobación.</p>
+        </div>
+        } @else {
+        <div class="reschedule-requests-list">
+          @for (req of rescheduleRequests; track req.id) {
+          <div class="reschedule-request-card">
+            <div class="reschedule-request-main">
+              <div class="reschedule-user">
+                <span class="reschedule-user-name">{{ getRescheduleRequestUserName(req) }}</span>
+                <span class="reschedule-user-email">{{ req.userEmail }}</span>
+              </div>
+              <div class="reschedule-dates">
+                <div class="reschedule-from">
+                  <span class="reschedule-label">Turno actual</span>
+                  <span>{{ req.currentDate }} {{ req.currentStartTime }}</span>
+                </div>
+                <i class="fas fa-arrow-right reschedule-arrow"></i>
+                <div class="reschedule-to">
+                  <span class="reschedule-label">Solicitado</span>
+                  <span>{{ req.requestedDate }} {{ req.requestedStartTime }}</span>
+                </div>
+              </div>
+              @if (req.reason) {
+              <p class="reschedule-reason"><strong>Motivo:</strong> {{ req.reason }}</p>
+              }
+            </div>
+            <div class="reschedule-request-actions">
+              <app-button variant="primary" size="small" [disabled]="rescheduleRequestActionLoading !== null"
+                (clicked)="onApproveRescheduleRequest(req)">
+                @if (rescheduleRequestActionLoading === req.id) {
+                <app-spinner></app-spinner>
+                } @else {
+                <i class="fas fa-check"></i> Aprobar
+                }
+              </app-button>
+              <app-button variant="secondary" size="small" [disabled]="rescheduleRequestActionLoading !== null"
+                (clicked)="openRejectRescheduleModal(req)">
+                <i class="fas fa-times"></i> Rechazar
+              </app-button>
+            </div>
+          </div>
+          }
+        </div>
+        @if (rescheduleRequestsTotalPages > 1) {
+        <div class="modern-pagination">
+          <app-button variant="secondary" size="medium" [disabled]="rescheduleRequestsPage === 0"
+            (clicked)="rescheduleRequestsPage = rescheduleRequestsPage - 1; loadRescheduleRequests()">
+            <i class="fas fa-chevron-left"></i> Anterior
+          </app-button>
+          <div class="pag-info">
+            Página <strong>{{ rescheduleRequestsPage + 1 }}</strong> de {{ rescheduleRequestsTotalPages }}
+          </div>
+          <app-button variant="secondary" size="medium"
+            [disabled]="rescheduleRequestsPage >= rescheduleRequestsTotalPages - 1"
+            (clicked)="rescheduleRequestsPage = rescheduleRequestsPage + 1; loadRescheduleRequests()">
+            Siguiente <i class="fas fa-chevron-right"></i>
+          </app-button>
+        </div>
+        }
+        }
+      </div>
+      }
+
+      <!-- Vista: Turnos registrados -->
+      @if (viewMode === 'appointments') {
       <div class="appointments-content">
         @if (isLoading) {
         <div class="loading-container">
@@ -100,7 +209,8 @@
         } @else {
         <div class="appointments-grid">
           @for (appointment of appointments; track appointment.id) {
-          <div class="modern-appointment-card" [class]="appointment.state.toLowerCase()">
+          <div class="modern-appointment-card" [class]="appointment.state.toLowerCase()"
+            [class.appointment-past]="isPastDate(appointment)">
             <div class="card-main">
               <div class="card-user-info">
                 <div class="user-avatar-placeholder user-initials">
@@ -109,6 +219,10 @@
                 <div class="user-text">
                   <h3 class="user-name">{{ getUserName(appointment) }}</h3>
                   <p class="service-name">{{ appointment.userEmail }}</p>
+                  <span class="status-badge-below-email" [class]="getStateBadgeClass(appointment.state)">
+                    <span class="badge-dot"></span>
+                    {{ getStateLabel(appointment.state) }}
+                  </span>
                 </div>
               </div>
               <div class="card-time-info">
@@ -119,10 +233,6 @@
 
             <div class="card-footer">
               <div class="footer-badges">
-                <span class="footer-badge" [class]="getStateBadgeClass(appointment.state)">
-                  <div class="badge-dot"></div>
-                  {{ getStateLabel(appointment.state) }}
-                </span>
                 <span class="info-tag">
                   <i class="fas fa-calendar-day"></i>
                   {{ formatDate(appointment.date) }}
@@ -168,8 +278,36 @@
         }
         }
       </div>
+      }
     </section>
   </div>
+
+  <!-- Modal rechazar reprogramación -->
+  @if (selectedRescheduleRequestToReject) {
+  <div class="modal-overlay" (click)="closeRejectRescheduleModal()">
+    <div class="modal-box reject-modal" (click)="$event.stopPropagation()">
+      <h3 class="modal-title">Rechazar solicitud de reprogramación</h3>
+      <p class="modal-text">
+        ¿Motivo del rechazo? (opcional)
+      </p>
+      <textarea class="reject-reason-input" rows="3" [(ngModel)]="rejectReason"
+        placeholder="Ej: El horario solicitado no está disponible."></textarea>
+      <div class="modal-actions">
+        <app-button variant="secondary" size="medium" (clicked)="closeRejectRescheduleModal()">
+          Cancelar
+        </app-button>
+        <app-button variant="primary" size="medium" [disabled]="rescheduleRequestActionLoading !== null"
+          (clicked)="onRejectRescheduleRequest()">
+          @if (rescheduleRequestActionLoading === selectedRescheduleRequestToReject.id) {
+          <app-spinner></app-spinner>
+          } @else {
+          Rechazar
+          }
+        </app-button>
+      </div>
+    </div>
+  </div>
+  }
 
   <!-- Modales Existentes (Mantenidos) -->
   <app-appointment-details-modal [isOpen]="isDetailsModalOpen" [appointment]="selectedAppointment"

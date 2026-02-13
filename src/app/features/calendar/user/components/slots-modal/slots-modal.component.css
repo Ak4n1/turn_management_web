@@ -42,10 +42,32 @@
   /* red-500 */
 }
 
+.action-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-button.primary {
+  background-color: #3B82F6;
+  color: white;
+}
+
+.action-button.primary:hover {
+  background-color: #2563EB;
+}
+
 .close-button {
   margin-top: 16px;
   padding: 10px 20px;
-  background-color: #3B82F6;
+  background-color: #64748B;
   color: white;
   border: none;
   border-radius: 12px;
@@ -55,7 +77,7 @@
 }
 
 .close-button:hover {
-  background-color: #2563EB;
+  background-color: #475569;
 }
 
 /* Availability Info */

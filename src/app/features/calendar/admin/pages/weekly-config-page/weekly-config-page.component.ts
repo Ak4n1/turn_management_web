@@ -12,8 +12,9 @@ import { AdminAppointmentResponse } from '../../../../appointments/admin/models/
 import { SpinnerComponent } from '../../../../../shared/atoms/spinner/spinner.component';
 import { ErrorTextComponent } from '../../../../../shared/atoms/error-text/error-text.component';
 import { ButtonComponent } from '../../../../../shared/atoms/button/button.component';
-import { InputComponent } from '../../../../../shared/atoms/input/input.component';
 import { AlertModalComponent } from '../../../../../shared/molecules/alert-modal/alert-modal.component';
+import { ModalComponent } from '../../../../../shared/molecules/modal/modal.component';
+import { ConfigSavedModalComponent } from '../../components/config-saved-modal/config-saved-modal.component';
 
 /**
  * Weekly Config Page Component (Admin)
@@ -31,8 +32,9 @@ import { AlertModalComponent } from '../../../../../shared/molecules/alert-modal
     SpinnerComponent,
     ErrorTextComponent,
     ButtonComponent,
-    InputComponent,
-    AlertModalComponent
+    AlertModalComponent,
+    ModalComponent,
+    ConfigSavedModalComponent
   ],
   templateUrl: './weekly-config-page.component.html',
   styleUrl: './weekly-config-page.component.css'
@@ -59,6 +61,12 @@ export class WeeklyConfigPageComponent implements OnInit {
   showCancelButton = false;
   showAlertIcon = true;
   pendingSaveAction: (() => void) | null = null; // Acción a ejecutar si el usuario confirma
+
+  // Modal de guía completa de configuración
+  isGuideModalOpen = false;
+
+  // Modal de éxito al guardar configuración (diseño tipo code.html)
+  isConfigSavedModalOpen = false;
 
   // Estado de turnos afectados
   affectedImpact: PreviewImpactResponse | null = null;
@@ -518,29 +526,17 @@ export class WeeklyConfigPageComponent implements OnInit {
       notes: ''
     };
 
-    const durationRequest: AppointmentDurationRequest = {
+    // Una sola llamada atómica: si falla una validación (ej. duración 25 min), no se guarda nada y la versión no cambia. Versión +1.
+    const fullConfigRequest = {
+      weeklyConfig: weeklyConfigRequest,
+      dailyHours: dailyHoursRequest,
       durationMinutes: this.appointmentDuration,
-      notes: this.durationNotes
+      notes: this.durationNotes || ''
     };
 
-    // Paso 1: Guardar configuración semanal (debe hacerse primero)
-    // Paso 2: Guardar horarios diarios (debe hacerse antes de la duración según validación del backend)
-    // Paso 3: Guardar duración de turnos
-    this.weeklyConfigService.createWeeklyConfig(weeklyConfigRequest).pipe(
-      switchMap((config) => {
+    this.weeklyConfigService.saveFullConfig(fullConfigRequest).subscribe({
+      next: (config) => {
         this.activeConfig = config;
-        // Primero guardar horarios diarios
-        return this.weeklyConfigService.setDailyHours(dailyHoursRequest).pipe(
-          switchMap((config2) => {
-            this.activeConfig = config2;
-            // Luego guardar duración
-            return this.weeklyConfigService.setAppointmentDuration(durationRequest);
-          })
-        );
-      })
-    ).subscribe({
-      next: (config3) => {
-        this.activeConfig = config3;
         this.isSavingAll = false;
 
         // Si veníamos del step de turnos afectados, volver al step de configuración
@@ -550,13 +546,7 @@ export class WeeklyConfigPageComponent implements OnInit {
           this.appointmentsWithUsers.clear();
         }
 
-        this.showAlertModal(
-          'success',
-          'Configuración Guardada',
-          'Todas las configuraciones se han guardado exitosamente:\n\n• Calendario semanal\n• Horarios diarios\n• Duración de turnos',
-          false,
-          false // showIcon = false (User request: remove top checkmark)
-        );
+        this.isConfigSavedModalOpen = true;
       },
       error: (err) => {
         this.isSavingAll = false;
@@ -827,6 +817,18 @@ export class WeeklyConfigPageComponent implements OnInit {
   /**
    * Cierra el modal de alerta
    */
+  openGuideModal(): void {
+    this.isGuideModalOpen = true;
+  }
+
+  closeGuideModal(): void {
+    this.isGuideModalOpen = false;
+  }
+
+  closeConfigSavedModal(): void {
+    this.isConfigSavedModalOpen = false;
+  }
+
   closeAlertModal(): void {
     this.isAlertModalOpen = false;
     this.alertTitle = '';

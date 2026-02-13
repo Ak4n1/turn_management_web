@@ -1,6 +1,6 @@
 @if (isOpen) {
 <div class="modal-backdrop" (click)="onBackdropClick($event)">
-  <div class="modal-container" [class.modal-no-border]="noBorder" (click)="$event.stopPropagation()">
+  <div class="modal-container" [class.modal-no-border]="noBorder" [class.modal-large]="size === 'large'" (click)="$event.stopPropagation()">
     <div class="modal-header" [ngClass]="headerClass">
       <h2 class="modal-title">{{ title }}</h2>
       <button type="button" class="modal-close" (click)="onClose()" aria-label="Cerrar modal">

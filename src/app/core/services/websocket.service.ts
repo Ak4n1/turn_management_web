@@ -150,10 +150,15 @@ export class WebSocketService {
         case WebSocketMessageType.APPOINTMENT_RESCHEDULED:
         case WebSocketMessageType.APPOINTMENT_EXPIRED:
         case WebSocketMessageType.AVAILABILITY_UPDATED:
+        case WebSocketMessageType.NOTIFICATION_COUNT_UPDATED:
         case WebSocketMessageType.RESCHEDULE_REQUEST_CREATED:
         case WebSocketMessageType.RESCHEDULE_REQUEST_APPROVED:
         case WebSocketMessageType.RESCHEDULE_REQUEST_REJECTED:
           this.handleAppointmentUpdate(message);
+          break;
+
+        case WebSocketMessageType.ONLINE_USERS_COUNT:
+          this.messages$.next(message);
           break;
 
         case WebSocketMessageType.PING:

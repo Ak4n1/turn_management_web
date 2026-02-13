@@ -9,10 +9,13 @@
 
   /* Escala Tipográfica */
   --font-size-h1: 2rem;      /* 32px */
+  --font-size-h1-large: 2.25rem;  /* 36px - Para títulos destacados */
+  --font-size-h1-medium: 1.875rem;  /* 30px - Para títulos de página */
   --font-size-h2: 1.5rem;     /* 24px */
   --font-size-h3: 1.25rem;    /* 20px */
   --font-size-body-large: 1.125rem;  /* 18px */
   --font-size-body: 1rem;     /* 16px */
+  --font-size-body-medium: 0.9375rem;  /* 15px - Para subtítulos */
   --font-size-body-small: 0.875rem;  /* 14px */
   --font-size-label: 0.875rem; /* 14px */
   --font-size-caption: 0.75rem; /* 12px */
@@ -28,6 +31,7 @@
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
+  --font-weight-extrabold: 800;  /* Para títulos destacados */
 
   /* Letter Spacing */
   --letter-spacing-tight: -0.02em;

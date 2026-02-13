@@ -1,6 +1,9 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { WebSocketService } from '../../../../../core/services/websocket.service';
+import { WebSocketMessageType } from '../../../../../core/models/websocket-message.model';
 import { AdminCalendarService } from '../../services/admin-calendar.service';
 import { AdminAppointmentService } from '../../../../appointments/admin/services/admin-appointment.service';
 import { AdminAppointmentResponse } from '../../../../appointments/admin/models/admin-appointment-response.model';
@@ -36,9 +39,10 @@ import {
   templateUrl: './consolidated-calendar-page.component.html',
   styleUrl: './consolidated-calendar-page.component.css'
 })
-export class ConsolidatedCalendarPageComponent implements OnInit {
+export class ConsolidatedCalendarPageComponent implements OnInit, OnDestroy {
   private adminCalendarService = inject(AdminCalendarService);
   private adminAppointmentService = inject(AdminAppointmentService);
+  private webSocketService = inject(WebSocketService);
 
   currentDate: Date = new Date();
   viewMode: CalendarViewMode = 'week';
@@ -60,9 +64,20 @@ export class ConsolidatedCalendarPageComponent implements OnInit {
 
   // Raw data from backend
   private backendDays: Map<string, ConsolidatedDayResponse> = new Map();
+  private webSocketSubscription?: Subscription;
 
   ngOnInit(): void {
     this.loadCalendarData();
+
+    this.webSocketSubscription = this.webSocketService.messages.subscribe(message => {
+      if (message.type === WebSocketMessageType.AVAILABILITY_UPDATED) {
+        this.loadCalendarData();
+      }
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.webSocketSubscription?.unsubscribe();
   }
 
   private loadCalendarData(): void {

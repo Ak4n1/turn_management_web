@@ -1,0 +1,47 @@
+@if (isOpen) {
+  <div class="config-saved-backdrop" (click)="onBackdropClick($event)">
+    <div class="config-saved-card" (click)="$event.stopPropagation()">
+      <header class="config-saved-header">
+        <h1 class="config-saved-header-title">Configuración</h1>
+        <button type="button" class="config-saved-close" (click)="onClose()" aria-label="Cerrar">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <div class="config-saved-body">
+        <div class="config-saved-icon-wrap">
+          <div class="config-saved-icon-glow"></div>
+          <div class="config-saved-icon-circle">
+            <i class="fas fa-check-circle config-saved-icon"></i>
+          </div>
+        </div>
+        <h2 class="config-saved-title">¡Configuración Guardada!</h2>
+        <p class="config-saved-subtitle">
+          Todos los cambios se han aplicado correctamente en su panel de TurnFlow.
+        </p>
+        <div class="config-saved-list">
+          <div class="config-saved-item">
+            <div class="config-saved-item-check">
+              <i class="fas fa-check"></i>
+            </div>
+            <span class="config-saved-item-label">Calendario semanal</span>
+          </div>
+          <div class="config-saved-item">
+            <div class="config-saved-item-check">
+              <i class="fas fa-check"></i>
+            </div>
+            <span class="config-saved-item-label">Horarios diarios</span>
+          </div>
+          <div class="config-saved-item">
+            <div class="config-saved-item-check">
+              <i class="fas fa-check"></i>
+            </div>
+            <span class="config-saved-item-label">Duración de turnos</span>
+          </div>
+        </div>
+        <button type="button" class="config-saved-btn" (click)="onEntendido()">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -9,6 +9,10 @@ import {
 } from '../models/admin-appointment-response.model';
 import { AppointmentHistoryResponse } from '../models/appointment-history-response.model';
 import { RescheduleRequest, CancelRequest } from '../models/admin-appointment-requests.model';
+import {
+  AdminRescheduleRequestsResponse,
+  AdminRescheduleRequestResponse
+} from '../models/admin-reschedule-request.model';
 
 /**
  * Admin Appointment Service
@@ -112,6 +116,61 @@ export class AdminAppointmentService {
     return this.http.post<AdminAppointmentResponse>(
       `${this.apiUrl}/${appointmentId}/cancel`,
       request
+    ).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  /**
+   * GET /api/admin/appointments/reschedule-requests
+   * Lista solicitudes de reprogramación (del usuario, pendientes de aprobar/rechazar).
+   */
+  getRescheduleRequests(params?: {
+    status?: string;
+    userId?: number;
+    fromDate?: string;
+    toDate?: string;
+    page?: number;
+    size?: number;
+  }): Observable<AdminRescheduleRequestsResponse> {
+    let httpParams = new HttpParams();
+    if (params) {
+      if (params.status) httpParams = httpParams.set('status', params.status);
+      if (params.userId != null) httpParams = httpParams.set('userId', params.userId.toString());
+      if (params.fromDate) httpParams = httpParams.set('fromDate', params.fromDate);
+      if (params.toDate) httpParams = httpParams.set('toDate', params.toDate);
+      if (params.page != null) httpParams = httpParams.set('page', params.page.toString());
+      if (params.size != null) httpParams = httpParams.set('size', params.size.toString());
+    }
+    return this.http.get<AdminRescheduleRequestsResponse>(
+      `${this.apiUrl}/reschedule-requests`,
+      { params: httpParams }
+    ).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  /**
+   * POST /api/admin/appointments/reschedule-requests/{id}/approve
+   * Aprueba una solicitud de reprogramación del usuario.
+   */
+  approveRescheduleRequest(requestId: number): Observable<AdminRescheduleRequestResponse> {
+    return this.http.post<AdminRescheduleRequestResponse>(
+      `${this.apiUrl}/reschedule-requests/${requestId}/approve`,
+      {}
+    ).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  /**
+   * POST /api/admin/appointments/reschedule-requests/{id}/reject
+   * Rechaza una solicitud de reprogramación del usuario.
+   */
+  rejectRescheduleRequest(requestId: number, rejectionReason?: string): Observable<AdminRescheduleRequestResponse> {
+    return this.http.post<AdminRescheduleRequestResponse>(
+      `${this.apiUrl}/reschedule-requests/${requestId}/reject`,
+      rejectionReason != null && rejectionReason.trim() !== '' ? { rejectionReason: rejectionReason.trim() } : {}
     ).pipe(
       catchError(this.handleError.bind(this))
     );

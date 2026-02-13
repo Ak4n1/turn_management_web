@@ -60,3 +60,11 @@ export interface AppointmentDurationRequest {
   notes?: string;
 }
 
+/** Request para guardar toda la configuración en una sola llamada (atómico, versión +1). */
+export interface FullConfigRequest {
+  weeklyConfig: WeeklyConfigRequest;
+  dailyHours: DailyHoursRequest;
+  durationMinutes: number;
+  notes?: string;
+}
+

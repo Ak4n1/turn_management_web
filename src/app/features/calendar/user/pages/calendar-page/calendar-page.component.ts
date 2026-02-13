@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd, RouterModule } from '@angular/router';
 import { forkJoin, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
+import { WebSocketService } from '../../../../../core/services/websocket.service';
+import { WebSocketMessageType } from '../../../../../core/models/websocket-message.model';
 import { AvailabilityService } from '../../services/availability.service';
 import { AppointmentService } from '../../../../appointments/user/services/appointment.service';
 import { DayAvailabilityResponse, AvailabilityRangeResponse } from '../../models/availability-range-response.model';
@@ -36,6 +38,7 @@ export class CalendarPageComponent implements OnInit, OnDestroy {
   private availabilityService = inject(AvailabilityService);
   private appointmentService = inject(AppointmentService);
   private router = inject(Router);
+  private webSocketService = inject(WebSocketService);
 
   currentDate: Date = new Date();
   viewMode: CalendarViewMode = 'week';
@@ -54,6 +57,7 @@ export class CalendarPageComponent implements OnInit, OnDestroy {
   private userAppointments: AppointmentResponse[] = [];
   private availabilityData: Map<string, DayAvailabilityResponse> = new Map();
   private routerSubscription?: Subscription;
+  private webSocketSubscription?: Subscription;
 
   ngOnInit(): void {
     this.loadCalendarData();
@@ -67,12 +71,17 @@ export class CalendarPageComponent implements OnInit, OnDestroy {
           this.loadCalendarData();
         }
       });
+
+    this.webSocketSubscription = this.webSocketService.messages.subscribe(message => {
+      if (message.type === WebSocketMessageType.AVAILABILITY_UPDATED) {
+        this.loadCalendarData();
+      }
+    });
   }
 
   ngOnDestroy(): void {
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
-    }
+    this.routerSubscription?.unsubscribe();
+    this.webSocketSubscription?.unsubscribe();
   }
 
   loadCalendarData(): void {

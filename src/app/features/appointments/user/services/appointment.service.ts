@@ -151,6 +151,12 @@ export class AppointmentService {
     fromDate?: string;
     toDate?: string;
     daysOfWeek?: string;
+    /** Solo turnos futuros */
+    upcoming?: boolean;
+    /** Solo turnos pasados */
+    past?: boolean;
+    /** Orden por fecha: 'asc' = próximos primero, 'desc' = recientes primero */
+    sortOrder?: 'asc' | 'desc';
   }): Observable<MyAppointmentsResponse> {
     let httpParams = new HttpParams();
     
@@ -173,6 +179,15 @@ export class AppointmentService {
       if (params.daysOfWeek) {
         httpParams = httpParams.set('daysOfWeek', params.daysOfWeek);
       }
+      if (params.upcoming === true) {
+        httpParams = httpParams.set('upcoming', 'true');
+      }
+      if (params.past === true) {
+        httpParams = httpParams.set('past', 'true');
+      }
+      // Siempre enviar sortOrder para que el backend ordene (asc = más viejos primero, desc = más recientes primero)
+      const order = params.sortOrder === 'desc' ? 'desc' : 'asc';
+      httpParams = httpParams.set('sortOrder', order);
     }
 
     return this.http.get<MyAppointmentsResponse>(`${this.apiUrl}/my-appointments`, { params: httpParams }).pipe(

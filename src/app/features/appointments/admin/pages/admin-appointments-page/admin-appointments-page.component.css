@@ -6,9 +6,8 @@
 }
 
 .management-main {
-  max-width: 1600px;
-  /* Aligned with weekly-config-page */
-  margin: 0 auto;
+  max-width: 100%; /* Sin límite de ancho, usa todo el espacio disponible */
+  margin: 0;
   display: flex;
   height: 100%;
 }
@@ -32,15 +31,15 @@
 }
 
 .management-title {
-  font-size: 2rem;
-  font-weight: 800;
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-extrabold);
   color: var(--color-text-primary);
   margin: 0;
-  letter-spacing: -0.02em;
+  letter-spacing: var(--letter-spacing-tight);
 }
 
 .management-subtitle {
-  font-size: 0.875rem;
+  font-size: var(--font-size-body-small);
   color: var(--color-text-secondary);
   margin-top: 4px;
 }
@@ -106,6 +105,21 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+.date-inputs.date-single-row {
+  flex-direction: row;
+  align-items: flex-end;
+  gap: var(--spacing-sm);
+}
+
+.date-single-row .flex-1 {
+  flex: 1;
+  min-width: 0;
+}
+
+.btn-today {
+  flex-shrink: 0;
 }
 
 .date-label {
@@ -251,8 +265,55 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
   padding-bottom: var(--spacing-md);
   border-bottom: 2px solid var(--color-border);
+}
+
+.view-tabs {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.view-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-tab:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.view-tab.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-background);
+}
+
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.35rem;
+  background: var(--color-error, #dc2626);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: var(--border-radius-full);
 }
 
 .area-title {
@@ -271,6 +332,135 @@
   font-size: 0.75rem;
   font-weight: 800;
   border-radius: var(--border-radius-full);
+}
+
+/* Reprogramaciones solicitadas */
+.reschedule-requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  padding-bottom: var(--spacing-xl);
+}
+
+.reschedule-request-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-lg);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.reschedule-request-main {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.reschedule-user-name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+}
+
+.reschedule-user-email {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.reschedule-dates {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+}
+
+.reschedule-from,
+.reschedule-to {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.reschedule-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+.reschedule-arrow {
+  color: var(--color-primary);
+  font-size: 0.875rem;
+}
+
+.reschedule-reason {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.reschedule-request-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+/* Modal rechazar */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--spacing-lg);
+}
+
+.modal-box.reject-modal {
+  background: var(--color-background);
+  border-radius: var(--border-radius-lg);
+  padding: var(--spacing-xl);
+  max-width: 420px;
+  width: 100%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal-title {
+  margin: 0 0 var(--spacing-sm);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.modal-text {
+  margin: 0 0 var(--spacing-md);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.reject-reason-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  resize: vertical;
+  margin-bottom: var(--spacing-lg);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
 }
 
 /* Appointment Grid */
@@ -349,6 +539,23 @@
   background: var(--color-error);
 }
 
+/* Turnos con fecha/hora ya pasada: aspecto deshabilitado (igual que Mis turnos) */
+.modern-appointment-card.appointment-past {
+  opacity: 0.75;
+  background-color: var(--color-surface);
+}
+
+.modern-appointment-card.appointment-past .user-name,
+.modern-appointment-card.appointment-past .time-main,
+.modern-appointment-card.appointment-past .footer-badge,
+.modern-appointment-card.appointment-past .status-badge-below-email {
+  color: var(--color-text-secondary);
+}
+
+.modern-appointment-card.appointment-past:hover {
+  opacity: 0.9;
+}
+
 .card-main {
   display: flex;
   justify-content: space-between;
@@ -404,6 +611,62 @@
   font-size: 0.813rem;
   color: var(--color-text-secondary);
   font-weight: 500;
+  margin-bottom: 0.5rem;
+}
+
+.status-badge-below-email {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--border-radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.status-badge-below-email.badge-success {
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
+}
+
+.status-badge-below-email.badge-success .badge-dot {
+  background: var(--color-success);
+}
+
+.status-badge-below-email.badge-warning {
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
+}
+
+.status-badge-below-email.badge-warning .badge-dot {
+  background: var(--color-warning);
+}
+
+.status-badge-below-email.badge-secondary {
+  background: var(--color-secondary-light);
+  color: var(--color-text-secondary);
+}
+
+.status-badge-below-email.badge-secondary .badge-dot {
+  background: var(--color-secondary);
+}
+
+.status-badge-below-email.badge-info {
+  background: var(--color-info-light);
+  color: var(--color-primary-dark);
+}
+
+.status-badge-below-email.badge-info .badge-dot {
+  background: var(--color-info);
+}
+
+.status-badge-below-email.badge-error {
+  background: var(--color-error-light);
+  color: var(--color-error-dark);
+}
+
+.status-badge-below-email.badge-error .badge-dot {
+  background: var(--color-error);
 }
 
 .card-time-info {

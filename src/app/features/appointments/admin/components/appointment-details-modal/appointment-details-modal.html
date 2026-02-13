@@ -93,6 +93,20 @@
             </div>
           </div>
         }
+        @if (appointment.state === 'RESCHEDULED' && appointment.nextAppointmentDate) {
+          <div class="detail-item detail-item-highlight">
+            <i class="fas fa-calendar-check"></i>
+            <div class="detail-content">
+              <span class="detail-label">Nueva fecha del turno:</span>
+              <span class="detail-value">
+                {{ formatDate(appointment.nextAppointmentDate) }}
+                @if (appointment.nextAppointmentStartTime && appointment.nextAppointmentEndTime) {
+                  <span class="detail-meta">· {{ appointment.nextAppointmentStartTime }} - {{ appointment.nextAppointmentEndTime }}</span>
+                }
+              </span>
+            </div>
+          </div>
+        }
       </div>
     </div>
   }

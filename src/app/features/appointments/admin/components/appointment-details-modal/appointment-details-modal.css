@@ -32,6 +32,14 @@
   padding: var(--spacing-xs) 0;
 }
 
+.detail-item-highlight {
+  padding: var(--spacing-sm);
+  margin: 0 calc(-1 * var(--spacing-sm));
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-success-light, #D1FAE5);
+  border-left: 3px solid var(--color-success, #10B981);
+}
+
 .detail-item i {
   color: var(--color-primary);
   font-size: var(--font-size-lg, 1.125rem);

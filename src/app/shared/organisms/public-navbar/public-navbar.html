@@ -33,16 +33,16 @@
       @if (isAuthenticated) {
         <app-button
           variant="primary"
-          size="medium"
+          size="small"
           (clicked)="goToDashboard()"
           ariaLabel="Ir al panel">
           <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
-          <span class="navbar-button-text">Ir al Panel</span>
+          <span class="navbar-button-text">Panel</span>
         </app-button>
       } @else {
         <app-button
           variant="secondary"
-          size="medium"
+          size="small"
           (clicked)="goToLogin()"
           ariaLabel="Ingresar">
           <i class="fa-regular fa-user"></i>
@@ -50,7 +50,7 @@
         </app-button>
         <app-button
           variant="primary"
-          size="medium"
+          size="small"
           (clicked)="goToRegister()"
           ariaLabel="Registrarse">
           <i class="fas fa-user-plus" aria-hidden="true"></i>

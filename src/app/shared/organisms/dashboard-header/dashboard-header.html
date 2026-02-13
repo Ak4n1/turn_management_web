@@ -8,12 +8,79 @@
         aria-label="Abrir menú">
         <i class="fas fa-bars" aria-hidden="true"></i>
       </button>
+      <nav class="dashboard-header-nav" aria-label="Navegación principal">
+        @for (link of navLinks; track link.route) {
+          <a
+            [routerLink]="link.route"
+            routerLinkActive="nav-link-active"
+            [routerLinkActiveOptions]="{ exact: false }"
+            class="nav-link"
+            [attr.aria-label]="link.label">
+            <i [class]="link.icon" aria-hidden="true"></i>
+            <span class="nav-link-text">{{ link.label }}</span>
+          </a>
+        }
+      </nav>
     </div>
 
     <div class="dashboard-header-right">
-      <span class="dashboard-header-notifications" aria-label="Notificaciones">
-        <i class="fas fa-bell"></i>
-      </span>
+      <div class="notifications-wrapper">
+        <button
+          type="button"
+          class="notifications-trigger"
+          (click)="toggleNotifications()"
+          [attr.aria-expanded]="isNotificationsOpen"
+          aria-label="Notificaciones"
+          aria-haspopup="true">
+          <i class="fas fa-bell" aria-hidden="true"></i>
+          @if (unreadCount > 0) {
+            <span class="notifications-badge" aria-label="{{ unreadCount }} sin leer">{{ unreadCount }}</span>
+          }
+        </button>
+
+        @if (isNotificationsOpen) {
+          <div class="notifications-dropdown" role="dialog" aria-label="Panel de notificaciones">
+            <div class="notifications-dropdown-header">
+              <h2 class="notifications-dropdown-title">Notificaciones</h2>
+              @if (unreadCount > 0) {
+                <button type="button" class="notifications-header-link" (click)="markAllAsRead()">Leer todas</button>
+              }
+            </div>
+            <div class="notifications-dropdown-body">
+              @if (loadingNotifications) {
+                <div class="notifications-empty">
+                  <i class="fas fa-spinner fa-spin" aria-hidden="true"></i>
+                  <p>Cargando…</p>
+                </div>
+              } @else if (notifications.length === 0) {
+                <div class="notifications-empty">
+                  <i class="fas fa-bell-slash" aria-hidden="true"></i>
+                  <p>No tienes notificaciones nuevas</p>
+                </div>
+              } @else {
+                <ul class="notifications-list" role="list">
+                  @for (n of notifications; track n.id) {
+                    <li>
+                      <button
+                        type="button"
+                        class="notifications-list-item"
+                        [class.unread]="!n.read"
+                        (click)="onNotificationClick(n)">
+                        <span class="notifications-item-title">{{ n.title }}</span>
+                        <span class="notifications-item-message">{{ n.message }}</span>
+                        <span class="notifications-item-time">{{ n.createdAt | date:'short' }}</span>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+            <div class="notifications-dropdown-footer">
+              <button type="button" class="notifications-footer-link" (click)="goToAllNotifications()">Ver todas</button>
+            </div>
+          </div>
+        }
+      </div>
       <span class="dashboard-header-separator" aria-hidden="true"></span>
       <span class="dashboard-header-date">{{ todayFormatted }}</span>
     </div>

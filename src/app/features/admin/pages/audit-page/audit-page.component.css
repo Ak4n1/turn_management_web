@@ -10,8 +10,8 @@
 }
 
 .page-title {
-  font-size: var(--font-size-h1, 2rem);
-  font-weight: var(--font-weight-bold, 700);
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-bold);
   color: var(--color-text-primary);
   margin: 0 0 var(--spacing-sm) 0;
 }

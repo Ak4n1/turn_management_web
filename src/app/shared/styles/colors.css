@@ -78,7 +78,7 @@
   --color-warning-dark: #92400E; /* Amarillo oscuro para texto */
 
   /* Layout - Sidebar y Header */
-  --sidebar-width: 260px;
+  --sidebar-width: 280px;
   --header-height: 64px;
   --header-height-mobile: 56px;
   --color-sidebar-bg: #FFFFFF;

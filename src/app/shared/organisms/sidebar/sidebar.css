@@ -90,8 +90,87 @@
   padding: 0 var(--spacing-md);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: var(--spacing-md);
   overflow-y: auto;
+  padding-bottom: var(--spacing-md);
+  margin-top: 20px;
+}
+
+/* Secciones agrupadas */
+.sidebar-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sidebar-section-title {
+  padding: 0 var(--spacing-lg);
+  margin-bottom: 0.25rem;
+  font-size: 0.625rem; /* 10px - más pequeño */
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+}
+
+.sidebar-section-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem; /* Más compacto */
+}
+
+/* Progreso de perfil (minimal): solo se muestra cuando perfil < 100% */
+.sidebar-profile-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  margin-bottom: var(--spacing-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background: var(--color-surface);
+  text-decoration: none;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.sidebar-profile-progress:hover {
+  background-color: var(--color-background-hover);
+  border-color: color-mix(in oklab, var(--color-primary) 30%, var(--color-border));
+}
+
+.profile-progress-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.profile-progress-label {
+  font-size: var(--font-size-body-small);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.profile-progress-value {
+  font-size: var(--font-size-body-small);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.profile-progress-track {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-border);
+  overflow: hidden;
+}
+
+.profile-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--color-primary);
+  border-radius: 999px;
+  transition: width 0.25s ease;
 }
 
 .sidebar-nav-item-wrapper {
@@ -104,6 +183,8 @@
   background-color: var(--color-primary-light);
   color: var(--color-primary);
   font-weight: var(--font-weight-semibold);
+  /* “Borde” azul izquierdo sin mover el layout */
+  box-shadow: inset 4px 0 0 var(--color-primary);
 }
 
 .sidebar-nav-item-wrapper .sidebar-link-active i {
@@ -130,7 +211,7 @@
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
+  padding: 0.625rem var(--spacing-lg); /* Reducido de var(--spacing-md) a 0.625rem (10px) */
   border-radius: var(--border-radius-md);
   background-color: transparent;
   border: none;
@@ -149,6 +230,7 @@
 .sidebar-link:hover {
   background-color: var(--color-background-hover);
   color: var(--color-text-primary);
+ 
 }
 
 .sidebar-link:hover i {
@@ -158,6 +240,7 @@
 .sidebar-link:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: -2px;
+
 }
 
 .sidebar-link i {
@@ -170,14 +253,81 @@
 
 .sidebar-link-text {
   flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Footer: user + logout */
+/* Footer: Mi Cuenta + user + logout */
 .sidebar-footer {
   padding: var(--spacing-lg);
   margin-top: auto;
   border-top: 1px solid var(--color-border);
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.sidebar-account-link {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: 0.625rem var(--spacing-lg); /* Reducido para consistencia */
+  border-radius: var(--border-radius-md);
+  background-color: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-body-small);
+  font-weight: var(--font-weight-medium);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: var(--font-family);
+  text-decoration: none;
+  position: relative;
+}
+
+.sidebar-account-link:hover {
+  background-color: var(--color-background-hover);
+  color: var(--color-text-primary);
+}
+
+.sidebar-account-link:hover i {
+  color: var(--color-primary);
+}
+
+.sidebar-account-link.sidebar-link-active {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.sidebar-account-link.sidebar-link-active i {
+  color: var(--color-primary);
+}
+
+/* Indicador activo para "Mi Cuenta": compacto (24px) */
+.sidebar-account-link.sidebar-link-active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background-color: var(--color-primary);
+  border-radius: 0 var(--border-radius-sm) var(--border-radius-sm) 0;
+  pointer-events: none;
+}
+
+.sidebar-account-link i {
+  font-size: var(--font-size-body-large);
+  width: 1.5rem;
+  text-align: center;
+  color: inherit;
+  transition: color 0.2s ease;
 }
 
 .sidebar-user-card {
@@ -343,6 +493,7 @@
   .sidebar-nav-item-wrapper .sidebar-link-active {
     background-color: var(--color-primary-light);
     color: var(--color-primary);
+
   }
 
   .sidebar-nav-item-wrapper .sidebar-link-active i {

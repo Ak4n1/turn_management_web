@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TurnFlow - Generic Dashboard Evolution</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,typography,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+        :root {
+            --primary: #2563EB;
+        }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #FFFFFF;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .deep-shadow {
+            box-shadow: 0 25px 50px -12px rgba(37, 99, 235, 0.08);
+        }
+        .soft-shadow {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.03);
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+    </style>
+</head>
+<body class="text-slate-900 min-h-screen">
+<div class="max-w-[1440px] mx-auto px-10 py-12">
+<header class="flex justify-between items-center mb-12">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="text-[#2563EB] font-bold tracking-tighter text-2xl">TurnFlow</span>
+<span class="w-2 h-2 rounded-full bg-[#2563EB]"></span>
+</div>
+<p class="text-slate-400 text-sm font-medium uppercase tracking-widest">Gestión Multi-industria</p>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden md:flex flex-col items-end">
+<span class="text-sm font-semibold">13:45 PM</span>
+<span class="text-xs text-slate-400">Local Time</span>
+</div>
+<button class="relative p-3 rounded-full bg-slate-50 text-slate-600 hover:bg-slate-100 transition-colors">
+<span class="material-symbols-outlined text-2xl">notifications</span>
+<span class="absolute top-3 right-3 w-2 h-2 bg-[#2563EB] rounded-full border-2 border-white"></span>
+</button>
+<div class="flex items-center gap-3 pl-6 border-l border-slate-100">
+<div class="text-right">
+<p class="text-sm font-bold">Mateo García</p>
+<p class="text-xs text-slate-400">Plan Premium</p>
+</div>
+<img alt="User profile" class="w-12 h-12 rounded-full object-cover ring-2 ring-[#2563EB]/10" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAqg8MKTwzfc1-8nwJ0erC3hXTNJtG3AJggRdZtaqmrXpjTokAd72t9sWPRy03on0jUB4WlhH3wOafQUOLX6_6gr4qeNqabi1YpDxELoHG1_lVy_AFQ7EWvTY5QAdonazS-zWI9BwPFQdIP-8_odOZ5ReFx3lx2x1JHdMjdqYwrFbzg_QNITKxIEnQ8XhRZGlphlTxOf5r3SGcZC8PBO5ShC6JR7fwGi5-FCOD42-bOeMM2zFAWuXcAVbQ8FeKflNpc8fKV39UvXeY"/>
+</div>
+</div>
+</header>
+<div class="grid grid-cols-12 gap-10">
+<div class="col-span-12 lg:col-span-8 space-y-12">
+<section>
+<h2 class="text-5xl font-bold tracking-tight mb-2">Hola, Mateo</h2>
+<p class="text-xl text-slate-400 font-light">Administra tus citas y servicios en un solo lugar.</p>
+</section>
+<section class="relative group">
+<div class="absolute -inset-4 bg-[#2563EB]/5 rounded-[40px] blur-3xl group-hover:bg-[#2563EB]/10 transition-all duration-700"></div>
+<div class="relative glass-card rounded-[30px] p-8 deep-shadow border border-slate-100 flex flex-col md:flex-row gap-8 items-center">
+<div class="w-full md:w-48 h-48 rounded-[24px] bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center relative overflow-hidden">
+<span class="material-symbols-outlined text-6xl text-slate-400 opacity-50">category</span>
+<div class="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent"></div>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-4">
+<span class="px-3 py-1 bg-[#2563EB]/10 text-[#2563EB] text-xs font-bold rounded-full uppercase tracking-wider">Próximo Turno</span>
+<div class="flex items-center gap-1 text-slate-400 text-xs font-medium">
+<span class="material-symbols-outlined text-sm">location_on</span>
+                                Ubicación del servicio
+                            </div>
+</div>
+<h3 class="text-3xl font-bold mb-1">Servicio: [Nombre del Servicio]</h3>
+<p class="text-slate-500 mb-6 font-medium">Responsable: [Nombre del Profesional/Lugar]</p>
+<div class="flex flex-wrap gap-8 items-center">
+<div>
+<p class="text-xs text-slate-400 uppercase font-bold tracking-widest mb-1">Fecha y Hora</p>
+<p class="text-lg font-bold">Viernes 13, 15:00 hs</p>
+</div>
+<div class="h-10 w-px bg-slate-100"></div>
+<div>
+<p class="text-xs text-[#2563EB] uppercase font-bold tracking-widest mb-1">Cuenta regresiva</p>
+<div class="flex items-center gap-2">
+<span class="text-lg font-bold text-[#2563EB]">Inicia en 1h 15m</span>
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#2563EB] opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-[#2563EB]"></span>
+</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col gap-3">
+<button class="p-4 bg-[#2563EB] text-white rounded-2xl hover:scale-105 transition-transform shadow-lg shadow-[#2563EB]/25">
+<span class="material-symbols-outlined">event_available</span>
+</button>
+<button class="p-4 bg-slate-50 text-slate-400 rounded-2xl hover:bg-slate-100 transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+</div>
+</section>
+<section>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+<button class="flex flex-col items-center gap-4 group">
+<div class="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-[#2563EB] group-hover:text-white transition-all duration-300 soft-shadow">
+<span class="material-symbols-outlined text-3xl">add</span>
+</div>
+<span class="text-sm font-bold text-slate-600">Nuevo Turno</span>
+</button>
+<button class="flex flex-col items-center gap-4 group">
+<div class="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-[#2563EB] group-hover:text-white transition-all duration-300 soft-shadow">
+<span class="material-symbols-outlined text-3xl">chat_bubble</span>
+</div>
+<span class="text-sm font-bold text-slate-600">Mis Mensajes</span>
+</button>
+<button class="flex flex-col items-center gap-4 group">
+<div class="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-[#2563EB] group-hover:text-white transition-all duration-300 soft-shadow">
+<span class="material-symbols-outlined text-3xl">person_search</span>
+</div>
+<span class="text-sm font-bold text-slate-600">Buscar</span>
+</button>
+<button class="flex flex-col items-center gap-4 group">
+<div class="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-[#2563EB] group-hover:text-white transition-all duration-300 soft-shadow">
+<span class="material-symbols-outlined text-3xl">favorite</span>
+</div>
+<span class="text-sm font-bold text-slate-600">Favoritos</span>
+</button>
+</div>
+</section>
+<section class="space-y-6">
+<h3 class="text-xl font-bold px-2">Actividad Reciente</h3>
+<div class="space-y-8 relative before:absolute before:left-[19px] before:top-2 before:bottom-2 before:w-px before:bg-slate-100">
+<div class="relative pl-12">
+<div class="absolute left-0 top-1 w-10 h-10 rounded-full bg-white border-2 border-[#2563EB] flex items-center justify-center z-10 shadow-sm">
+<span class="material-symbols-outlined text-[#2563EB] text-sm">check</span>
+</div>
+<div>
+<p class="text-sm font-bold">Turno confirmado: [Servicio]</p>
+<p class="text-xs text-slate-400 mt-1">Hace 2 horas • [Categoría]</p>
+</div>
+</div>
+<div class="relative pl-12">
+<div class="absolute left-0 top-1 w-10 h-10 rounded-full bg-white border-2 border-slate-100 flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-slate-300 text-sm">schedule</span>
+</div>
+<div>
+<p class="text-sm font-bold">Recordatorio: Mañana tienes una actividad programada</p>
+<p class="text-xs text-slate-400 mt-1">Hace 5 horas • Sistema</p>
+</div>
+</div>
+</div>
+</section>
+<section class="pt-6">
+<div class="flex items-center justify-between mb-8">
+<h3 class="text-xl font-bold">Métricas y Uso</h3>
+<div class="flex gap-2">
+<button class="px-4 py-2 bg-slate-50 rounded-lg text-xs font-bold text-slate-500 hover:bg-slate-100">Mensual</button>
+<button class="px-4 py-2 rounded-lg text-xs font-bold text-slate-400 hover:bg-slate-50">Anual</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<div class="bg-white rounded-[24px] p-6 border border-slate-100 soft-shadow">
+<p class="text-sm font-bold text-slate-400 mb-6">Frecuencia de Uso</p>
+<div class="h-32 flex items-end gap-2 px-2">
+<div class="flex-1 bg-[#2563EB]/5 rounded-t-lg h-[40%]"></div>
+<div class="flex-1 bg-[#2563EB]/10 rounded-t-lg h-[60%]"></div>
+<div class="flex-1 bg-[#2563EB]/20 rounded-t-lg h-[45%]"></div>
+<div class="flex-1 bg-[#2563EB]/40 rounded-t-lg h-[80%]"></div>
+<div class="flex-1 bg-[#2563EB]/60 rounded-t-lg h-[55%]"></div>
+<div class="flex-1 bg-[#2563EB] rounded-t-lg h-[95%]"></div>
+<div class="flex-1 bg-[#2563EB]/30 rounded-t-lg h-[30%]"></div>
+</div>
+</div>
+<div class="bg-white rounded-[24px] p-6 border border-slate-100 soft-shadow">
+<p class="text-sm font-bold text-slate-400 mb-6">Distribución por Categoría</p>
+<div class="space-y-4">
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-bold">
+<span>Categoría A</span>
+<span>65%</span>
+</div>
+<div class="w-full h-2 bg-slate-50 rounded-full overflow-hidden">
+<div class="h-full bg-[#2563EB] w-[65%]"></div>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-bold">
+<span>Categoría B</span>
+<span>35%</span>
+</div>
+<div class="w-full h-2 bg-slate-50 rounded-full overflow-hidden">
+<div class="h-full bg-blue-300 w-[35%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<div class="col-span-12 lg:col-span-4 space-y-10">
+<section class="bg-slate-50/50 rounded-[30px] p-8 border border-slate-100">
+<div class="flex justify-between items-center mb-6">
+<h4 class="font-bold">Calendario</h4>
+<div class="flex gap-2">
+<button class="material-symbols-outlined text-slate-400 hover:text-[#2563EB] transition-colors">chevron_left</button>
+<button class="material-symbols-outlined text-slate-400 hover:text-[#2563EB] transition-colors">chevron_right</button>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-y-4 text-center">
+<span class="text-[10px] font-bold text-slate-300 uppercase">Lu</span>
+<span class="text-[10px] font-bold text-slate-300 uppercase">Ma</span>
+<span class="text-[10px] font-bold text-slate-300 uppercase">Mi</span>
+<span class="text-[10px] font-bold text-slate-300 uppercase">Ju</span>
+<span class="text-[10px] font-bold text-slate-300 uppercase">Vi</span>
+<span class="text-[10px] font-bold text-slate-300 uppercase">Sa</span>
+<span class="text-[10px] font-bold text-slate-300 uppercase">Do</span>
+<div class="p-2 text-sm text-slate-300">26</div>
+<div class="p-2 text-sm text-slate-300">27</div>
+<div class="p-2 text-sm text-slate-300">28</div>
+<div class="p-2 text-sm text-slate-300">29</div>
+<div class="p-2 text-sm font-bold bg-[#2563EB]/10 text-[#2563EB] rounded-full">1</div>
+<div class="p-2 text-sm font-medium">2</div>
+<div class="p-2 text-sm font-medium">3</div>
+<div class="p-2 text-sm font-medium">4</div>
+<div class="p-2 text-sm font-bold bg-[#2563EB]/10 text-[#2563EB] rounded-full">5</div>
+<div class="p-2 text-sm font-medium">6</div>
+<div class="p-2 text-sm font-medium">7</div>
+<div class="p-2 text-sm font-medium">8</div>
+<div class="p-2 text-sm font-medium">9</div>
+<div class="p-2 text-sm font-medium">10</div>
+</div>
+<button class="w-full mt-6 py-3 border border-slate-200 rounded-xl text-xs font-bold text-slate-500 hover:bg-white hover:border-[#2563EB] hover:text-[#2563EB] transition-all">Ver disponibilidad completa</button>
+</section>
+<section class="space-y-4">
+<h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest px-2">Estado General</h4>
+<div class="bg-white p-6 rounded-[24px] soft-shadow border border-slate-100 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-[#2563EB]">
+<span class="material-symbols-outlined">event_note</span>
+</div>
+<div>
+<p class="text-sm font-bold">Próximos Turnos</p>
+<p class="text-xs text-slate-400">Total programado</p>
+</div>
+</div>
+<span class="text-2xl font-bold">3</span>
+</div>
+<div class="bg-white p-6 rounded-[24px] soft-shadow border border-slate-100 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-amber-50 flex items-center justify-center text-amber-500">
+<span class="material-symbols-outlined">payments</span>
+</div>
+<div>
+<p class="text-sm font-bold">Pendientes de Pago</p>
+<p class="text-xs text-slate-400">Acción requerida</p>
+</div>
+</div>
+<span class="text-2xl font-bold">1</span>
+</div>
+<div class="bg-white p-6 rounded-[24px] soft-shadow border border-slate-100 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-2xl bg-rose-50 flex items-center justify-center text-rose-500">
+<span class="material-symbols-outlined">priority_high</span>
+</div>
+<div>
+<p class="text-sm font-bold text-rose-600">Avisos Urgentes</p>
+<p class="text-xs text-slate-400">Revisar ahora</p>
+</div>
+</div>
+<span class="text-2xl font-bold text-rose-600">2</span>
+</div>
+</section>
+<section>
+<div class="bg-slate-900 rounded-[30px] p-8 text-white relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-[#2563EB]/20 rounded-full blur-3xl -mr-16 -mt-16"></div>
+<div class="relative z-10">
+<p class="text-[10px] font-bold text-[#2563EB] uppercase tracking-widest mb-6">Sugerido para ti</p>
+<div class="flex items-center gap-4 mb-6">
+<div class="w-14 h-14 rounded-2xl bg-slate-800 flex items-center justify-center ring-2 ring-white/10">
+<span class="material-symbols-outlined text-slate-400">stars</span>
+</div>
+<div>
+<h5 class="font-bold text-lg">Servicio Recomendado</h5>
+<div class="flex items-center gap-1 text-xs text-slate-400">
+<span class="material-symbols-outlined text-amber-400 text-[14px] fill-current">star</span>
+                                    4.9 (Basado en reseñas)
+                                </div>
+</div>
+</div>
+<p class="text-sm text-slate-400 mb-6 leading-relaxed">Descubre opciones personalizadas basadas en tu actividad reciente y preferencias de servicios.</p>
+<button class="w-full py-4 bg-[#2563EB] rounded-2xl font-bold hover:bg-blue-600 transition-colors">Ver Detalles</button>
+</div>
+</div>
+</section>
+<section class="bg-white border border-slate-100 rounded-[24px] p-6 soft-shadow">
+<div class="flex items-center gap-2 mb-6">
+<span class="material-symbols-outlined text-[#2563EB]">pie_chart</span>
+<h3 class="font-bold text-lg">Estado de agenda</h3>
+</div>
+<div class="space-y-6">
+<div class="bg-blue-50/50 p-6 rounded-2xl border border-blue-100/50 text-center">
+<div class="text-[10px] font-bold uppercase tracking-widest text-[#2563EB]/70 mb-1">Turnos este mes</div>
+<div class="text-4xl font-bold text-[#2563EB]">24</div>
+</div>
+<div class="grid grid-cols-1 gap-3">
+<div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-emerald-200 transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-emerald-500">check_circle</span>
+<span class="text-xs font-bold uppercase tracking-wider text-slate-600">Activos</span>
+</div>
+<div class="text-xl font-bold text-slate-900">12</div>
+</div>
+<div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100 hover:border-amber-200 transition-colors group">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-amber-500">pending</span>
+<span class="text-xs font-bold uppercase tracking-wider text-slate-600">Pendientes</span>
+</div>
+<div class="text-xl font-bold text-slate-900">8</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-6 py-2 text-[#2563EB] font-semibold text-sm hover:underline">Gestionar historial</button>
+</section>
+</div>
+</div>
+</div>
+
+</body></html>

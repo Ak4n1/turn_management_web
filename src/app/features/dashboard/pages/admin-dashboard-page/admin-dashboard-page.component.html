@@ -1,0 +1,64 @@
+<div class="admin-dashboard">
+  <header class="admin-dashboard-header">
+    <div class="admin-dashboard-header-icon">
+      <i class="fas fa-shield-alt"></i>
+    </div>
+    <div>
+      <h1 class="admin-dashboard-title">Panel de Administración</h1>
+      <p class="admin-dashboard-subtitle">Resumen y accesos rápidos</p>
+    </div>
+  </header>
+
+  @if (error()) {
+    <div class="admin-dashboard-error">
+      <i class="fas fa-exclamation-circle"></i>
+      {{ error() }}
+      <button type="button" class="retry-btn" (click)="loadData()">Reintentar</button>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="admin-dashboard-loading">
+      <i class="fas fa-spinner fa-spin"></i>
+      Cargando...
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <section class="admin-stats">
+      <div class="stat-card stat-online">
+        <i class="fas fa-users"></i>
+        <div>
+          <span class="stat-value">{{ onlineCount() }}</span>
+          <span class="stat-label">Usuarios conectados</span>
+        </div>
+      </div>
+      <div class="stat-card stat-pending">
+        <i class="fas fa-exchange-alt"></i>
+        <div>
+          <span class="stat-value">{{ pendingReschedules() }}</span>
+          <span class="stat-label">Reprogramaciones pendientes</span>
+        </div>
+      </div>
+      <div class="stat-card stat-today">
+        <i class="fas fa-calendar-day"></i>
+        <div>
+          <span class="stat-value">{{ totalAppointmentsToday() }}</span>
+          <span class="stat-label">Turnos hoy</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="admin-quick-links">
+      <h2 class="section-title"><i class="fas fa-link"></i> Accesos rápidos</h2>
+      <div class="links-grid">
+        @for (link of quickLinks; track link.route) {
+          <a [routerLink]="link.route" class="quick-link-card">
+            <i [class]="link.icon"></i>
+            <span>{{ link.label }}</span>
+          </a>
+        }
+      </div>
+    </section>
+  }
+</div>

@@ -1,7 +1,9 @@
 <div class="dashboard-layout">
   <app-sidebar #sidebar></app-sidebar>
   <main class="dashboard-layout-main" role="main">
-    <app-dashboard-header (sidebarToggle)="sidebar.toggleSidebar()"></app-dashboard-header>
+    <app-dashboard-header
+      (sidebarToggle)="sidebar.toggleSidebar()"
+      (closeSidebarRequest)="sidebar.closeSidebar()"></app-dashboard-header>
     <div class="dashboard-layout-content">
       <ng-content></ng-content>
     </div>

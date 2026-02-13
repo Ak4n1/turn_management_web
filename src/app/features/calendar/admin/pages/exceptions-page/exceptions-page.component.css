@@ -3,7 +3,7 @@
 
 .exceptions-page {
   padding: var(--spacing-lg);
-  max-width: 1200px;
+  max-width: 80%;
   margin: 0 auto;
 }
 
@@ -23,9 +23,9 @@
 }
 
 .page-title {
-  font-size: 1.875rem;
-  font-weight: 700;
-  letter-spacing: -0.025em;
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: var(--letter-spacing-tight);
   color: var(--color-text-primary);
   margin: 0 0 var(--spacing-sm) 0;
 }

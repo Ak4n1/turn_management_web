@@ -4,7 +4,7 @@
 /* Blocks page debe tener los mismos estilos de contenedor que exceptions-page */
 .blocks-page {
   padding: var(--spacing-lg);
-  max-width: 1200px;
+  max-width: 80%;
   margin: 0 auto;
 }
 

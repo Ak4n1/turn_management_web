@@ -1,0 +1,199 @@
+<div class="help-center">
+  <div class="wrapper-helper">
+
+
+    <header class="help-header">
+      <div class="help-header-icon" aria-hidden="true">
+        <i class="fas fa-life-ring"></i>
+      </div>
+      <h1 class="help-title">Centro de Ayuda</h1>
+      <p class="help-subtitle">Guía para usar TurnFlow y gestionar tus turnos</p>
+    </header>
+
+    <nav class="help-tabs" role="tablist" aria-label="Secciones del centro de ayuda">
+      <button type="button" class="help-tab" [class.help-tab-active]="isActive('guide')" role="tab"
+        aria-selected="isActive('guide')" (click)="setTab('guide')">
+        <i class="fas fa-book-open"></i>
+        Guía Rápida
+      </button>
+      <button type="button" class="help-tab" [class.help-tab-active]="isActive('faq')" role="tab"
+        aria-selected="isActive('faq')" (click)="setTab('faq')">
+        <i class="fas fa-question-circle"></i>
+        Preguntas Frecuentes
+      </button>
+      <button type="button" class="help-tab" [class.help-tab-active]="isActive('contact')" role="tab"
+        aria-selected="isActive('contact')" (click)="setTab('contact')">
+        <i class="fas fa-envelope"></i>
+        Contacto
+      </button>
+    </nav>
+
+    <div class="help-content">
+      @if (activeTab() === 'guide') {
+      <section class="help-section" aria-labelledby="guide-heading">
+        <h2 id="guide-heading" class="section-title">
+          <i class="fas fa-book-open"></i>
+          Guía Rápida
+        </h2>
+
+        <div class="help-flow-overview">
+          <p class="flow-intro">Flujo general de un turno:</p>
+          <div class="flow-steps">
+            <span class="flow-step">Calendario</span>
+            <i class="fas fa-arrow-right flow-arrow"></i>
+            <span class="flow-step">Reservar</span>
+            <i class="fas fa-arrow-right flow-arrow"></i>
+            <span class="flow-step">Confirmar</span>
+            <i class="fas fa-arrow-right flow-arrow"></i>
+            <span class="flow-step">Asistir</span>
+          </div>
+          <p class="flow-note">O bien: cancelar o solicitar reprogramación si lo necesitas.</p>
+        </div>
+
+        <div class="guide-cards">
+          <article class="guide-card">
+            <div class="guide-card-header">
+              <span class="guide-number">1</span>
+              <h3 class="guide-card-title">Reservar un turno</h3>
+            </div>
+            <ol class="guide-steps">
+              <li>Ir al <a routerLink="/dashboard/calendar" class="help-link">Calendario</a></li>
+              <li>Elegir la vista: <strong>Día</strong>, <strong>Semana</strong> o <strong>Mes</strong></li>
+              <li>Hacer clic en un día disponible (los días en verde o amarillo indican que hay horarios libres)</li>
+              <li>Se abrirá una ventana con los horarios disponibles para ese día. Elegir uno que esté libre</li>
+              <li>Hacer clic en <strong>Confirmar Reserva</strong></li>
+              <li>Aparecerá otra pantalla donde debes hacer clic en <strong>Confirmar Ahora</strong> para asegurar el
+                turno</li>
+              <li>El turno queda en estado <strong>Pendiente</strong> hasta que lo confirmes</li>
+            </ol>
+          </article>
+
+          <article class="guide-card">
+            <div class="guide-card-header">
+              <span class="guide-number">2</span>
+              <h3 class="guide-card-title">Confirmar un turno pendiente</h3>
+            </div>
+            <p class="guide-intro">Los turnos recién reservados quedan en estado <strong>Pendiente</strong>. Tienes
+              <strong>10 minutos</strong> para confirmarlos (el tiempo exacto se muestra en cada turno). Si no confirmas
+              a tiempo, el turno expira y queda liberado.</p>
+            <ol class="guide-steps">
+              <li>Ir a <a routerLink="/dashboard/appointments/my-appointments" class="help-link">Mis Turnos</a></li>
+              <li>Buscar el turno con etiqueta <strong>Pendiente</strong></li>
+              <li>Hacer clic en el ícono verde de confirmar <i class="fas fa-check-circle"></i> para asegurar tu lugar
+              </li>
+            </ol>
+          </article>
+
+          <article class="guide-card">
+            <div class="guide-card-header">
+              <span class="guide-number">3</span>
+              <h3 class="guide-card-title">Ver y filtrar mis turnos</h3>
+            </div>
+            <p class="guide-intro">En <a routerLink="/dashboard/appointments/my-appointments" class="help-link">Mis
+                Turnos</a> puedes filtrar por:</p>
+            <ul class="guide-steps">
+              <li>Rango de fechas (Desde / Hasta)</li>
+              <li>Ver un día específico</li>
+              <li>Días de la semana</li>
+              <li>Estado: Confirmado, Pendiente, Cancelado, Reprogramado</li>
+            </ul>
+          </article>
+
+          <article class="guide-card">
+            <div class="guide-card-header">
+              <span class="guide-number">4</span>
+              <h3 class="guide-card-title">Reprogramar un turno</h3>
+            </div>
+            <p class="guide-intro">Si necesitas cambiar la fecha u horario de un turno <strong>Confirmado</strong> o
+              <strong>Pendiente</strong>:</p>
+            <ol class="guide-steps">
+              <li>Ir a <a routerLink="/dashboard/appointments/my-appointments" class="help-link">Mis Turnos</a></li>
+              <li>Hacer clic en el ícono de reprogramar <i class="fas fa-clock-rotate-left"></i> del turno</li>
+              <li>Se abrirá una ventana. Elegir la nueva fecha y horario disponible en el calendario</li>
+              <li>Indicar un motivo (obligatorio)</li>
+              <li>Enviar la solicitud. Un administrador la revisará y te notificará si fue aprobada o rechazada</li>
+            </ol>
+          </article>
+
+          <article class="guide-card">
+            <div class="guide-card-header">
+              <span class="guide-number">5</span>
+              <h3 class="guide-card-title">Cancelar un turno</h3>
+            </div>
+            <p class="guide-intro">Puedes cancelar turnos <strong>Confirmados</strong> o <strong>Pendientes</strong>:
+            </p>
+            <ol class="guide-steps">
+              <li>Ir a <a routerLink="/dashboard/appointments/my-appointments" class="help-link">Mis Turnos</a></li>
+              <li>Hacer clic en el ícono rojo de cancelar <i class="fas fa-times-circle"></i></li>
+              <li>Se abrirá una ventana. Opcionalmente puedes indicar un motivo</li>
+              <li>Confirmar la cancelación</li>
+            </ol>
+          </article>
+
+          <article class="guide-card">
+            <div class="guide-card-header">
+              <span class="guide-number">6</span>
+              <h3 class="guide-card-title">Mi perfil y preferencias</h3>
+            </div>
+            <p class="guide-intro">Completar tu perfil en <a routerLink="/dashboard/account"
+                class="help-link">Configuración</a> mejora la reserva. También puedes gestionar:</p>
+            <ul class="guide-steps">
+              <li>Información personal (nombre, teléfono, dirección)</li>
+              <li>Cambio de contraseña</li>
+              <li>Preferencias de notificaciones (emails, recordatorios)</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+      }
+
+      @if (activeTab() === 'faq') {
+      <section class="help-section" aria-labelledby="faq-heading">
+        <h2 id="faq-heading" class="section-title">
+          <i class="fas fa-question-circle"></i>
+          Preguntas Frecuentes
+        </h2>
+
+        <div class="faq-list">
+          @for (item of faqItems; track item.question; let i = $index) {
+          <div class="faq-item" [class.faq-item-open]="isFaqOpen(i)">
+            <button type="button" class="faq-question" (click)="toggleFaq(i)" [attr.aria-expanded]="isFaqOpen(i)"
+              [attr.aria-controls]="'faq-answer-' + i" [id]="'faq-question-' + i">
+              <i class="fas fa-chevron-down faq-chevron"></i>
+              <span>{{ item.question }}</span>
+            </button>
+            <div class="faq-answer" [id]="'faq-answer-' + i" [attr.aria-labelledby]="'faq-question-' + i" role="region">
+              <p>{{ item.answer }}</p>
+            </div>
+          </div>
+          }
+        </div>
+      </section>
+      }
+
+      @if (activeTab() === 'contact') {
+      <section class="help-section" aria-labelledby="contact-heading">
+        <h2 id="contact-heading" class="section-title">
+          <i class="fas fa-envelope"></i>
+          Contacto
+        </h2>
+
+        <div class="contact-card">
+          <div class="contact-icon">
+            <i class="fas fa-headset"></i>
+          </div>
+          <h3 class="contact-title">¿Necesitas ayuda adicional?</h3>
+          <p class="contact-desc">
+            Si no encuentras la respuesta a tu consulta en esta guía o en las preguntas frecuentes,
+            puedes contactar al administrador del sistema para recibir asistencia personalizada.
+          </p>
+          <p class="contact-note">
+            Revisa también la sección de <a routerLink="/dashboard/notifications" class="help-link">Notificaciones</a>
+            para ver mensajes importantes sobre tus turnos.
+          </p>
+        </div>
+      </section>
+      }
+    </div>
+  </div>
+</div>

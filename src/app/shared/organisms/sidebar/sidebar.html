@@ -1,7 +1,7 @@
 <aside class="sidebar" [class.open]="isOpen" role="navigation" aria-label="Menú lateral">
   <div class="sidebar-overlay" (click)="closeSidebar()" [class.open]="isOpen"></div>
 
-  <div class="sidebar-content">
+  <div class="sidebar-content" #sidebarContent>
     <!-- Top: Brand -->
     <div class="sidebar-brand">
       <div class="sidebar-brand-inner">
@@ -21,29 +21,65 @@
 
     <!-- Menu -->
     <nav class="sidebar-nav">
-      @for (item of menuItems; track item.route) {
-        <div class="sidebar-nav-item-wrapper" [class.active]="isActiveRoute(item.route)">
-          <a
-            [routerLink]="item.route"
-            routerLinkActive="sidebar-link-active"
-            [routerLinkActiveOptions]="{ exact: false }"
-            class="sidebar-link"
-            (click)="closeSidebar()"
-            [attr.aria-label]="item.label">
-            <i [class]="item.icon" aria-hidden="true"></i>
-            <span class="sidebar-link-text">{{ item.label }}</span>
-          </a>
+      @if (showProfileBadge()) {
+      <a
+        routerLink="/dashboard/account"
+        class="sidebar-profile-progress"
+        (click)="closeSidebar()"
+        [attr.aria-label]="'Perfil ' + profilePercent() + '% completo. Completar en Mi Cuenta'">
+        <div class="profile-progress-head">
+          <span class="profile-progress-label">Perfil</span>
+          <span class="profile-progress-value">{{ profilePercent() }}%</span>
+        </div>
+        <div
+          class="profile-progress-track"
+          role="progressbar"
+          [attr.aria-valuenow]="profilePercent()"
+          aria-valuemin="0"
+          aria-valuemax="100">
+          <div class="profile-progress-fill" [style.width.%]="profilePercent()"></div>
+        </div>
+      </a>
+      }
+      @for (section of menuSections; track section.title) {
+        <div class="sidebar-section">
+          <p class="sidebar-section-title">{{ section.title }}</p>
+          <div class="sidebar-section-items">
+            @for (item of section.items; track item.route) {
+              <div class="sidebar-nav-item-wrapper" [class.active]="isActiveRoute(item.route)">
+                <a
+                  [routerLink]="item.route"
+                  routerLinkActive="sidebar-link-active"
+                  [routerLinkActiveOptions]="{ exact: false }"
+                  class="sidebar-link"
+                  (click)="closeSidebar()"
+                  [attr.aria-label]="item.label">
+                  <i [class]="item.icon" aria-hidden="true"></i>
+                  <span class="sidebar-link-text">{{ item.label }}</span>
+                </a>
+              </div>
+            }
+          </div>
         </div>
       }
     </nav>
 
-    <!-- Bottom: User + Logout -->
+    <!-- Bottom: Mi Cuenta + User + Logout -->
     <div class="sidebar-footer">
+      <a
+        routerLink="/dashboard/account"
+        class="sidebar-account-link"
+        (click)="closeSidebar()"
+        routerLinkActive="sidebar-link-active"
+        [routerLinkActiveOptions]="{ exact: false }">
+        <i class="fas fa-user" aria-hidden="true"></i>
+        <span>Configuración</span>
+      </a>
       <div class="sidebar-user-card">
         <div class="sidebar-avatar" aria-hidden="true">{{ initials() }}</div>
         <div class="sidebar-user-info">
           <p class="sidebar-user-name">{{ displayName() }}</p>
-          <p class="sidebar-user-role">{{ roleLabel() }}</p>
+          <p class="sidebar-user-role">{{ roleLabel() || userEmail() }}</p>
         </div>
       </div>
       <button

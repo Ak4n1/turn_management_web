@@ -1,0 +1,361 @@
+<div class="notif-container">
+  <div class="management-main">
+    <aside class="management-sidebar">
+      <div class="sidebar-header">
+        <h1 class="management-title">Notificaciones</h1>
+        <p class="management-subtitle">
+          @if (activeStep() === 'list') {
+            Filtra por estado, tipo y fecha
+          } @else {
+            Enviar notificaciones manuales
+          }
+        </p>
+      </div>
+
+      @if (activeStep() === 'list') {
+        <!-- Búsqueda -->
+        <div class="filter-card">
+          <app-label for="notif-search">BUSCAR</app-label>
+          <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input class="search-input" id="notif-search" type="text" placeholder="Título o mensaje..."
+              [ngModel]="searchText()" (ngModelChange)="searchText.set($event)" (keyup.enter)="applyFilters()">
+          </div>
+        </div>
+
+        <!-- Tipo -->
+        <div class="filter-card">
+          <app-label for="notif-type">TIPO</app-label>
+          <select id="notif-type" class="styled-date-input styled-select"
+            [ngModel]="typeFilter()" (ngModelChange)="onTypeFilterChange($event)">
+            @for (opt of typeFilterOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+
+        <!-- Rango de fecha -->
+        <div class="filter-card">
+          <app-label>RANGO DE FECHA</app-label>
+          <div class="date-inputs">
+            <div class="date-group">
+              <span class="date-label">Desde</span>
+              <input type="date" class="styled-date-input" [ngModel]="dateFrom()" (ngModelChange)="onDateFromChange($event)" aria-label="Desde">
+            </div>
+            <div class="date-group">
+              <span class="date-label">Hasta</span>
+              <input type="date" class="styled-date-input" [ngModel]="dateTo()" (ngModelChange)="onDateToChange($event)" aria-label="Hasta">
+            </div>
+          </div>
+        </div>
+
+        <!-- Estado -->
+        <div class="filter-card">
+          <app-label>ESTADO</app-label>
+          <div class="state-filters">
+            <label class="state-filter-item">
+              <div class="state-identifier">
+                <span class="state-name">Todas</span>
+              </div>
+              <input type="radio" name="readFilter" class="state-checkbox" [checked]="readFilter() === 'all'" (change)="onReadFilterChange('all')">
+            </label>
+            <label class="state-filter-item">
+              <div class="state-identifier">
+                <span class="state-name">No leídas</span>
+              </div>
+              <input type="radio" name="readFilter" class="state-checkbox" [checked]="readFilter() === 'unread'" (change)="onReadFilterChange('unread')">
+            </label>
+            <label class="state-filter-item">
+              <div class="state-identifier">
+                <span class="state-name">Leídas</span>
+              </div>
+              <input type="radio" name="readFilter" class="state-checkbox" [checked]="readFilter() === 'read'" (change)="onReadFilterChange('read')">
+            </label>
+          </div>
+        </div>
+
+        <!-- Acciones -->
+        <div class="filter-card border-none">
+          <app-button variant="primary" size="small" (clicked)="applyFilters()" class="w-full mb-2">
+            <i class="fas fa-filter"></i> Aplicar
+          </app-button> &nbsp;
+          <app-button variant="secondary" size="small" (clicked)="clearFilters()" class="w-full">
+            <i class="fas fa-undo"></i> Limpiar Filtros
+          </app-button>
+        </div>
+      } @else {
+        <div class="filter-card">
+          @if (isAdmin() && activeStep() === 'send') {
+            <div class="filter-card" style="padding-top: 0.75rem;">
+              <p class="user-search-hint">
+                @if (manualRecipientMode() === 'SELECTED_USERS') {
+                  Seleccione usuarios a los cuales enviar notificación
+                } @else {
+                  Seleccione los usuarios para excluir la notificación
+                }
+              </p>
+              <app-label for="user-search">Buscar usuario</app-label>
+              <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input
+                  class="search-input"
+                  id="user-search"
+                  type="text"
+                  placeholder="Email o nombre..."
+                  [ngModel]="userSearchQuery()"
+                  (ngModelChange)="onUserSearchChange($event)">
+              </div>
+
+              @if (userSearchLoading()) {
+                <p class="admin-send-hint">Buscando…</p>
+              }
+              @if (userSearchError()) {
+                <p class="admin-manual-error" role="alert">{{ userSearchError() }}</p>
+              }
+
+              @if (userSearchResults().length > 0) {
+                @for (u of userSearchResults(); track u.id) {
+                  <button type="button" class="state-filter-item" (click)="addSelectedUser(u)" style="width: 100%; text-align: left;">
+                    <div class="state-identifier" style="flex-direction: column; align-items: flex-start; gap: 0.1rem;">
+                      <span class="state-name">{{ getUserDisplayName(u) }}</span>
+                      <span class="date-label">{{ u.email }}</span>
+                    </div>
+                    <span class="state-name" aria-hidden="true">+</span>
+                  </button>
+                }
+              } @else if (userSearchQuery().trim().length >= 2 && !userSearchLoading()) {
+                <p class="admin-send-hint">Sin resultados.</p>
+              }
+
+              @if (selectedUsers().length > 0) {
+                <div class="selected-users">
+                  <app-label>
+                    @if (manualRecipientMode() === 'SELECTED_USERS') {
+                      Seleccionados ({{ selectedUsers().length }})
+                    } @else {
+                      Excluidos ({{ selectedUsers().length }})
+                    }
+                  </app-label>
+                  <div class="selected-users-list" style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.5rem;">
+                    @for (u of selectedUsers(); track u.id) {
+                      <button
+                        type="button"
+                        [class]="manualRecipientMode() === 'ALL_USERS' ? 'user-chip-excluded' : 'user-chip-selected'"
+                        (click)="removeSelectedUser(u)"
+                        [title]="manualRecipientMode() === 'ALL_USERS' ? 'Quitar de excluidos' : 'Quitar'">
+                        @if (manualRecipientMode() === 'ALL_USERS') {
+                          <span class="excluded-badge" aria-hidden="true">−</span>
+                        }
+                        <span>{{ getUserDisplayName(u) }}</span>
+                        <span class="remove-icon" aria-hidden="true">×</span>
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+    </aside>
+
+    <section class="notifications-area">
+      @if (isAdmin()) {
+        <div class="notif-steps" role="tablist" aria-label="Secciones de notificaciones">
+          <button type="button" class="notif-step-btn" [class.active]="activeStep() === 'list'"
+            (click)="setStep('list')" role="tab" [attr.aria-selected]="activeStep() === 'list'">
+            <i class="fas fa-list" aria-hidden="true"></i>
+            <span>Listado</span>
+          </button>
+          <button type="button" class="notif-step-btn" [class.active]="activeStep() === 'send'"
+            (click)="setStep('send')" role="tab" [attr.aria-selected]="activeStep() === 'send'">
+            <i class="fas fa-paper-plane" aria-hidden="true"></i>
+            <span>Enviar</span>
+          </button>
+        </div>
+      }
+
+      @if (activeStep() === 'send' && isAdmin()) {
+        <section class="admin-manual-panel" aria-label="Enviar notificación manual">
+          <div class="admin-manual-panel-head" style="display:flex; align-items:flex-end; justify-content:space-between; gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <h2 class="admin-manual-title">Enviar notificación</h2>
+            </div>
+            <div class="admin-manual-actions">
+              <app-button variant="primary" size="small" (clicked)="sendManualNotification()" [disabled]="manualSending()">
+                <i class="fas fa-paper-plane" aria-hidden="true"></i>
+                {{ manualSending() ? 'Enviando…' : 'Enviar' }}
+              </app-button>
+            </div>
+          </div>
+
+          @if (manualError()) {
+            <p class="admin-manual-error" role="alert">{{ manualError() }}</p>
+          }
+
+          <div class="admin-manual-form">
+            <div class="admin-manual-row">
+              <div class="admin-manual-field">
+                <app-label for="manualRecipientType">Destinatario</app-label>
+                <select id="manualRecipientType" class="styled-date-input styled-select"
+                  [ngModel]="manualRecipientMode()" (ngModelChange)="onRecipientModeChange($event)">
+                  <option value="ALL_USERS">Todos los usuarios</option>
+                  <option value="SELECTED_USERS">Usuarios seleccionados</option>
+                </select>
+              </div>
+
+              <div class="admin-manual-field">
+                <app-label for="manualType">Tipo</app-label>
+                <select id="manualType" class="styled-date-input styled-select"
+                  [ngModel]="manualType()" (ngModelChange)="manualType.set($event)">
+                  @for (opt of manualTypeOptions; track opt.value) {
+                    <option [value]="opt.value">{{ opt.label }}</option>
+                  }
+                </select>
+              </div>
+
+              <div class="admin-manual-field">
+                <app-label for="manualPriority">Prioridad</app-label>
+                <select id="manualPriority" class="styled-date-input styled-select"
+                  [ngModel]="manualPriority()" (ngModelChange)="manualPriority.set($event)">
+                  <option value="LOW">Baja</option>
+                  <option value="MEDIUM">Media</option>
+                  <option value="HIGH">Alta</option>
+                </select>
+              </div>
+            </div>
+
+
+
+            <div class="admin-manual-row">
+              <div class="admin-manual-field admin-manual-field-grow">
+                <app-label for="manualTitle">Título</app-label>
+                <input id="manualTitle" class="styled-date-input" type="text" maxlength="200" placeholder="Título…"
+                  [ngModel]="manualTitle()" (ngModelChange)="manualTitle.set($event)">
+              </div>
+            </div>
+
+            <div class="admin-manual-row">
+              <div class="admin-manual-field admin-manual-field-grow">
+                <app-label for="manualMessage">Mensaje</app-label>
+                <textarea id="manualMessage" class="admin-manual-textarea" maxlength="2000" placeholder="Mensaje…"
+                  [ngModel]="manualMessage()" (ngModelChange)="manualMessage.set($event)"></textarea>
+                <p class="admin-manual-hint">
+                  {{ (manualMessage().length || 0) }}/2000
+                </p>
+              </div>
+            </div>
+          </div>
+
+          @if (manualResult()) {
+            <div class="admin-manual-result" role="status">
+              <p class="admin-manual-result-message">{{ manualResult()?.message }}</p>
+              <div class="admin-manual-result-grid">
+                <div class="admin-manual-result-item">
+                  <span class="admin-manual-result-label">Total</span>
+                  <b class="admin-manual-result-value">{{ manualResult()?.totalRecipients }}</b>
+                </div>
+                <div class="admin-manual-result-item">
+                  <span class="admin-manual-result-label">Enviadas</span>
+                  <b class="admin-manual-result-value">{{ manualResult()?.sentImmediately }}</b>
+                </div>
+                <div class="admin-manual-result-item">
+                  <span class="admin-manual-result-label">Pendientes</span>
+                  <b class="admin-manual-result-value">{{ manualResult()?.pendingDelivery }}</b>
+                </div>
+                <div class="admin-manual-result-item">
+                  <span class="admin-manual-result-label">Excluidas</span>
+                  <b class="admin-manual-result-value">{{ manualResult()?.excludedByPreferences }}</b>
+                </div>
+              </div>
+            </div>
+          }
+        </section>
+      }
+
+      @if (!isAdmin() || activeStep() === 'list') {
+      <header class="notif-page-header">
+        <div class="notif-page-header-text">
+          <h2 class="notif-page-title">Listado</h2>
+          <p class="notif-page-subtitle">
+            @if (unreadCount() > 0) {
+              Tienes <span class="notif-page-subtitle-count">{{ unreadCount() }} notificación{{ unreadCount() !== 1 ? 'es' : '' }} nueva{{ unreadCount() !== 1 ? 's' : '' }}</span>
+            } @else {
+              No tienes notificaciones nuevas
+            }
+          </p>
+        </div>
+        @if (unreadCount() > 0) {
+          <button type="button" class="notif-page-btn-primary" (click)="markAllAsRead()">
+            <i class="fas fa-check-double" aria-hidden="true"></i>
+            <span>Marcar todas como leídas</span>
+          </button>
+        }
+      </header>
+
+      @if (error()) {
+        <p class="notif-page-error" role="alert">{{ error() }}</p>
+      }
+
+      @if (loading()) {
+        <p class="notif-page-loading">Cargando…</p>
+      } @else if (filteredNotifications().length === 0) {
+        <div class="notif-page-empty">
+          <i class="fas fa-bell-slash" aria-hidden="true"></i>
+          <p>No tienes notificaciones con los filtros aplicados.</p>
+        </div>
+      } @else {
+        <div class="notif-page-list">
+          @for (n of filteredNotifications(); track n.id) {
+            <article
+              class="notif-card"
+              [class.notif-card-unread]="!n.read"
+              (click)="!n.read && markAsRead(n)">
+              @if (!n.read) {
+                <span class="notif-card-dot" aria-hidden="true"></span>
+              }
+              <div class="notif-card-icon" [ngClass]="getIcon(n.type).colorClass">
+                <i [class]="getIcon(n.type).icon" aria-hidden="true"></i>
+              </div>
+              <div class="notif-card-body">
+                <div class="notif-card-head">
+                  <h3 class="notif-card-title">{{ n.title }}</h3>
+                  <span class="notif-card-time">{{ getRelativeTime(n.createdAt) }}</span>
+                </div>
+                <p class="notif-card-message">{{ n.message }}</p>
+              </div>
+              <div class="notif-card-actions">
+                @if (!n.read) {
+                  <button type="button" class="notif-card-action" title="Marcar como leída" (click)="markAsRead(n); $event.stopPropagation()">
+                    <i class="fas fa-envelope-open" aria-hidden="true"></i>
+                  </button>
+                } @else {
+                  <button type="button" class="notif-card-action notif-card-action-delete" title="Eliminar" (click)="deleteNotification(n); $event.stopPropagation()">
+                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                  </button>
+                }
+              </div>
+            </article>
+          }
+        </div>
+
+        @if (totalPages() > 1) {
+          <div class="modern-pagination">
+            <app-button variant="secondary" size="medium" [disabled]="currentPage() === 0"
+              (clicked)="goToPage(currentPage() - 1)">
+              <i class="fas fa-chevron-left"></i> Anterior
+            </app-button>
+            <div class="pag-info">
+              Página <strong>{{ currentPage() + 1 }}</strong> de {{ totalPages() }}
+            </div>
+            <app-button variant="secondary" size="medium" [disabled]="currentPage() >= totalPages() - 1"
+              (clicked)="goToPage(currentPage() + 1)">
+              Siguiente <i class="fas fa-chevron-right"></i>
+            </app-button>
+          </div>
+        }
+      }
+      }
+    </section>
+  </div>
+</div>

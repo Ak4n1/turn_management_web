@@ -7,6 +7,17 @@
         <p class="management-subtitle">Gestiona tus turnos y citas</p>
       </div>
 
+      <!-- Orden por fecha -->
+      <div class="filter-card">
+        <app-label>ORDENAR POR FECHA</app-label>
+        <div class="sort-order-select">
+          <select class="styled-select" [ngModel]="sortOrder" (ngModelChange)="setSortOrder($event)">
+            <option value="asc">Más viejos primero (fecha ascendente)</option>
+            <option value="desc">Más recientes primero (fecha descendente)</option>
+          </select>
+        </div>
+      </div>
+
       <!-- Filtro de Fecha -->
       <div class="filter-card">
         <app-label>RANGO DE FECHA</app-label>
@@ -21,6 +32,20 @@
             <input type="date" class="styled-date-input" [ngModel]="dateTo"
               (ngModelChange)="dateTo = $event; onDateFilterChange()" [min]="dateFrom" />
           </div>
+        </div>
+      </div>
+
+      <!-- Fecha concreta y Hoy -->
+      <div class="filter-card">
+        <app-label>VER UN DÍA</app-label>
+        <div class="date-inputs date-single-row">
+          <div class="date-group flex-1">
+            <input type="date" class="styled-date-input" [ngModel]="singleDate"
+              (ngModelChange)="onSingleDateChange($event)" aria-label="Fecha" />
+          </div>
+          <app-button variant="secondary" size="small" (clicked)="setTodayAndLoad()" class="btn-today">
+            <i class="fas fa-calendar-day"></i> Hoy
+          </app-button>
         </div>
       </div>
 
@@ -46,7 +71,7 @@
         <app-label>ESTADO DEL TURNO</app-label>
         <div class="state-filters">
           @for (state of stateOptions; track state) {
-          <label class="state-filter-item">
+          <label class="state-filter-item" [attr.title]="state === 'RESCHEDULED' ? 'Turno anterior que fue reprogramado (el nuevo aparece como Confirmado)' : null">
             <div class="state-identifier">
               <div class="state-dot" [class]="getStateDotClass(state)"></div>
               <span class="state-name">{{ getStateLabel(state) }}</span>
@@ -90,7 +115,8 @@
         } @else {
         <div class="appointments-grid">
           @for (appointment of appointments; track appointment.id) {
-          <div class="modern-appointment-card" [class]="appointment.state.toLowerCase()">
+          <div class="modern-appointment-card" [class]="appointment.state.toLowerCase()"
+            [class.appointment-past]="isPastDate(appointment)">
             <div class="card-main">
               <div class="card-user-info">
                 <div class="user-avatar-placeholder">

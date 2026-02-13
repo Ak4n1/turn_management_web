@@ -1,11 +1,14 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ModalComponent } from '../../../../../shared/molecules/modal/modal.component';
 import { AvailabilityService } from '../../services/availability.service';
 import { AppointmentService } from '../../../../appointments/user/services/appointment.service';
+import { AuthService } from '../../../../../core/services/auth.service';
 import { SlotResponse, AvailabilityResponse } from '../../models/availability-range-response.model';
 import { AppointmentResponse } from '../../../../appointments/user/models/appointment-response.model';
+import { UserResponse } from '../../../../auth/models/user-response.model';
 import { SpinnerComponent } from '../../../../../shared/atoms/spinner/spinner.component';
 import { ErrorTextComponent } from '../../../../../shared/atoms/error-text/error-text.component';
 
@@ -24,6 +27,8 @@ export class SlotsModalComponent implements OnInit, OnChanges {
 
   private availabilityService = inject(AvailabilityService);
   private appointmentService = inject(AppointmentService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
   slots: SlotResponse[] = [];
   availability: AvailabilityResponse | null = null;
@@ -36,6 +41,8 @@ export class SlotsModalComponent implements OnInit, OnChanges {
   isConfirmingAppointment = false;
   error: string | null = null;
   validationError: string | null = null;
+  /** True cuando la validación falla por perfil incompleto (mostrar enlace a Mi Cuenta). */
+  profileIncomplete = false;
   notes: string = '';
 
   ngOnInit(): void {
@@ -52,6 +59,7 @@ export class SlotsModalComponent implements OnInit, OnChanges {
 
   private validateAndLoadData(): void {
     this.validationError = null;
+    this.profileIncomplete = false;
     this.error = null;
     this.selectedSlot = null;
     this.notes = '';
@@ -75,8 +83,40 @@ export class SlotsModalComponent implements OnInit, OnChanges {
       return;
     }
 
-    // Cargar disponibilidad y slots
-    this.loadAvailabilityAndSlots();
+    // Validar perfil completo antes de permitir pedir turno (teléfono, dirección, fecha de nacimiento)
+    this.authService.getProfile().subscribe({
+      next: (profile) => {
+        if (!this.isProfileComplete(profile)) {
+          this.profileIncomplete = true;
+          this.validationError =
+            'Para pedir un turno debes completar tu información personal: teléfono, calle, número, piso, ciudad, código postal y fecha de nacimiento.';
+          return;
+        }
+        this.loadAvailabilityAndSlots();
+      },
+      error: () => {
+        this.validationError = 'No se pudo verificar tu perfil. Intenta de nuevo.';
+      }
+    });
+  }
+
+  /** Perfil completo = teléfono, calle, número, piso, ciudad, código postal y fecha de nacimiento (Mi Cuenta → Información personal). */
+  private isProfileComplete(user: UserResponse): boolean {
+    const s = (v: string | undefined) => (v ?? '').trim();
+    return (
+      s(user.phone).length > 0 &&
+      s(user.street).length > 0 &&
+      s(user.streetNumber).length > 0 &&
+      s(user.floorApt).length > 0 &&
+      s(user.city).length > 0 &&
+      s(user.postalCode).length > 0 &&
+      s(user.birthDate ?? '').length > 0
+    );
+  }
+
+  goToAccount(): void {
+    this.onClose();
+    this.router.navigate(['/dashboard/account']);
   }
 
   private loadAvailabilityAndSlots(): void {
@@ -236,6 +276,7 @@ export class SlotsModalComponent implements OnInit, OnChanges {
     this.notes = '';
     this.error = null;
     this.validationError = null;
+    this.profileIncomplete = false;
     this.slots = [];
     this.availability = null;
     this.currentStep = 'select-slot';

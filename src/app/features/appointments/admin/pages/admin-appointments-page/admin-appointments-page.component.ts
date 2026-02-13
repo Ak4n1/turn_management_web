@@ -1,9 +1,10 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { AdminAppointmentService } from '../../services/admin-appointment.service';
 import { AdminAppointmentResponse, AppointmentState } from '../../models/admin-appointment-response.model';
+import { AdminRescheduleRequestResponse } from '../../models/admin-reschedule-request.model';
 import { SpinnerComponent } from '../../../../../shared/atoms/spinner/spinner.component';
 import { ErrorTextComponent } from '../../../../../shared/atoms/error-text/error-text.component';
 import { ButtonComponent } from '../../../../../shared/atoms/button/button.component';
@@ -40,6 +41,7 @@ import { CancelModalComponent } from '../../components/cancel-modal/cancel-modal
 })
 export class AdminAppointmentsPageComponent implements OnInit {
   private appointmentService = inject(AdminAppointmentService);
+  private route = inject(ActivatedRoute);
 
   appointments: AdminAppointmentResponse[] = [];
   isLoading = false;
@@ -48,8 +50,12 @@ export class AdminAppointmentsPageComponent implements OnInit {
   // Filtros
   activeFilter: 'ALL' | AppointmentState = 'ALL';
   searchTerm: string = '';
+  /** Filtro por userId (desde query param ?userId=X, ej. desde Gestión de Usuarios). */
+  filterUserId: number | null = null;
   dateFrom: string = '';
   dateTo: string = '';
+  /** Fecha única para "Ver un día"; al elegir o Hoy se usa como dateFrom y dateTo. */
+  singleDate: string = '';
   selectedDaysOfWeek: Set<number> = new Set(); // 1=Lunes, 2=Martes, ..., 7=Domingo
 
   // Paginación
@@ -64,6 +70,18 @@ export class AdminAppointmentsPageComponent implements OnInit {
   isRescheduleModalOpen = false;
   isCancelModalOpen = false;
 
+  // Vista: turnos vs reprogramaciones solicitadas
+  viewMode: 'appointments' | 'reschedule-requests' = 'appointments';
+  rescheduleRequests: AdminRescheduleRequestResponse[] = [];
+  rescheduleRequestsLoading = false;
+  rescheduleRequestsError: string | null = null;
+  rescheduleRequestsPage = 0;
+  rescheduleRequestsTotal = 0;
+  rescheduleRequestsTotalPages = 0;
+  rescheduleRequestActionLoading: number | null = null; // id de la solicitud en proceso
+  selectedRescheduleRequestToReject: AdminRescheduleRequestResponse | null = null;
+  rejectReason = '';
+
   // Opciones de estado para el filtro (solo los que usamos en gestión)
   readonly stateOptions: AppointmentState[] = [
     'CONFIRMED',   // Confirmado
@@ -75,7 +93,109 @@ export class AdminAppointmentsPageComponent implements OnInit {
   ];
 
   ngOnInit(): void {
-    this.loadAppointments();
+    this.route.queryParams.subscribe(params => {
+      const userId = params['userId'];
+      this.filterUserId = userId ? +userId : null;
+      this.loadAppointments();
+    });
+    this.loadRescheduleRequestsCount();
+  }
+
+  /** Carga solo el total de solicitudes pendientes (para el badge en la pestaña). */
+  loadRescheduleRequestsCount(): void {
+    this.appointmentService.getRescheduleRequests({
+      status: 'PENDING_ADMIN_APPROVAL',
+      page: 0,
+      size: 1
+    }).subscribe({
+      next: (res) => {
+        this.rescheduleRequestsTotal = res.total;
+      },
+      error: () => {}
+    });
+  }
+
+  setViewMode(mode: 'appointments' | 'reschedule-requests'): void {
+    this.viewMode = mode;
+    if (mode === 'reschedule-requests') {
+      this.loadRescheduleRequests();
+    }
+  }
+
+  loadRescheduleRequests(): void {
+    this.rescheduleRequestsLoading = true;
+    this.rescheduleRequestsError = null;
+    this.appointmentService.getRescheduleRequests({
+      status: 'PENDING_ADMIN_APPROVAL',
+      page: this.rescheduleRequestsPage,
+      size: this.pageSize
+    }).subscribe({
+      next: (res) => {
+        this.rescheduleRequests = res.requests;
+        this.rescheduleRequestsTotal = res.total;
+        this.rescheduleRequestsTotalPages = res.totalPages;
+        this.rescheduleRequestsLoading = false;
+      },
+      error: (err) => {
+        this.rescheduleRequestsError = err.message || 'Error al cargar solicitudes';
+        this.rescheduleRequestsLoading = false;
+      }
+    });
+  }
+
+  /** Llamar después de aprobar/rechazar para actualizar el badge en la otra pestaña. */
+  refreshRescheduleCount(): void {
+    this.loadRescheduleRequestsCount();
+  }
+
+  onApproveRescheduleRequest(req: AdminRescheduleRequestResponse): void {
+    this.rescheduleRequestActionLoading = req.id;
+    this.appointmentService.approveRescheduleRequest(req.id).subscribe({
+      next: () => {
+        this.rescheduleRequestActionLoading = null;
+        this.loadRescheduleRequests();
+        this.refreshRescheduleCount();
+      },
+      error: (err) => {
+        this.rescheduleRequestActionLoading = null;
+        this.rescheduleRequestsError = err.message || 'Error al aprobar';
+      }
+    });
+  }
+
+  openRejectRescheduleModal(req: AdminRescheduleRequestResponse): void {
+    this.selectedRescheduleRequestToReject = req;
+    this.rejectReason = '';
+  }
+
+  closeRejectRescheduleModal(): void {
+    this.selectedRescheduleRequestToReject = null;
+    this.rejectReason = '';
+  }
+
+  onRejectRescheduleRequest(): void {
+    const req = this.selectedRescheduleRequestToReject;
+    if (!req) return;
+    this.rescheduleRequestActionLoading = req.id;
+    this.appointmentService.rejectRescheduleRequest(req.id, this.rejectReason).subscribe({
+      next: () => {
+        this.rescheduleRequestActionLoading = null;
+        this.closeRejectRescheduleModal();
+        this.loadRescheduleRequests();
+        this.refreshRescheduleCount();
+      },
+      error: (err) => {
+        this.rescheduleRequestActionLoading = null;
+        this.rescheduleRequestsError = err.message || 'Error al rechazar';
+      }
+    });
+  }
+
+  getRescheduleRequestUserName(req: AdminRescheduleRequestResponse): string {
+    if (req.userFirstName && req.userLastName) {
+      return `${req.userFirstName} ${req.userLastName}`;
+    }
+    return req.userEmail;
   }
 
   private loadAppointments(): void {
@@ -93,6 +213,10 @@ export class AdminAppointmentsPageComponent implements OnInit {
 
     if (this.searchTerm.trim()) {
       params.search = this.searchTerm.trim();
+    }
+
+    if (this.filterUserId != null) {
+      params.userId = this.filterUserId;
     }
 
     if (this.dateFrom) {
@@ -147,11 +271,40 @@ export class AdminAppointmentsPageComponent implements OnInit {
     this.loadAppointments();
   }
 
+  /** Buscar por un día concreto; actualiza rango y recarga. */
+  onSingleDateChange(value: string): void {
+    this.singleDate = value || '';
+    if (this.singleDate) {
+      this.dateFrom = this.singleDate;
+      this.dateTo = this.singleDate;
+      this.currentPage = 0;
+      this.loadAppointments();
+    }
+  }
+
+  /** Filtra por el día actual y recarga. */
+  setTodayAndLoad(): void {
+    this.singleDate = this.getTodayIso();
+    this.dateFrom = this.singleDate;
+    this.dateTo = this.singleDate;
+    this.currentPage = 0;
+    this.loadAppointments();
+  }
+
+  private getTodayIso(): string {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
   clearFilters(): void {
     this.activeFilter = 'ALL';
     this.searchTerm = '';
     this.dateFrom = '';
     this.dateTo = '';
+    this.singleDate = '';
     this.selectedDaysOfWeek.clear();
     this.currentPage = 0;
     this.loadAppointments();
@@ -308,6 +461,22 @@ export class AdminAppointmentsPageComponent implements OnInit {
       return part.slice(0, 2).toUpperCase();
     }
     return part ? part.charAt(0).toUpperCase() : '?';
+  }
+
+  /** True si la fecha (y hora) del turno ya pasó respecto a hoy. Mismo criterio que en Mis turnos. */
+  isPastDate(appointment: AdminAppointmentResponse): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const parts = appointment.date.split('-');
+    if (parts.length !== 3) return false;
+    const appDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    appDate.setHours(0, 0, 0, 0);
+    if (appDate.getTime() < today.getTime()) return true;
+    if (appDate.getTime() > today.getTime()) return false;
+    const [h = 0, m = 0] = (appointment.startTime || '00:00').split(':').map(Number);
+    const appDateTime = new Date(appDate);
+    appDateTime.setHours(h, m, 0, 0);
+    return appDateTime.getTime() <= Date.now();
   }
 
   viewDetails(id: number): void {

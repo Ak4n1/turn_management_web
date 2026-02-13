@@ -19,6 +19,14 @@ export interface AdminAppointmentResponse {
   cancelledAt: string | null;
   cancellationReason: string | null;
   previousAppointmentId: number | null;
+  /** ID del turno siguiente si este turno fue reprogramado (estado RESCHEDULED). */
+  nextAppointmentId?: number | null;
+  /** Fecha del nuevo turno cuando este fue reprogramado (YYYY-MM-DD). */
+  nextAppointmentDate?: string | null;
+  /** Hora de inicio del nuevo turno (HH:mm). */
+  nextAppointmentStartTime?: string | null;
+  /** Hora de fin del nuevo turno (HH:mm). */
+  nextAppointmentEndTime?: string | null;
   calendarConfigVersion: number;
   createdAt: string; // ISO string
   updatedAt: string; // ISO string

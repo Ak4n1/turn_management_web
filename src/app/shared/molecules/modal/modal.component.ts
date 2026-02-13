@@ -13,6 +13,8 @@ export class ModalComponent {
   @Input() title = '';
   @Input() headerClass = '';
   @Input() noBorder = false;
+  /** 'large' = max-width 42rem (guía, documentación) */
+  @Input() size: 'default' | 'large' = 'default';
   @Output() close = new EventEmitter<void>();
 
   onClose(): void {

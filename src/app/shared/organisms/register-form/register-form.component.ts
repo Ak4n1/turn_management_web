@@ -7,6 +7,7 @@ import { PasswordInputComponent } from '../../molecules/password-input/password-
 import { FormRowComponent } from '../../molecules/form-row/form-row.component';
 import { ButtonComponent } from '../../atoms/button/button.component';
 import { AuthService } from '../../../core/services/auth.service';
+import { RegisterRequest } from '../../../features/auth/models/register-request.model';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -37,7 +38,7 @@ export class RegisterFormComponent {
     this.registerForm = this.fb.group({
       email: ['', [Validators.required, Validators.email, Validators.maxLength(100)]],
       password: ['', [
-        Validators.required, 
+        Validators.required,
         Validators.minLength(8),
         this.passwordStrengthValidator
       ]],
@@ -195,7 +196,7 @@ export class RegisterFormComponent {
     this.registerForm.disable();
 
     const formValue = this.registerForm.value;
-    const registerRequest = {
+    const registerRequest: RegisterRequest = {
       email: formValue.email,
       password: formValue.password,
       firstName: formValue.firstName,

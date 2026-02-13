@@ -1,0 +1,336 @@
+<div class="user-management-container">
+  <div class="management-main">
+    <!-- Sidebar -->
+    <aside class="management-sidebar">
+      <div class="sidebar-header">
+        <h1 class="management-title">Gestión de Usuarios</h1>
+        <p class="management-subtitle">Administra los usuarios del sistema</p>
+      </div>
+
+      <div class="filter-card">
+        <app-label for="search">BUSCAR</app-label>
+        <div class="search-box">
+          <i class="fas fa-search search-icon"></i>
+          <input class="search-input" id="search" placeholder="Email, nombre, apellido..." type="text"
+            [ngModel]="searchTerm" (ngModelChange)="searchTerm = $event" (keyup.enter)="onSearch()" />
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <app-label>FECHA DE CREACIÓN</app-label>
+        <div class="date-inputs">
+          <div class="date-group">
+            <span class="date-label">Desde</span>
+            <input type="date" class="styled-date-input" [ngModel]="createdFrom"
+              (ngModelChange)="createdFrom = $event; onFilterChange()" />
+          </div>
+          <div class="date-group">
+            <span class="date-label">Hasta</span>
+            <input type="date" class="styled-date-input" [ngModel]="createdTo"
+              (ngModelChange)="createdTo = $event; onFilterChange()" [min]="createdFrom" />
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <app-label>VERIFICADO</app-label>
+        <div class="chip-group">
+          <button type="button" class="day-chip" [class.active]="emailVerifiedFilter === ''"
+            (click)="emailVerifiedFilter = ''; onFilterChange()">Todos</button>
+          <button type="button" class="day-chip" [class.active]="emailVerifiedFilter === true"
+            (click)="emailVerifiedFilter = true; onFilterChange()">Sí</button>
+          <button type="button" class="day-chip" [class.active]="emailVerifiedFilter === false"
+            (click)="emailVerifiedFilter = false; onFilterChange()">No</button>
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <app-label>PERFIL COMPLETO</app-label>
+        <div class="chip-group">
+          <button type="button" class="day-chip" [class.active]="profileCompleteFilter === ''"
+            (click)="profileCompleteFilter = ''; onFilterChange()">Todos</button>
+          <button type="button" class="day-chip" [class.active]="profileCompleteFilter === true"
+            (click)="profileCompleteFilter = true; onFilterChange()">Sí</button>
+          <button type="button" class="day-chip" [class.active]="profileCompleteFilter === false"
+            (click)="profileCompleteFilter = false; onFilterChange()">No</button>
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <app-label>ROL</app-label>
+        <select class="styled-select" [ngModel]="roleFilter" (ngModelChange)="roleFilter = $event; onFilterChange()">
+          @for (opt of roleOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filter-card">
+        <app-label>ESTADO</app-label>
+        <div class="chip-group">
+          <button type="button" class="day-chip" [class.active]="enabledFilter === ''"
+            (click)="enabledFilter = ''; onFilterChange()">Todos</button>
+          <button type="button" class="day-chip" [class.active]="enabledFilter === true"
+            (click)="enabledFilter = true; onFilterChange()">Activo</button>
+          <button type="button" class="day-chip" [class.active]="enabledFilter === false"
+            (click)="enabledFilter = false; onFilterChange()">Deshabilitado</button>
+        </div>
+      </div>
+
+      <div class="filter-card border-none">
+        <app-button variant="secondary" size="small" (clicked)="clearFilters()" class="w-full">
+          <i class="fas fa-undo"></i> Limpiar Filtros
+        </app-button>
+      </div>
+    </aside>
+
+    <!-- Users Area -->
+    <section class="users-area">
+      <div class="area-header">
+        <span class="result-badge">{{ totalElements }} usuarios</span>
+        <span class="result-badge online-badge" title="Usuarios conectados vía WebSocket">
+          <i class="fas fa-circle online-dot"></i> {{ onlineUsersCount }} en línea
+        </span>
+      </div>
+
+      <div class="users-content">
+        @if (isLoading) {
+        <div class="loading-container">
+          <app-spinner></app-spinner>
+          <p>Cargando usuarios...</p>
+        </div>
+        } @else if (error) {
+        <div class="error-container">
+          <app-error-text [message]="error"></app-error-text>
+        </div>
+        } @else if (users.length === 0) {
+        <div class="empty-container">
+          <i class="fas fa-users empty-icon"></i>
+          <p>No se encontraron usuarios para los criterios seleccionados.</p>
+        </div>
+        } @else {
+        <div class="users-grid">
+          @for (user of users; track user.id) {
+          <div class="user-card" [class.disabled]="!user.enabled">
+            <div class="card-main">
+              <div class="card-user-info">
+                <div class="user-avatar-placeholder user-initials">
+                  <span class="user-initials-text">{{ getInitials(user) }}</span>
+                </div>
+                <div class="user-text">
+                  <div class="user-name-row">
+                    <h3 class="user-name">{{ user.firstName }} {{ user.lastName }}</h3>
+                    <div class="card-badges">
+                      <span class="footer-badge" [class.badge-success]="user.emailVerified" [class.badge-warning]="!user.emailVerified">
+                        <i class="fas" [class.fa-check-circle]="user.emailVerified" [class.fa-times-circle]="!user.emailVerified"></i>
+                        {{ user.emailVerified ? 'Verificado' : 'No verificado' }}
+                      </span>
+                      <span class="footer-badge" [class.badge-success]="user.profileComplete" [class.badge-secondary]="!user.profileComplete">
+                        {{ user.profileComplete ? 'Perfil completo' : 'Perfil incompleto' }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="user-info-row">
+                    <div class="user-contact">
+                      <p class="user-email">{{ user.email }}</p>
+                      @if (getAge(user.birthDate) !== null) {
+                      <p class="user-age"><i class="fas fa-birthday-cake"></i> {{ getAge(user.birthDate) }} años</p>
+                      }
+                    </div>
+                    @if (isUserOnline(user.email) || user.roles.includes('ROLE_ADMIN')) {
+                    <div class="status-badges">
+                      @if (isUserOnline(user.email)) {
+                      <span class="footer-badge badge-online" title="Conectado ahora">
+                        <i class="fas fa-circle online-dot"></i> En línea
+                      </span>
+                      }
+                      @if (user.roles.includes('ROLE_ADMIN')) {
+                      <span class="footer-badge badge-admin" title="Administrador">
+                        <i class="fas fa-user-shield"></i> Admin
+                      </span>
+                      }
+                    </div>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-meta">
+                <span class="info-tag"><i class="fas fa-calendar-plus"></i> Cuenta creada: {{ formatDate(user.createdAt) }}</span>
+              </div>
+            </div>
+
+            <div class="card-footer">
+              <div class="card-actions">
+                @if (!user.emailVerified) {
+                <button class="action-btn" (click)="openConfirmModal('resend-verify', user)" title="Reenviar verificación">
+                  <i class="fas fa-envelope"></i>
+                </button>
+                }
+                <button class="action-btn" (click)="openConfirmModal('reset-password', user)" title="Reenviar contraseña">
+                  <i class="fas fa-key"></i>
+                </button>
+                @if (!user.roles.includes('ROLE_ADMIN')) {
+                <button class="action-btn" (click)="openConfirmModal('role', user, 'ROLE_ADMIN')" title="Hacer administrador">
+                  <i class="fas fa-user-shield"></i>
+                </button>
+                } @else {
+                <button class="action-btn" (click)="openConfirmModal('role', user, 'ROLE_USER')" title="Quitar admin">
+                  <i class="fas fa-user"></i>
+                </button>
+                }
+                @if (user.enabled) {
+                <button class="action-btn" (click)="openConfirmModal('enabled', user, undefined, false)" title="Deshabilitar usuario">
+                  <i class="fas fa-user-slash"></i>
+                </button>
+                } @else {
+                <button class="action-btn" (click)="openConfirmModal('enabled', user, undefined, true)" title="Habilitar usuario">
+                  <i class="fas fa-user-check"></i>
+                </button>
+                }
+                <button class="action-btn" (click)="goToUserAppointments(user.id)" title="Historial de turnos">
+                  <i class="fas fa-calendar-check"></i>
+                </button>
+                <button class="action-btn primary" (click)="openDetail(user)" title="Ver más">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          }
+        </div>
+
+        @if (totalPages > 1) {
+        <div class="modern-pagination">
+          <app-button variant="secondary" size="medium" [disabled]="currentPage === 0"
+            (clicked)="goToPage(currentPage - 1)">
+            <i class="fas fa-chevron-left"></i> Anterior
+          </app-button>
+          <div class="pag-info">
+            Página <strong>{{ currentPage + 1 }}</strong> de {{ totalPages }}
+          </div>
+          <app-button variant="secondary" size="medium" [disabled]="currentPage >= totalPages - 1"
+            (clicked)="goToPage(currentPage + 1)">
+            Siguiente <i class="fas fa-chevron-right"></i>
+          </app-button>
+        </div>
+        }
+        }
+      </div>
+    </section>
+  </div>
+
+  <!-- Modal detalle -->
+  <app-modal
+    [isOpen]="isDetailModalOpen && !!selectedUser"
+    [title]="selectedUser ? (selectedUser.firstName + ' ' + selectedUser.lastName).trim() || selectedUser.email : ''"
+    headerClass="modal-header-info"
+    [noBorder]="true"
+    (close)="closeDetail()">
+    @if (selectedUser) {
+    <div class="user-detail-body">
+      <div class="user-detail-email-block">
+        <div class="user-detail-email-icon">
+          <i class="fas fa-envelope"></i>
+        </div>
+        <div>
+          <p class="user-detail-field-label">Correo Electrónico</p>
+          <p class="user-detail-field-value">{{ selectedUser.email }}</p>
+        </div>
+      </div>
+
+      <div class="user-detail-section">
+        <h3 class="user-detail-section-title">Información General</h3>
+        <div class="user-detail-grid">
+          <div class="user-detail-field">
+            <span class="user-detail-field-label">Teléfono</span>
+            <span class="user-detail-field-value">{{ selectedUser.phone || '-' }}</span>
+          </div>
+          <div class="user-detail-field">
+            <span class="user-detail-field-label">Dirección</span>
+            <span class="user-detail-field-value">
+              @if (selectedUser.street) {
+              {{ selectedUser.street }}{{ selectedUser.streetNumber ? ' ' + selectedUser.streetNumber : '' }}{{ selectedUser.floorApt ? ', ' + selectedUser.floorApt : '' }}{{ selectedUser.city ? ', ' + selectedUser.city : '' }}{{ selectedUser.postalCode ? ' ' + selectedUser.postalCode : '' }}
+              } @else {
+              -
+              }
+            </span>
+          </div>
+          <div class="user-detail-field">
+            <span class="user-detail-field-label">Fecha de nacimiento</span>
+            <span class="user-detail-field-value">{{ selectedUser.birthDate ? formatDate(selectedUser.birthDate) : '-' }}</span>
+          </div>
+          @if (getAge(selectedUser.birthDate) !== null) {
+          <div class="user-detail-field">
+            <span class="user-detail-field-label">Edad</span>
+            <span class="user-detail-field-value">{{ getAge(selectedUser.birthDate) }} años</span>
+          </div>
+          }
+          <div class="user-detail-field">
+            <span class="user-detail-field-label">Rol</span>
+            <span class="user-detail-field-value">{{ getRoleLabel(selectedUser.roles) }}</span>
+          </div>
+          <div class="user-detail-field">
+            <span class="user-detail-field-label">Verificado</span>
+            <span class="user-detail-badge" [class.badge-verified]="selectedUser.emailVerified" [class.badge-unverified]="!selectedUser.emailVerified">
+              {{ selectedUser.emailVerified ? 'Verificado' : 'No verificado' }}
+            </span>
+          </div>
+          <div class="user-detail-field">
+            <span class="user-detail-field-label">Perfil completo</span>
+            <span class="user-detail-badge" [class.badge-complete]="selectedUser.profileComplete" [class.badge-incomplete]="!selectedUser.profileComplete">
+              {{ selectedUser.profileComplete ? 'Completo' : 'Incompleto' }}
+            </span>
+          </div>
+          <div class="user-detail-field">
+            <span class="user-detail-field-label">Estado</span>
+            <span class="user-detail-status">
+              <span class="status-dot" [class.active]="selectedUser.enabled" [class.inactive]="!selectedUser.enabled"></span>
+              {{ selectedUser.enabled ? 'Activo' : 'Deshabilitado' }}
+            </span>
+          </div>
+          <div class="user-detail-field user-detail-field-full">
+            <span class="user-detail-field-label">Fecha creación</span>
+            <span class="user-detail-field-value">{{ formatDate(selectedUser.createdAt) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="user-detail-actions">
+        <app-button variant="secondary" size="medium" (clicked)="goToUserAppointments(selectedUser.id)">
+          <i class="fas fa-calendar-check"></i> Historial turnos
+        </app-button>
+        <app-button variant="secondary" size="medium" (clicked)="closeDetail()">
+          Cerrar
+        </app-button>
+      </div>
+    </div>
+    }
+  </app-modal>
+
+  <!-- Modal confirmación -->
+  <app-modal
+    [isOpen]="confirmModalOpen && !!pendingAction"
+    [title]="getConfirmTitle()"
+    [headerClass]="getConfirmHeaderClass()"
+    [noBorder]="true"
+    (close)="closeConfirmModal()">
+    <p class="confirm-message">{{ getConfirmMessage() }}</p>
+    <div class="confirm-modal-actions">
+      <app-button variant="secondary" size="medium" (clicked)="closeConfirmModal()">
+        Cancelar
+      </app-button>
+      <app-button
+        [variant]="isConfirmActionDanger() ? 'danger' : 'primary'"
+        size="medium"
+        [disabled]="actionLoading !== null"
+        (clicked)="executePendingAction()">
+        @if (actionLoading) {
+        <app-spinner size="small" class="btn-spinner"></app-spinner> Procesando...
+        } @else {
+        Confirmar
+        }
+      </app-button>
+    </div>
+  </app-modal>
+</div>

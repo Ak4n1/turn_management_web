@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import { RegisterRequest } from '../../features/auth/models/register-request.model';
 import { LoginRequest } from '../../features/auth/models/login-request.model';
 import { AuthResponse } from '../../features/auth/models/auth-response.model';
+import { UserResponse } from '../../features/auth/models/user-response.model';
+import { UpdateProfileRequest } from '../../features/auth/models/update-profile-request.model';
 
 @Injectable({
   providedIn: 'root'
@@ -83,6 +85,14 @@ export class AuthService {
       { newPassword },
       this.getHttpOptions()
     );
+  }
+
+  getProfile(): Observable<UserResponse> {
+    return this.http.get<UserResponse>(`${this.apiUrl}/me`, this.getHttpOptions());
+  }
+
+  updateProfile(body: UpdateProfileRequest): Observable<UserResponse> {
+    return this.http.patch<UserResponse>(`${this.apiUrl}/me`, body, this.getHttpOptions());
   }
 }
 

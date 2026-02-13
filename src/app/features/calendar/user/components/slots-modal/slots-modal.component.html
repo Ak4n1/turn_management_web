@@ -5,6 +5,11 @@
     @if (validationError) {
     <div class="error-container">
       <app-error-text [message]="validationError"></app-error-text>
+      @if (profileIncomplete) {
+      <button type="button" class="action-button primary" (click)="goToAccount()">
+        <i class="fas fa-user-edit"></i> Ir a Mi Cuenta
+      </button>
+      }
       <button type="button" class="close-button" (click)="onClose()">
         Cerrar
       </button>

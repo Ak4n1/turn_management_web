@@ -1,0 +1,229 @@
+<div class="user-dashboard">
+  <header class="ud-header">
+    <div class="ud-header-icon"><i class="fas fa-tachometer-alt"></i></div>
+    <div>
+      <h1>Centro de Actividad</h1>
+      <p>Tu situación actual y acciones rápidas</p>
+    </div>
+  </header>
+
+  @if (error()) {
+  <div class="ud-error">
+    <i class="fas fa-exclamation-circle"></i> {{ error() }}
+    <button type="button" (click)="loadData()">Reintentar</button>
+  </div>
+  }
+
+  @if (loading()) {
+  <div class="ud-loading"><i class="fas fa-spinner fa-spin"></i> Cargando...</div>
+  }
+
+  @if (!loading() && !error()) {
+  @if (urgentAlerts().length > 0) {
+  <div class="ud-urgent">
+    @for (u of urgentAlerts(); track u.title) {
+    <div class="ud-urgent-item" [class.expire]="u.type === 'expire'">
+      <i class="fas fa-exclamation-triangle"></i>
+      <div>
+        <strong>{{ u.title }}</strong> – {{ u.message }}
+      </div>
+    </div>
+    }
+  </div>
+  }
+
+  <div class="ud-main-grid">
+    <main class="ud-main">
+      <div class="ud-hero-wrapper">
+        @if (confirmedAppointments().length > 1) {
+        <button type="button" class="ud-hero-arrow ud-hero-arrow-left" (click)="prevHero()" aria-label="Turno anterior">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        }
+        <section class="ud-hero" [class.empty]="!nextAppointment()">
+          @if (nextAppointment()) {
+          <div class="ud-hero-content">
+            <div class="ud-hero-main">
+              <span class="ud-label">Próximo turno confirmado</span>
+              <h2>{{ formatDate(nextAppointment()!.date) }}</h2>
+              <p class="ud-hero-time"><i class="fas fa-clock"></i> {{ formatTime(nextAppointment()!.startTime) }} – {{
+                formatTime(nextAppointment()!.endTime) }}</p>
+              <div class="ud-hero-badges">
+                <span class="ud-state state-confirmed">{{ getStateLabel(nextAppointment()!.state) }}</span>
+                @if (countdown()) {
+                <span class="ud-countdown">
+                  <span class="ud-countdown-ping"></span>
+                  {{ countdown() }}
+                </span>
+                }
+              </div>
+            </div>
+            <div class="ud-hero-actions">
+              <button type="button" class="btn-sec" (click)="openRescheduleModal(nextAppointment()!)">
+                <i class="fas fa-exchange-alt"></i> Reprogramar
+              </button>
+              <button type="button" class="btn-outline" (click)="openCancelModal(nextAppointment()!)">
+                <i class="fas fa-times"></i> Cancelar
+              </button>
+              <button type="button" class="btn-ghost" (click)="openDetailsModal(nextAppointment()!)">Ver
+                detalles</button>
+            </div>
+          </div>
+          } @else {
+          <div class="ud-hero-empty">
+            <i class="fas fa-calendar-plus"></i>
+            <p>No tenés turnos confirmados</p>
+            <a routerLink="/dashboard/calendar" class="btn-prim">Reservar turno</a>
+          </div>
+          }
+        </section>
+        @if (confirmedAppointments().length > 1) {
+        <button type="button" class="ud-hero-arrow ud-hero-arrow-right" (click)="nextHero()"
+          aria-label="Siguiente turno">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+        }
+      </div>
+
+      @if (weekSummary().total > 0) {
+      <section class="ud-week-summary">
+        <h3><i class="fas fa-calendar-week"></i> Esta semana</h3>
+        <div class="ud-week-stats">
+          <span><strong>{{ weekSummary().total }}</strong> turnos</span>
+          <span><strong>{{ weekSummary().confirmed }}</strong> confirmados</span>
+          <span><strong>{{ weekSummary().pending }}</strong> pendientes</span>
+          <span><strong>{{ weekSummary().cancelled }}</strong> cancelados</span>
+        </div>
+      </section>
+      }
+
+      <section class="ud-card">
+        <h3 class="ud-section-title"><i class="fas fa-stream"></i> Actividad reciente</h3>
+        @if (recentActivity().length === 0) {
+        <p class="ud-empty">Sin actividad</p>
+        } @else {
+        <div class="ud-activity">
+          @for (n of recentActivity(); track n.id) {
+          <div class="ud-feed-item" [class.tf-muted]="getActivityIconClass(n.type) === 'icon-slate'">
+            <i [class]="getActivityIcon(n.type) + ' tf-timeline-icon'"></i>
+            <div>
+              <p>{{ n.title }}</p>
+              <span>{{ formatNotificationDate(n.createdAt) }}</span>
+            </div>
+          </div>
+          }
+        </div>
+        }
+        <a routerLink="/dashboard/notifications">Ver todas</a>
+      </section>
+
+      <section class="ud-chart-card">
+        <h3><i class="fas fa-chart-bar"></i> Turnos por mes</h3>
+        <div class="ud-chart-container">
+          @if (barChartData().datasets[0]?.data?.length) {
+          <canvas baseChart [data]="barChartData()" [options]="barChartOptions" type="bar"></canvas>
+          } @else {
+          <p class="ud-empty">Sin datos</p>
+          }
+        </div>
+      </section>
+    </main>
+
+    <aside class="ud-sidebar">
+      <section class="ud-sidebar-card">
+        <h4><i class="fas fa-chart-pie"></i> Estado de agenda</h4>
+        <div class="ud-state-card">
+          <div class="tf-state-left">
+            <div class="tf-icon-wrap tf-blue"><i class="fas fa-check-circle"></i></div>
+            <div>
+              <p class="tf-label">Activos</p>
+              <p class="tf-sublabel">Confirmados</p>
+            </div>
+          </div>
+          <span class="tf-value">{{ activeCount() }}</span>
+        </div>
+        <div class="ud-state-card">
+          <div class="tf-state-left">
+            <div class="tf-icon-wrap tf-amber"><i class="fas fa-clock"></i></div>
+            <div>
+              <p class="tf-label">Pendientes</p>
+              <p class="tf-sublabel">Por confirmar</p>
+            </div>
+          </div>
+          <span class="tf-value">{{ pendingCount() }}</span>
+        </div>
+        <div class="ud-state-card">
+          <div class="tf-state-left">
+            <div class="tf-icon-wrap tf-rose"><i class="fas fa-times-circle"></i></div>
+            <div>
+              <p class="tf-label">Cancelaciones</p>
+              <p class="tf-sublabel">Este mes</p>
+            </div>
+          </div>
+          <span class="tf-value">{{ cancelledThisMonth() }}</span>
+        </div>
+
+
+        <a routerLink="/dashboard/appointments/my-appointments" class="ud-card-link" style="text-align: c
+        center;">Mis turnos</a>
+      </section>
+
+      <section class="ud-sidebar-card">
+        <h4><i class="fas fa-calendar-check"></i> Próximos horarios</h4>
+        @if (upcomingSlots().length === 0) {
+        <p class="ud-empty">Sin disponibilidad</p>
+        } @else {
+        @for (day of upcomingSlots(); track day.date) {
+        <div class="ud-slot">
+          <span>{{ formatDate(day.date) }}</span>
+          <span class="ud-slot-badge">{{ day.availableSlots }} slots</span>
+        </div>
+        }
+        <a routerLink="/dashboard/calendar" class="btn-reserve"><i class="fas fa-plus"></i> Reservar turno</a>
+        }
+      </section>
+
+      <section class="ud-sidebar-card">
+        <h4><i class="fas fa-bell"></i> Alertas</h4>
+        @if (alerts().length === 0) {
+        <p class="ud-empty">Todo al día</p>
+        } @else {
+        @for (a of alerts(); track a.id) {
+        <div class="ud-alert"><i class="fas fa-exclamation-circle"></i> {{ a.title }}</div>
+        }
+        <a routerLink="/dashboard/notifications">Ver notificaciones</a>
+        }
+      </section>
+
+      @if (heatmapData().length > 0) {
+      <section class="ud-sidebar-card ud-mini-cal">
+        <h4><i class="fas fa-calendar-alt"></i> Tu actividad</h4>
+        <div class="ud-heatmap">
+          @for (item of heatmapData(); track item.date) {
+          <div class="ud-heat-cell" [style.background-color]="getHeatmapColor(item.state)"
+            [title]="item.date + ': ' + item.state"></div>
+          }
+        </div>
+        <div class="ud-heatmap-legend">
+          <span><i class="leg completed"></i> Completado</span>
+          <span><i class="leg cancelled"></i> Cancelado</span>
+        </div>
+      </section>
+      }
+    </aside>
+  </div>
+  }
+
+  <app-cancel-appointment-modal [isOpen]="isCancelModalOpen" [appointment]="appointmentToCancel"
+    [isLoading]="isCancelling" (close)="closeCancelModal()" (confirm)="onCancelConfirm($event)">
+  </app-cancel-appointment-modal>
+
+  <app-reschedule-appointment-modal [isOpen]="isRescheduleModalOpen" [appointment]="appointmentToReschedule"
+    [isLoading]="isRequestingReschedule" (close)="closeRescheduleModal()"
+    (rescheduleRequested)="onRescheduleRequested()">
+  </app-reschedule-appointment-modal>
+
+  <app-appointment-details-modal [isOpen]="isDetailsModalOpen" [appointment]="selectedAppointmentForModal"
+    (close)="closeDetailsModal()">
+  </app-appointment-details-modal>
+</div>

@@ -1,0 +1,297 @@
+<div class="account-settings">
+  <div class="wrapper-account">
+    
+
+  <header class="account-settings-header">
+    <nav class="account-breadcrumb" aria-label="Migas de pan">
+      <span>Configuración</span>
+      <span class="breadcrumb-sep">/</span>
+      <span class="breadcrumb-current">Mi Cuenta</span>
+    </nav>
+    <h1 class="account-settings-title">Ajustes de Cuenta</h1>
+    <p class="account-settings-subtitle">Administra tu información personal y preferencias de la plataforma.</p>
+  </header>
+
+  <div class="account-tabs-wrap">
+    <nav class="account-tabs" role="tablist" aria-label="Secciones de cuenta">
+      <button
+        type="button"
+        class="account-tab"
+        [class.account-tab-active]="isActive('personal')"
+        role="tab"
+        aria-selected="isActive('personal')"
+        (click)="setTab('personal')">
+        Información Personal
+      </button>
+      <button
+        type="button"
+        class="account-tab"
+        [class.account-tab-active]="isActive('security')"
+        role="tab"
+        aria-selected="isActive('security')"
+        (click)="setTab('security')">
+        Seguridad
+      </button>
+      <button
+        type="button"
+        class="account-tab"
+        [class.account-tab-active]="isActive('notifications')"
+        role="tab"
+        aria-selected="isActive('notifications')"
+        (click)="setTab('notifications')">
+        Notificaciones
+      </button>
+    </nav>
+  </div>
+
+  <div class="account-content">
+    @if (activeTab() === 'personal') {
+      <section class="account-card" aria-labelledby="personal-heading">
+        <div class="account-card-head">
+          <span class="account-card-icon" aria-hidden="true"><i class="fas fa-user"></i></span>
+          <h2 id="personal-heading" class="account-card-title">Información Personal</h2>
+        </div>
+        @if (saveError()) {
+          <p class="account-form-error" role="alert">{{ saveError() }}</p>
+        }
+        @if (saveSuccess()) {
+          <p class="account-form-success" role="status">Cambios guardados correctamente.</p>
+        }
+        <form class="account-form" (ngSubmit)="savePersonal()">
+          <div class="account-form-row account-form-row-2">
+            <div class="account-field">
+              <label class="account-label" for="firstName">Nombre</label>
+              <input
+                id="firstName"
+                type="text"
+                class="account-input"
+                [ngModel]="firstName()"
+                (ngModelChange)="firstName.set($event)"
+                name="firstName" />
+            </div>
+            <div class="account-field">
+              <label class="account-label" for="lastName">Apellido</label>
+              <input
+                id="lastName"
+                type="text"
+                class="account-input"
+                [ngModel]="lastName()"
+                (ngModelChange)="lastName.set($event)"
+                name="lastName" />
+            </div>
+          </div>
+          <div class="account-form-row account-form-row-2">
+            <div class="account-field">
+              <label class="account-label" for="email">Email (No editable)</label>
+              <div class="account-input-wrap-readonly">
+                <input
+                  id="email"
+                  type="email"
+                  class="account-input account-input-readonly"
+                  [value]="emailReadonly()"
+                  readonly
+                  name="email" />
+                <span class="account-input-icon" aria-hidden="true"><i class="fas fa-lock"></i></span>
+              </div>
+            </div>
+            <div class="account-field">
+              <label class="account-label" for="phone">Teléfono</label>
+              <input
+                id="phone"
+                type="tel"
+                class="account-input"
+                [class.account-input-error]="phoneError()"
+                [ngModel]="phone()"
+                (ngModelChange)="phone.set($event)"
+                name="phone"
+                placeholder="+54 11 1234-5678"
+                [attr.aria-invalid]="phoneError() ? 'true' : null"
+                [attr.aria-describedby]="phoneError() ? 'phone-error' : null" />
+              @if (phoneError()) {
+                <span id="phone-error" class="account-field-error" role="alert">{{ phoneError() }}</span>
+              }
+            </div>
+          </div>
+          <div class="account-form-row account-form-row-3">
+            <div class="account-field account-field-span-1">
+              <label class="account-label" for="street">Calle</label>
+              <input
+                id="street"
+                type="text"
+                class="account-input"
+                [ngModel]="street()"
+                (ngModelChange)="street.set($event)"
+                name="street"
+                placeholder="Av. Siempre Viva" />
+            </div>
+            <div class="account-field">
+              <label class="account-label" for="streetNumber">Número</label>
+              <input
+                id="streetNumber"
+                type="text"
+                class="account-input"
+                [ngModel]="streetNumber()"
+                (ngModelChange)="streetNumber.set($event)"
+                name="streetNumber"
+                placeholder="742" />
+            </div>
+            <div class="account-field">
+              <label class="account-label" for="floorApt">Piso / Depto</label>
+              <input
+                id="floorApt"
+                type="text"
+                class="account-input"
+                [ngModel]="floorApt()"
+                (ngModelChange)="floorApt.set($event)"
+                name="floorApt"
+                placeholder="2 B" />
+            </div>
+          </div>
+          <div class="account-form-row account-form-row-3">
+            <div class="account-field">
+              <label class="account-label" for="city">Ciudad</label>
+              <input
+                id="city"
+                type="text"
+                class="account-input"
+                [ngModel]="city()"
+                (ngModelChange)="city.set($event)"
+                name="city"
+                placeholder="Madrid" />
+            </div>
+            <div class="account-field">
+              <label class="account-label" for="postalCode">Código Postal</label>
+              <input
+                id="postalCode"
+                type="text"
+                class="account-input"
+                [ngModel]="postalCode()"
+                (ngModelChange)="postalCode.set($event)"
+                name="postalCode"
+                placeholder="28001" />
+            </div>
+            <div class="account-field">
+              <label class="account-label" for="birthDate">Fecha de Nacimiento</label>
+              <input
+                id="birthDate"
+                type="date"
+                class="account-input"
+                [ngModel]="birthDate()"
+                (ngModelChange)="birthDate.set($event)"
+                name="birthDate" />
+            </div>
+          </div>
+          <div class="account-form-actions">
+            <app-button type="submit" variant="primary" size="medium" [loading]="saving()" [disabled]="saving()">
+              Guardar cambios
+            </app-button>
+          </div>
+        </form>
+      </section>
+    }
+
+    @if (activeTab() === 'security') {
+      <section class="account-card" aria-labelledby="security-heading">
+        <div class="account-card-head">
+          <span class="account-card-icon" aria-hidden="true"><i class="fas fa-shield-alt"></i></span>
+          <h2 id="security-heading" class="account-card-title">Seguridad</h2>
+        </div>
+        <p class="account-placeholder">Contenido de Seguridad (cambio de contraseña, etc.) en desarrollo.</p>
+      </section>
+    }
+
+    @if (activeTab() === 'notifications') {
+      <section class="account-card" aria-labelledby="notifications-heading">
+        <div class="account-card-head">
+          <span class="account-card-icon" aria-hidden="true"><i class="fas fa-bell"></i></span>
+          <h2 id="notifications-heading" class="account-card-title">Notificaciones</h2>
+        </div>
+        <p class="account-card-desc">Elige qué notificaciones quieres recibir por email y en la plataforma.</p>
+
+        @if (notifError()) {
+          <p class="account-form-error" role="alert">{{ notifError() }}</p>
+        }
+        @if (notifSuccess()) {
+          <p class="account-form-success" role="status">Preferencias guardadas correctamente.</p>
+        }
+
+        @if (notifLoading()) {
+          <p class="account-placeholder">Cargando preferencias…</p>
+        } @else {
+          <div class="account-notif-form">
+            <div class="account-notif-group">
+              <label class="pref-switch-row">
+                <span class="pref-switch-label">Notificaciones por email</span>
+                <span class="pref-switch-desc">Activar o desactivar todas las notificaciones por correo</span>
+                <span class="pref-switch-wrap">
+                  <input type="checkbox" class="pref-switch-input" [checked]="emailEnabled()"
+                    (change)="emailEnabled.set($any($event.target).checked)" />
+                  <span class="pref-switch-slider"></span>
+                </span>
+              </label>
+            </div>
+            <div class="account-notif-group">
+              <span class="pref-group-title">Eventos de turnos</span>
+              <label class="pref-switch-row">
+                <span class="pref-switch-label">Turno confirmado</span>
+                <span class="pref-switch-desc">Cuando confirmas tu turno</span>
+                <span class="pref-switch-wrap">
+                  <input type="checkbox" class="pref-switch-input" [checked]="appointmentConfirmed()"
+                    (change)="appointmentConfirmed.set($any($event.target).checked)" />
+                  <span class="pref-switch-slider"></span>
+                </span>
+              </label>
+              <label class="pref-switch-row">
+                <span class="pref-switch-label">Turno cancelado</span>
+                <span class="pref-switch-desc">Cuando se cancela un turno</span>
+                <span class="pref-switch-wrap">
+                  <input type="checkbox" class="pref-switch-input" [checked]="appointmentCancelled()"
+                    (change)="appointmentCancelled.set($any($event.target).checked)" />
+                  <span class="pref-switch-slider"></span>
+                </span>
+              </label>
+              <label class="pref-switch-row">
+                <span class="pref-switch-label">Turno reprogramado</span>
+                <span class="pref-switch-desc">Cuando se reprograma un turno</span>
+                <span class="pref-switch-wrap">
+                  <input type="checkbox" class="pref-switch-input" [checked]="appointmentRescheduled()"
+                    (change)="appointmentRescheduled.set($any($event.target).checked)" />
+                  <span class="pref-switch-slider"></span>
+                </span>
+              </label>
+            </div>
+            <div class="account-notif-group">
+              <span class="pref-group-title">Recordatorios</span>
+              <label class="pref-switch-row">
+                <span class="pref-switch-label">Recordatorio antes del turno</span>
+                <span class="pref-switch-desc">Recibir aviso horas antes de tu turno</span>
+                <span class="pref-switch-wrap">
+                  <input type="checkbox" class="pref-switch-input" [checked]="reminderEnabled()"
+                    (change)="reminderEnabled.set($any($event.target).checked)" />
+                  <span class="pref-switch-slider"></span>
+                </span>
+              </label>
+              @if (reminderEnabled()) {
+                <div class="pref-reminder-hours">
+                  <label class="account-label" for="reminderHours">Horas antes del recordatorio (1–168)</label>
+                  <input id="reminderHours" type="number" min="1" max="168" class="account-input account-input-narrow"
+                    [ngModel]="reminderHoursBefore()"
+                    (ngModelChange)="reminderHoursBefore.set($event)"
+                    name="reminderHours" />
+                </div>
+              }
+            </div>
+            <div class="account-form-actions">
+              <app-button type="button" variant="primary" size="medium"
+                [loading]="notifSaving()" [disabled]="notifSaving()"
+                (clicked)="saveNotificationPreferences()">
+                Guardar preferencias
+              </app-button>
+            </div>
+          </div>
+        }
+      </section>
+    }
+  </div>
+  </div>
+</div>

@@ -34,9 +34,12 @@ export class MyAppointmentsPageComponent implements OnInit {
   // Cache para valores formateados (evita recalcular en cada change detection)
   private formattedDatesCache = new Map<string, string>();
   private formattedTimesCache = new Map<string, string>();
-  activeFilter: 'ALL' | 'CONFIRMED' | 'PENDING' | 'CANCELLED' = 'ALL';
+  activeFilter: 'ALL' | 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'RESCHEDULED' = 'ALL';
+  sortOrder: 'asc' | 'desc' = 'asc';
   dateFrom: string = '';
   dateTo: string = '';
+  /** Fecha única para "Ver un día"; al elegir o Hoy se usa como dateFrom y dateTo. */
+  singleDate: string = '';
   selectedDaysOfWeek: Set<number> = new Set(); // 1=Lunes, 2=Martes, ..., 7=Domingo
   isLoading = false;
   error: string | null = null;
@@ -47,9 +50,9 @@ export class MyAppointmentsPageComponent implements OnInit {
   totalElements = 0;
   totalPages = 0;
 
-  // Opciones de estado para el filtro
-  readonly stateOptions: ('CONFIRMED' | 'PENDING' | 'CANCELLED')[] =
-    ['CONFIRMED', 'PENDING', 'CANCELLED'];
+  // Opciones de estado (Cancelados = usuario + admin unificados; Reprogramado = turno anterior)
+  readonly stateOptions: ('CONFIRMED' | 'PENDING' | 'CANCELLED' | 'RESCHEDULED')[] =
+    ['CONFIRMED', 'PENDING', 'CANCELLED', 'RESCHEDULED'];
 
   // Modal de cancelación
   isCancelModalOpen = false;
@@ -80,10 +83,11 @@ export class MyAppointmentsPageComponent implements OnInit {
     if (this.activeFilter === 'CONFIRMED') {
       params.status = 'CONFIRMED';
     } else if (this.activeFilter === 'PENDING') {
-      // PENDING incluye CREATED
       params.status = 'CREATED';
     } else if (this.activeFilter === 'CANCELLED') {
       params.status = 'CANCELLED';
+    } else if (this.activeFilter === 'RESCHEDULED') {
+      params.status = 'RESCHEDULED';
     }
 
     if (this.dateFrom) {
@@ -98,6 +102,8 @@ export class MyAppointmentsPageComponent implements OnInit {
     if (this.selectedDaysOfWeek.size > 0) {
       params.daysOfWeek = Array.from(this.selectedDaysOfWeek).join(',');
     }
+
+    params.sortOrder = this.sortOrder;
 
     this.appointmentService.getMyAppointments(params).subscribe({
       next: (response: MyAppointmentsResponse) => {
@@ -117,7 +123,7 @@ export class MyAppointmentsPageComponent implements OnInit {
     });
   }
 
-  setFilter(filter: 'ALL' | 'CONFIRMED' | 'PENDING' | 'CANCELLED'): void {
+  setFilter(filter: 'ALL' | 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'RESCHEDULED'): void {
     this.activeFilter = filter;
     this.currentPage = 0;
     this.loadAppointments();
@@ -128,10 +134,46 @@ export class MyAppointmentsPageComponent implements OnInit {
     this.loadAppointments();
   }
 
+  /** Buscar por un día concreto; actualiza rango y recarga. */
+  onSingleDateChange(value: string): void {
+    this.singleDate = value || '';
+    if (this.singleDate) {
+      this.dateFrom = this.singleDate;
+      this.dateTo = this.singleDate;
+      this.currentPage = 0;
+      this.loadAppointments();
+    }
+  }
+
+  /** Filtra por el día actual y recarga. */
+  setTodayAndLoad(): void {
+    this.singleDate = this.getTodayIso();
+    this.dateFrom = this.singleDate;
+    this.dateTo = this.singleDate;
+    this.currentPage = 0;
+    this.loadAppointments();
+  }
+
+  private getTodayIso(): string {
+    const d = new Date();
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  setSortOrder(order: 'asc' | 'desc'): void {
+    this.sortOrder = order;
+    this.currentPage = 0;
+    this.loadAppointments();
+  }
+
   clearFilters(): void {
     this.activeFilter = 'ALL';
+    this.sortOrder = 'asc';
     this.dateFrom = '';
     this.dateTo = '';
+    this.singleDate = '';
     this.selectedDaysOfWeek.clear();
     this.currentPage = 0;
     this.loadAppointments();
@@ -178,6 +220,8 @@ export class MyAppointmentsPageComponent implements OnInit {
       case 'CANCELLED':
       case 'CANCELLED_BY_ADMIN':
         return 'badge-secondary';
+      case 'RESCHEDULED':
+        return 'badge-info';
       case 'COMPLETED':
         return 'badge-info';
       case 'EXPIRED':
@@ -196,9 +240,8 @@ export class MyAppointmentsPageComponent implements OnInit {
       case 'PENDING':
         return 'Pendiente';
       case 'CANCELLED':
-        return 'Cancelado';
       case 'CANCELLED_BY_ADMIN':
-        return 'Cancelado por admin';
+        return 'Cancelado';
       case 'COMPLETED':
         return 'Completado';
       case 'EXPIRED':
@@ -212,7 +255,7 @@ export class MyAppointmentsPageComponent implements OnInit {
     }
   }
 
-  getStateDotClass(state: 'CONFIRMED' | 'PENDING' | 'CANCELLED'): string {
+  getStateDotClass(state: 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'RESCHEDULED'): string {
     switch (state) {
       case 'CONFIRMED':
         return 'confirmed';
@@ -220,9 +263,28 @@ export class MyAppointmentsPageComponent implements OnInit {
         return 'pending';
       case 'CANCELLED':
         return 'cancelled';
+      case 'RESCHEDULED':
+        return 'rescheduled';
       default:
         return '';
     }
+  }
+
+  /** True si la fecha (y hora) del turno ya pasó respecto a hoy. */
+  isPastDate(appointment: AppointmentResponse): boolean {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const parts = appointment.date.split('-');
+    if (parts.length !== 3) return false;
+    const appDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+    appDate.setHours(0, 0, 0, 0);
+    if (appDate.getTime() < today.getTime()) return true;
+    if (appDate.getTime() > today.getTime()) return false;
+    // Mismo día: comparar hora
+    const [h = 0, m = 0] = (appointment.startTime || '00:00').split(':').map(Number);
+    const appDateTime = new Date(appDate);
+    appDateTime.setHours(h, m, 0, 0);
+    return appDateTime.getTime() <= Date.now();
   }
 
   private precomputeFormattedValues(appointments: AppointmentResponse[]): void {

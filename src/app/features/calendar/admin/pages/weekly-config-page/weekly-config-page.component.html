@@ -292,7 +292,7 @@
             </div>
           </div>
           <div class="rules-guide-wrap">
-            <button type="button" class="btn-guide">
+            <button type="button" class="btn-guide" (click)="openGuideModal()">
               <i class="fas fa-question-circle"></i>
               Guía Completa de Configuración
             </button>
@@ -307,6 +307,114 @@
       [showCancelButton]="showCancelButton" cancelButtonText="Cancelar" confirmButtonText="Continuar"
       (close)="closeAlertModal()" (confirm)="onAlertConfirm()" (cancel)="closeAlertModal()">
     </app-alert-modal>
+
+    <!-- Modal Guía Completa de Configuración (diseño tipo code.html) -->
+    <app-modal [isOpen]="isGuideModalOpen" title="Guía de Configuración" headerClass="modal-header-info"
+      size="large" (close)="closeGuideModal()">
+      <div class="config-guide-wrap">
+        <div class="config-guide-scroll">
+          <section class="config-guide-section">
+            <h2 class="config-guide-section-title">
+              <i class="fas fa-layer-group config-guide-icon"></i>
+              Prioridad de Reglas
+            </h2>
+            <div class="config-guide-priority-row">
+              <div class="config-guide-priority-item">
+                <span class="config-guide-dot config-guide-dot-block"></span>
+                <span class="config-guide-priority-label">Bloqueo</span>
+              </div>
+              <i class="fas fa-chevron-right config-guide-chevron"></i>
+              <div class="config-guide-priority-item">
+                <span class="config-guide-dot config-guide-dot-exception"></span>
+                <span class="config-guide-priority-label">Excepción</span>
+              </div>
+              <i class="fas fa-chevron-right config-guide-chevron"></i>
+              <div class="config-guide-priority-item">
+                <span class="config-guide-dot config-guide-dot-base"></span>
+                <span class="config-guide-priority-label">Base</span>
+              </div>
+            </div>
+            <p class="config-guide-note">El sistema procesa primero los bloqueos, luego las excepciones de fecha y finalmente el horario base semanal. Para cada día se aplica una sola regla en ese orden.</p>
+          </section>
+
+          <section class="config-guide-section">
+            <h2 class="config-guide-section-title">
+              <i class="fas fa-calendar-week config-guide-icon"></i>
+              Configuración Base (Reglas de Atención)
+            </h2>
+            <ul class="config-guide-list">
+              <li><span class="config-guide-bullet"></span> Define el patrón de trabajo semanal (lunes a domingo). Marca qué días están abiertos; los cerrados no tendrán horarios.</li>
+              <li><span class="config-guide-bullet"></span> En cada día abierto puedes definir uno o varios rangos (ej. 09:00–12:00 y 14:00–18:00). Los rangos no pueden superponerse.</li>
+              <li><span class="config-guide-bullet"></span> Debes guardar la configuración completa (semanal + horarios + duración) de una vez. Si algo falla (ej. duración no válida), no se guarda nada y la versión no cambia.</li>
+            </ul>
+          </section>
+
+          <section class="config-guide-section config-guide-highlight">
+            <h2 class="config-guide-section-title">
+              <i class="fas fa-clock config-guide-icon"></i>
+              Duración de Turnos
+            </h2>
+            <p class="config-guide-text">La duración de cada cita debe estar entre <strong class="config-guide-strong">15 y 240 minutos</strong> (4 horas).</p>
+            <div class="config-guide-info-box">
+              <i class="fas fa-info-circle config-guide-info-icon"></i>
+              <p class="config-guide-info-text">Debe ser múltiplo de 15 (15, 30, 45, 60, 90, 120…) y debe <strong>dividir</strong> cada rango horario sin dejar resto. Ejemplo: rango 09:00–12:00 (180 min) admite 15, 30, 45, 60, 90, 180. No son válidos 25 ni 70.</p>
+            </div>
+          </section>
+
+          <section class="config-guide-section">
+            <h2 class="config-guide-section-title">
+              <i class="fas fa-calendar-alt config-guide-icon"></i>
+              Excepciones
+            </h2>
+            <ul class="config-guide-list">
+              <li><span class="config-guide-bullet"></span> Días concretos con comportamiento distinto (feriados, horario reducido, apertura especial). Prioridad sobre la base, pero <strong>no</strong> sobre bloqueos.</li>
+              <li><span class="config-guide-bullet"></span> Solo una excepción por fecha. No se puede crear una excepción en una fecha que ya tiene bloqueo.</li>
+              <li><span class="config-guide-bullet"></span> Si el día está abierto por la excepción, debe tener al menos un rango horario; si está cerrado, no se definen rangos.</li>
+            </ul>
+          </section>
+
+          <section class="config-guide-section">
+            <h2 class="config-guide-section-title">
+              <i class="fas fa-ban config-guide-icon"></i>
+              Bloqueos Operativos
+            </h2>
+            <ul class="config-guide-list">
+              <li><span class="config-guide-bullet"></span> Prioridad máxima: anulan cualquier disponibilidad en esa fecha o rango. Ni la base ni las excepciones se aplican en las franjas bloqueadas.</li>
+              <li><span class="config-guide-bullet"></span> Uso: mantenimiento, reuniones internas, emergencias, cierre puntual.</li>
+              <li><span class="config-guide-bullet"></span> Pueden ser día completo o un rango horario (un solo rango por bloqueo). Pueden afectar turnos existentes (opción al crear/editar).</li>
+            </ul>
+          </section>
+
+          <section class="config-guide-section">
+            <h2 class="config-guide-section-title">
+              <i class="fas fa-th-list config-guide-icon"></i>
+              Resumen de Reglas
+            </h2>
+            <div class="config-guide-cards">
+              <div class="config-guide-card">
+                <h3 class="config-guide-card-title">Exclusividad</h3>
+                <p class="config-guide-card-text">No pueden existir dos excepciones que se solapen en el mismo día. Bloqueo &gt; Excepción &gt; Base siempre.</p>
+              </div>
+              <div class="config-guide-card">
+                <h3 class="config-guide-card-title">Anulación</h3>
+                <p class="config-guide-card-text">Un bloqueo anula cualquier disponibilidad base o excepción en esa fecha o franja horaria.</p>
+              </div>
+            </div>
+            <ul class="config-guide-list config-guide-list-tight">
+              <li><span class="config-guide-bullet"></span> Duración: 15–240 min, múltiplo de 15, que divida todos los rangos.</li>
+              <li><span class="config-guide-bullet"></span> Solo los días abiertos en la base pueden tener horarios; rangos sin superponerse.</li>
+            </ul>
+          </section>
+        </div>
+        <div class="config-guide-footer">
+          <button type="button" class="config-guide-btn" (click)="closeGuideModal()">Entendido</button>
+        </div>
+      </div>
+    </app-modal>
     }
+
+    <!-- Modal éxito guardar configuración (diseño tipo code.html) -->
+    <app-config-saved-modal [isOpen]="isConfigSavedModalOpen" (close)="closeConfigSavedModal()">
+    </app-config-saved-modal>
   </div>
 </div>

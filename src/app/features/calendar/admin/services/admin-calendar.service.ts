@@ -6,7 +6,8 @@ import {
   WeeklyConfigResponse, 
   WeeklyConfigRequest, 
   DailyHoursRequest, 
-  AppointmentDurationRequest 
+  AppointmentDurationRequest,
+  FullConfigRequest 
 } from '../models/weekly-config-response.model';
 import { ConsolidatedCalendarResponse } from '../models/consolidated-calendar-response.model';
 import { PreviewImpactRequest, PreviewImpactResponse } from '../models/preview-impact.model';
@@ -81,6 +82,20 @@ export class AdminCalendarService {
   setAppointmentDuration(request: AppointmentDurationRequest): Observable<WeeklyConfigResponse> {
     return this.http.post<WeeklyConfigResponse>(
       `${this.apiUrl}/appointment-duration`,
+      request
+    ).pipe(
+      catchError(this.handleError.bind(this))
+    );
+  }
+
+  /**
+   * POST /api/admin/calendar/full-config
+   * Guarda la configuración completa (semanal + horarios + duración) en una sola operación.
+   * Si alguna validación falla, no se guarda nada y la versión no cambia. La versión sube solo +1.
+   */
+  saveFullConfig(request: FullConfigRequest): Observable<WeeklyConfigResponse> {
+    return this.http.post<WeeklyConfigResponse>(
+      `${this.apiUrl}/full-config`,
       request
     ).pipe(
       catchError(this.handleError.bind(this))

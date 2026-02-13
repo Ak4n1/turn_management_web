@@ -25,10 +25,18 @@
 
 .dashboard-layout-content {
   flex: 1;
-  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  padding: 0; /* Sin padding para que el contenido esté pegado a la sidebar */
   overflow-y: auto;
+  overflow-x: hidden;
   background-color: #ffffff !important;
   min-height: 0;
+}
+
+/* router-outlet no crea caja de layout: sus hijos participan como flex del padre */
+.dashboard-layout-content router-outlet {
+  display: contents;
 }
 
 /* Mobile: main a ancho completo; la sidebar sigue en el DOM y se abre con el botón (drawer) */
